@@ -38,6 +38,9 @@
     },
     {
       "path": "./projects/rpm-users/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/rpm-live/tsconfig.app.json"
     }
   ]
 }

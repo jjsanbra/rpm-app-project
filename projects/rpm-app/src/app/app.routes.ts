@@ -38,6 +38,14 @@ export const routes: Routes = [
       }).then((m) => m.routes),
   },
   {
+    path: 'live',
+    loadChildren: () =>
+      loadRemoteModule({
+        remoteName: 'rpm-live',
+        exposedModule: './routes',
+      }).then((m) => m.routes),
+  },
+  {
     path: '**',
     redirectTo: '',
   },

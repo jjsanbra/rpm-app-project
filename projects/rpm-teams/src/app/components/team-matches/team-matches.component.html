@@ -68,16 +68,28 @@
           <!-- Acciones PrimeNG Buttons -->
           <div class="card-actions">
             @if (m.status === 'PENDING_RESULT') {
-              <button
-                type="button"
-                pButton
-                severity="success"
-                size="small"
-                styleClass="w-full"
-                (click)="submitResult.emit(m)">
-                <i class="pi pi-pencil"></i>
-                <span>{{ 'TEAM_PORTAL.SUBMIT_RESULT_BTN' | translate }}</span>
-              </button>
+              <div class="pending-actions-grid">
+                <button
+                  type="button"
+                  pButton
+                  severity="info"
+                  size="small"
+                  styleClass="flex-1 live-start-btn"
+                  (click)="goToLive(m)">
+                  <i class="pi pi-bolt"></i>
+                  <span>{{ 'LIVE.ENTER_LIVE_TRACKER' | translate }}</span>
+                </button>
+                <button
+                  type="button"
+                  pButton
+                  severity="secondary"
+                  size="small"
+                  styleClass="flex-1"
+                  (click)="submitResult.emit(m)">
+                  <i class="pi pi-pencil"></i>
+                  <span>{{ 'TEAM_PORTAL.SUBMIT_RESULT_BTN' | translate }}</span>
+                </button>
+              </div>
             }
 
             @if (m.status === 'PENDING_CONFIRMATION') {

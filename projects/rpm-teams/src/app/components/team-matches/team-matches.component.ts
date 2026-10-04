@@ -1,5 +1,6 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { Match } from '@core';
 
@@ -10,11 +11,13 @@ import { BadgeModule } from 'primeng/badge';
 @Component({
   selector: 'rpm-team-matches',
   standalone: true,
-  imports: [CommonModule, DatePipe, TranslatePipe, ButtonDirective, TagModule, BadgeModule],
+  imports: [CommonModule, RouterModule, DatePipe, TranslatePipe, ButtonDirective, TagModule, BadgeModule],
   templateUrl: './team-matches.component.html',
   styleUrl: './team-matches.component.scss'
 })
 export class TeamMatchesComponent {
+  private router = inject(Router);
+
   matches = input<Match[]>([]);
   loading = input<boolean>(false);
   currentTeamId = input<string | null | undefined>();
@@ -23,6 +26,10 @@ export class TeamMatchesComponent {
   submitResult = output<Match>();
   confirmResult = output<Match>();
   openDispute = output<Match>();
+
+  goToLive(m: Match): void {
+    this.router.navigate(['/live', m.id]);
+  }
 
   isMyTeam(teamId: string): boolean {
     return this.currentTeamId() === teamId;

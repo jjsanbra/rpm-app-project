@@ -149,4 +149,136 @@ describe('Matches & Scoring Integration Tests', () => {
     expect(auditRes.status).toBe(200);
     expect(auditRes.body.data.length).toBeGreaterThan(0);
   });
+
+  describe('Real-Time Live Match Scoring', () => {
+    let liveMatch;
+    let teamOneToken;
+    let rivalToken;
+
+    beforeAll(async () => {
+      const db = getDb();
+      // Encontrar un partido en PENDING_RESULT
+      liveMatch = db.prepare(`SELECT * FROM matches WHERE status = 'PENDING_RESULT' LIMIT 1`).get();
+      if (!liveMatch) {
+        // Si no hay, buscar cualquiera que no esté en curso y ponerlo en PENDING_RESULT
+        const m = db.prepare(`SELECT * FROM matches LIMIT 1`).get();
+        db.prepare(`UPDATE matches SET status = 'PENDING_RESULT' WHERE id = ?`).run(m.id);
+        liveMatch = db.prepare(`SELECT * FROM matches WHERE id = ?`).get(m.id);
+      }
+
+      const team1User = db.prepare('SELECT email FROM users WHERE teamId = ?').get(liveMatch.teamOneId);
+      const t1Res = await request(app).post('/api/auth/login').send({ email: team1User.email, password: 'Team123!' });
+      teamOneToken = t1Res.body.data.token;
+
+      const rivalUser = db.prepare('SELECT email FROM users WHERE teamId = ?').get(liveMatch.teamTwoId);
+      const rivalRes = await request(app).post('/api/auth/login').send({ email: rivalUser.email, password: 'Team123!' });
+      rivalToken = rivalRes.body.data.token;
+    });
+
+    it('un equipo debe poder solicitar iniciar un partido en vivo con modo VENTAJAS', async () => {
+      const res = await request(app)
+        .post(`/api/matches/${liveMatch.id}/live/request`)
+        .set('Authorization', `Bearer ${teamOneToken}`)
+        .send({ gameMode: 'ADVANTAGE' });
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.status).toBe('REQUESTED');
+      expect(res.body.data.gameMode).toBe('ADVANTAGE');
+    });
+
+    it('el equipo solicitante NO debe poder auto-aprobar su propia solicitud', async () => {
+      const res = await request(app)
+        .post(`/api/matches/${liveMatch.id}/live/accept`)
+        .set('Authorization', `Bearer ${teamOneToken}`);
+
+      expect(res.status).toBe(400);
+      expect(res.body.error.message).toContain('No puedes aceptar');
+    });
+
+    it('el equipo rival debe poder aceptar el partido en vivo conservando el modo ADVANTAGE', async () => {
+      const res = await request(app)
+        .post(`/api/matches/${liveMatch.id}/live/accept`)
+        .set('Authorization', `Bearer ${rivalToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.status).toBe('IN_PROGRESS');
+      expect(res.body.data.gameMode).toBe('ADVANTAGE');
+    });
+
+    it('se deben poder anotar puntos en tiempo real (0 -> 15 -> 30 -> 40)', async () => {
+      // Punto 1: 15-0
+      let res = await request(app)
+        .post(`/api/matches/${liveMatch.id}/live/point`)
+        .set('Authorization', `Bearer ${teamOneToken}`)
+        .send({ team: 1 });
+      expect(res.status).toBe(200);
+      expect(res.body.data.pointsTeamOne).toBe('15');
+      expect(res.body.data.pointsTeamTwo).toBe('0');
+
+      // Punto 2: 30-0
+      res = await request(app)
+        .post(`/api/matches/${liveMatch.id}/live/point`)
+        .set('Authorization', `Bearer ${teamOneToken}`)
+        .send({ team: 1 });
+      expect(res.body.data.pointsTeamOne).toBe('30');
+
+      // Deshacer punto (Undo): vuelve a 15-0
+      const undoRes = await request(app)
+        .post(`/api/matches/${liveMatch.id}/live/undo`)
+        .set('Authorization', `Bearer ${teamOneToken}`);
+      expect(undoRes.status).toBe(200);
+      expect(undoRes.body.data.pointsTeamOne).toBe('15');
+    });
+
+    it('debe manejar correctamente las ventajas en modo ADVANTAGE (40-40 -> AD -> 40-40 -> AD -> Juego)', async () => {
+      // Llevar marcador a 40-40:
+      // T1 ya tiene 15. T1 suma a 30 y 40:
+      await request(app).post(`/api/matches/${liveMatch.id}/live/point`).set('Authorization', `Bearer ${teamOneToken}`).send({ team: 1 });
+      await request(app).post(`/api/matches/${liveMatch.id}/live/point`).set('Authorization', `Bearer ${teamOneToken}`).send({ team: 1 });
+      // T2 suma 15, 30, 40:
+      await request(app).post(`/api/matches/${liveMatch.id}/live/point`).set('Authorization', `Bearer ${teamOneToken}`).send({ team: 2 });
+      await request(app).post(`/api/matches/${liveMatch.id}/live/point`).set('Authorization', `Bearer ${teamOneToken}`).send({ team: 2 });
+      let deuceRes = await request(app).post(`/api/matches/${liveMatch.id}/live/point`).set('Authorization', `Bearer ${teamOneToken}`).send({ team: 2 });
+      
+      expect(deuceRes.body.data.pointsTeamOne).toBe('40');
+      expect(deuceRes.body.data.pointsTeamTwo).toBe('40');
+
+      // T1 anota -> Ventaja T1 (AD - 40)
+      let ad1Res = await request(app).post(`/api/matches/${liveMatch.id}/live/point`).set('Authorization', `Bearer ${teamOneToken}`).send({ team: 1 });
+      expect(ad1Res.body.data.pointsTeamOne).toBe('AD');
+      expect(ad1Res.body.data.pointsTeamTwo).toBe('40');
+
+      // T2 anota -> Vuelve a Iguales (40 - 40)
+      let backDeuceRes = await request(app).post(`/api/matches/${liveMatch.id}/live/point`).set('Authorization', `Bearer ${teamOneToken}`).send({ team: 2 });
+      expect(backDeuceRes.body.data.pointsTeamOne).toBe('40');
+      expect(backDeuceRes.body.data.pointsTeamTwo).toBe('40');
+
+      // T2 anota -> Ventaja T2 (40 - AD)
+      let ad2Res = await request(app).post(`/api/matches/${liveMatch.id}/live/point`).set('Authorization', `Bearer ${teamOneToken}`).send({ team: 2 });
+      expect(ad2Res.body.data.pointsTeamOne).toBe('40');
+      expect(ad2Res.body.data.pointsTeamTwo).toBe('AD');
+
+      // T2 anota desde AD -> Gana el juego (set1TeamTwo pasa a 1, marcador a 0-0)
+      let winGameRes = await request(app).post(`/api/matches/${liveMatch.id}/live/point`).set('Authorization', `Bearer ${teamOneToken}`).send({ team: 2 });
+      expect(winGameRes.body.data.set1TeamTwo).toBe(1);
+      expect(winGameRes.body.data.pointsTeamOne).toBe('0');
+      expect(winGameRes.body.data.pointsTeamTwo).toBe('0');
+    });
+
+    it('ambos capitanes deben poder firmar y confirmar el acta', async () => {
+      // Firma equipo 1
+      let res = await request(app)
+        .post(`/api/matches/${liveMatch.id}/live/sign`)
+        .set('Authorization', `Bearer ${teamOneToken}`);
+      expect(res.status).toBe(200);
+      expect(res.body.data.confirmedByTeamOne).toBe(1);
+
+      // Firma equipo 2 -> confirma definitivamente el partido
+      res = await request(app)
+        .post(`/api/matches/${liveMatch.id}/live/sign`)
+        .set('Authorization', `Bearer ${rivalToken}`);
+      expect(res.status).toBe(200);
+      expect(res.body.data.status).toBe('CONFIRMED');
+    });
+  });
 });

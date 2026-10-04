@@ -16,6 +16,12 @@ Plataforma web completa, modular y escalable para la gestión de **Rankings de P
   - El usuario del equipo solo puede registrar resultados de su propio equipo indicando la **fecha real** del partido (validada estrictamente dentro del periodo de inicio/fin del ranking).
   - El rival dispone de 48h para **confirmar** el resultado o **comunicar una incidencia**.
   - Clasificación oficial (solo partidos confirmados) y provisional en tiempo real.
+- **Tanteo en Pista en Tiempo Real (Live Courtside Scoring)**:
+  - Microfrontend dedicado **`rpm-live`** (`/live/:id`) conectado vía **Server-Sent Events (SSE)**.
+  - **Selector de Modalidad**: Punto de Oro (`GOLDEN_POINT`) o Con Ventajas (`ADVANTAGE`).
+  - **Flujo de Invitación Seguro**: El equipo que inicia queda a la espera (`REQUESTED`) y el rival debe aceptar en pista para comenzar (`IN_PROGRESS`).
+  - Marcador digital punto a punto (15, 30, 40, AD, Tie-break), alertas automáticas de cambio de lado y función de deshacer punto (`Undo`).
+  - **Doble Firma Digital del Acta**: Al finalizar, ambos capitanes validan el resultado, pasando a `CONFIRMED` e impactando de inmediato en la clasificación oficial.
 - **Resolución Arbitral y Auditoría**:
   - El administrador puede intervenir en cualquier partido con **Admin Override** (recálculo automático de clasificación y puntos) y resolver disputas con registro de actas y auditoría inmutable.
 - **Gestión Integral de Equipos y Accesos**:
@@ -25,7 +31,7 @@ Plataforma web completa, modular y escalable para la gestión de **Rankings de P
   - Niveles, Categorías, Patrocinadores y Sedes/Ubicaciones gestionados mediante factory CRUD extensible.
 - **Frontend Multi-Proyecto y Micro-Frontends Reales**:
   - Estructura **Angular Multi-Project Workspace** (`projects/*`) basada en el estándar industrial.
-  - **Native Federation** (`@angular-architects/native-federation`) con remotos independientes expuestos por puertos dedicados (4200 a 4204).
+  - **Native Federation** (`@angular-architects/native-federation`) con remotos independientes expuestos por puertos dedicados (4200 a 4205).
   - Componentes divididos en estándar modular de 4 archivos (`.html`, `.scss`, `.ts`, `.spec.ts`).
   - **PrimeNG** configurado con el tema oficial **Aura en variante clara (Light Mode)** y contraste optimizado.
   - **Internacionalización (i18n)** con `@ngx-translate/core` (`assets/i18n/es.json`).
@@ -53,6 +59,7 @@ Esto levantará de forma simultánea:
 - **Rankings Remote (`rpm-rankings`)**: `http://localhost:4202`
 - **Teams Remote (`rpm-teams`)**: `http://localhost:4203`
 - **Users Remote (`rpm-users`)**: `http://localhost:4204`
+- **Live Match Remote (`rpm-live`)**: `http://localhost:4205`
 
 ### 3. Ejecución Individual
 ```bash
@@ -62,8 +69,8 @@ npm run dev:backend
 # Solo Shell App (Puerto 4200)
 npx ng serve rpm-app
 
-# Remoto individual (ej: Admin en 4201)
-npx ng serve rpm-admin
+# Remoto individual (ej: Live Match en 4205)
+npx ng serve rpm-live
 ```
 
 ---
@@ -82,7 +89,7 @@ npx ng serve rpm-admin
 
 ## 🧪 Pruebas Automatizadas
 
-### Backend Tests (22 pruebas de integración)
+### Backend Tests (28 pruebas de integración)
 ```bash
 npm run test:backend
 ```
@@ -90,11 +97,12 @@ npm run test:backend
 - Creación y listado de rankings (`rankings.test.js`)
 - Equipos, emails y jugadores (`teams.test.js`)
 - Flujo de resultados, confirmación, disputa y auditoría (`matches.test.js`)
+- Tanteo en tiempo real, modo Punto de Oro vs Ventajas, validación de rival y firma de actas (`matches.test.js`)
 - Entidades auxiliares (`auxiliary.test.js`)
 
 ### Frontend Build
 ```bash
-npm run build
+npm run build:all
 ```
 
 ---
@@ -103,23 +111,23 @@ npm run build
 
 ```
 rpm-app-project/
-├── backend/                             # Backend Node.js 22 + Express (Intacto)
+├── backend/                             # Backend Node.js 22 + Express
 │   ├── src/
 │   │   ├── config/                      # Variables de entorno y ajustes Swagger
 │   │   ├── database/                    # SQLite singleton y seed con 5 rankings y 20 equipos
 │   │   ├── middleware/                  # JWT auth, RBAC, rate limiting, validator, errorHandler
-│   │   ├── modules/                     # Módulos de dominio (auth, rankings, teams, matches, etc.)
+│   │   ├── modules/                     # Módulos de dominio (auth, rankings, teams, matches, liveMatch, etc.)
 │   │   ├── services/email/              # Servicio de notificaciones por email
 │   │   ├── utils/                       # Scoring, validadores de fechas y match generator
 │   │   ├── app.js                       # Configuración Express y Swagger
 │   │   └── server.js                    # Punto de entrada
-│   └── tests/                           # Suites de integración Supertest + Jest
+│   └── tests/                           # Suites de integración Supertest + Jest (28 tests)
 │
 ├── projects/                            # Angular Multi-Project Workspace (Microfrontends)
 │   ├── rpm-app/                         # Shell / Host Application (Puerto 4200)
 │   │   ├── federation.config.js         # Orquestador Native Federation de remotos
 │   │   └── src/app/
-│   │       ├── core/                    # Servicios API, AuthService, modelos, guards, interceptores
+│   │       ├── core/                    # Servicios API, LiveMatchService, modelos, guards, interceptores
 │   │       └── shared/                  # Navbar, Footer y componentes comunes
 │   │
 │   ├── rpm-admin/                       # Microfrontend Admin Dashboard (Puerto 4201)
@@ -134,11 +142,15 @@ rpm-app-project/
 │   │   ├── federation.config.js         # Exposes './routes'
 │   │   └── src/app/                     # team-portal (html, scss, ts, spec.ts)
 │   │
-│   └── rpm-users/                       # Microfrontend Autenticación (Puerto 4204)
+│   ├── rpm-users/                       # Microfrontend Autenticación (Puerto 4204)
+│   │   ├── federation.config.js         # Exposes './routes'
+│   │   └── src/app/                     # login (html, scss, ts, spec.ts), forgot, reset, setup
+│   │
+│   └── rpm-live/                        # Microfrontend Live Match Tracker (Puerto 4205)
 │       ├── federation.config.js         # Exposes './routes'
-│       └── src/app/                     # login (html, scss, ts, spec.ts), forgot, reset, setup
+│       └── src/app/                     # live-tracker (html, scss, ts, spec.ts)
 │
-├── angular.json                         # Configuración Angular Workspace con 5 proyectos
+├── angular.json                         # Configuración Angular Workspace con 6 proyectos
 ├── proxy.conf.json                      # Proxy /api hacia localhost:3000
 ├── tsconfig.base.json                   # Path mappings (@core)
 ├── tsconfig.json                        # TypeScript Configuration
