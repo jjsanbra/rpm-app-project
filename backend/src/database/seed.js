@@ -176,19 +176,8 @@ async function runSeed() {
 
   // Resultados para Ranking 1 (demostración de todos los estados)
   {
-    const pts0 = calculatePoints(2, 0);
-    db.prepare(`
-      UPDATE matches SET
-        matchDate = '2026-09-10',
-        set1TeamOne = 6, set1TeamTwo = 3,
-        set2TeamOne = 6, set2TeamTwo = 4,
-        gamesTeamOne = 12, gamesTeamTwo = 7,
-        setsTeamOne = 2, setsTeamTwo = 0,
-        pointsTeamOne = ?, pointsTeamTwo = ?,
-        resultSubmittedBy = ?, resultSubmittedAt = ?,
-        status = 'CONFIRMED', confirmedBy = ?, confirmedAt = ?, updatedAt = ?
-      WHERE id = ?
-    `).run(pts0.pointsTeamOne, pts0.pointsTeamTwo, r1.teams[0].userId, now, r1.teams[1].userId, now, now, r1.matches[0].id);
+    // El partido r1.matches[0] (Los Ases vs Smash Bros) queda sin disputar (PENDING_RESULT / Por Jugar)
+
 
     const pts1 = calculatePoints(2, 1);
     db.prepare(`
