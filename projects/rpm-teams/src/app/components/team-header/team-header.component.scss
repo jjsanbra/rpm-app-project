@@ -1,0 +1,98 @@
+.portal-header {
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.header-main {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.team-badge-large {
+  font-size: 3rem;
+  filter: drop-shadow(0 0 15px rgba(0, 230, 118, 0.4));
+}
+
+.portal-subtitle {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--accent-cyan);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.portal-title {
+  font-size: 2rem;
+  line-height: 1.1;
+  margin: 0.2rem 0 0.5rem;
+}
+
+.team-players {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.player-tag {
+  font-size: 0.8rem;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+
+  &.reserve {
+    color: var(--accent-orange);
+    background: rgba(249, 115, 22, 0.1);
+    border-color: rgba(249, 115, 22, 0.25);
+  }
+}
+
+.header-stats {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.stat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-sm);
+
+  .stat-val {
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--text-main);
+  }
+
+  .stat-lbl {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-top: 0.25rem;
+  }
+}
+
+.text-green {
+  color: var(--primary) !important;
+}
+
+.text-orange {
+  color: var(--accent-orange) !important;
+}

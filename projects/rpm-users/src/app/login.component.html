@@ -3,8 +3,8 @@
     <ng-template #header>
       <div class="auth-header">
         <span class="auth-icon">🎾</span>
-        <h1 class="auth-title">Acceso a la Plataforma</h1>
-        <p class="auth-subtitle">Ingresa con tus credenciales de Equipo o Administrador</p>
+        <h1 class="auth-title">{{ 'AUTH.LOGIN_TITLE' | translate }}</h1>
+        <p class="auth-subtitle">{{ 'AUTH.LOGIN_SUBTITLE' | translate }}</p>
       </div>
     </ng-template>
 
@@ -14,13 +14,13 @@
 
     <form (ngSubmit)="onSubmit()" class="auth-form">
       <div class="form-field">
-        <label class="form-label" for="email">Correo Electrónico</label>
+        <label class="form-label" for="email">{{ 'AUTH.EMAIL' | translate }}</label>
         <input
           id="email"
           type="email"
           pInputText
           class="w-full"
-          placeholder="tu-email@ejemplo.com"
+          [placeholder]="'AUTH.EMAIL_PLACEHOLDER' | translate"
           [(ngModel)]="email"
           name="email"
           required
@@ -29,8 +29,8 @@
 
       <div class="form-field">
         <div class="flex justify-between items-center mb-1">
-          <label class="form-label" for="password">Contraseña</label>
-          <a routerLink="/auth/forgot-password" class="forgot-link">¿Olvidaste tu contraseña?</a>
+          <label class="form-label" for="password">{{ 'AUTH.PASSWORD' | translate }}</label>
+          <a routerLink="/auth/forgot-password" class="forgot-link">{{ 'AUTH.FORGOT_PASSWORD_LINK' | translate }}</a>
         </div>
         <p-password
           id="password"
@@ -45,23 +45,24 @@
         </p-password>
       </div>
 
-      <p-button
+      <button
+        pButton
         type="submit"
-        label="Iniciar Sesión"
-        icon="pi pi-sign-in"
         severity="success"
         styleClass="w-full mt-3"
         [loading]="loading()"
         [disabled]="loading() || !email || !password">
-      </p-button>
+        <i class="pi pi-sign-in"></i>
+        <span>{{ 'AUTH.LOGIN_SUBMIT' | translate }}</span>
+      </button>
     </form>
 
     <ng-template #footer>
       <div class="demo-hints">
-        <span class="hint-title"><i class="pi pi-info-circle"></i> Credenciales de Desarrollo (Dev Seed):</span>
-        <div class="hint-item"><strong>Admin:</strong> admin&#64;padelranking.dev / Admin123!</div>
-        <div class="hint-item"><strong>Equipo 1:</strong> equipo1&#64;padelranking.dev / Team123!</div>
-        <div class="hint-item"><strong>Equipo 2:</strong> equipo2&#64;padelranking.dev / Team123!</div>
+        <span class="hint-title"><i class="pi pi-info-circle"></i> {{ 'AUTH.DEV_CREDENTIALS_TITLE' | translate }}</span>
+        <div class="hint-item"><strong>{{ 'AUTH.ADMIN_LABEL' | translate }}</strong> admin&#64;padelranking.dev / Admin123!</div>
+        <div class="hint-item"><strong>{{ 'AUTH.TEAM_1_LABEL' | translate }}</strong> equipo1&#64;padelranking.dev / Team123!</div>
+        <div class="hint-item"><strong>{{ 'AUTH.TEAM_2_LABEL' | translate }}</strong> equipo2&#64;padelranking.dev / Team123!</div>
       </div>
     </ng-template>
   </p-card>

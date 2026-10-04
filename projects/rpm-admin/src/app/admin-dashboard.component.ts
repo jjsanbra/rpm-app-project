@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { MessageService } from 'primeng/api';
+import { TranslateService } from '@ngx-translate/core';
 import {
   RankingService,
   TeamService,
@@ -16,35 +17,26 @@ import {
   AuxiliaryItem
 } from '@core';
 
-// PrimeNG Components
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { DialogModule } from 'primeng/dialog';
-import { TagModule } from 'primeng/tag';
-import { BadgeModule } from 'primeng/badge';
-import { CardModule } from 'primeng/card';
-import { SelectModule } from 'primeng/select';
-import { InputTextModule } from 'primeng/inputtext';
-import { TooltipModule } from 'primeng/tooltip';
-import { MessageService } from 'primeng/api';
-
-type AdminTab = 'rankings' | 'teams' | 'matches' | 'incidents' | 'auxiliary' | 'audit';
+import { AdminHeaderComponent, AdminTab } from './components/admin-header/admin-header.component';
+import { AdminRankingsComponent, CreateRankingPayload, UpdateRankingPayload } from './components/admin-rankings/admin-rankings.component';
+import { AdminTeamsComponent, CreateTeamPayload, UpdateTeamPayload } from './components/admin-teams/admin-teams.component';
+import { AdminMatchesComponent, AdminOverridePayload } from './components/admin-matches/admin-matches.component';
+import { AdminIncidentsComponent, ResolveIncidentPayload } from './components/admin-incidents/admin-incidents.component';
+import { AdminAuxiliaryComponent, AuxCatalogType } from './components/admin-auxiliary/admin-auxiliary.component';
+import { AdminAuditComponent } from './components/admin-audit/admin-audit.component';
 
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
-    TableModule,
-    ButtonModule,
-    DialogModule,
-    TagModule,
-    BadgeModule,
-    CardModule,
-    SelectModule,
-    InputTextModule,
-    TooltipModule
+    AdminHeaderComponent,
+    AdminRankingsComponent,
+    AdminTeamsComponent,
+    AdminMatchesComponent,
+    AdminIncidentsComponent,
+    AdminAuxiliaryComponent,
+    AdminAuditComponent
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss'
@@ -57,6 +49,7 @@ export class AdminDashboardComponent implements OnInit {
   private auditService = inject(AuditService);
   private auxService = inject(AuxiliaryService);
   private messageService = inject(MessageService);
+  private translate = inject(TranslateService);
 
   activeTab = signal<AdminTab>('rankings');
 
@@ -66,72 +59,13 @@ export class AdminDashboardComponent implements OnInit {
   incidents = signal<Incident[]>([]);
   auditLogs = signal<AuditLog[]>([]);
   auxItems = signal<AuxiliaryItem[]>([]);
-  auxType = signal<'levels' | 'categories' | 'locations' | 'sponsors'>('levels');
+  auxType = signal<AuxCatalogType>('levels');
 
-  selectedRankingId = '';
+  selectedRankingId = signal<string>('');
 
   levelsList = signal<AuxiliaryItem[]>([]);
   categoriesList = signal<AuxiliaryItem[]>([]);
   locationsList = signal<AuxiliaryItem[]>([]);
-
-  // Modals visibility
-  showCreateRankingModal = false;
-  newRankingName = '';
-  newRankingDesc = '';
-  newRankingStart = '2026-11-01';
-  newRankingEnd = '2026-12-31';
-  newRankingLocationId = '';
-  newRankingLevelId = '';
-  newRankingCategoryId = '';
-
-  showEditRankingModal = false;
-  editRankingId = '';
-  editRankingName = '';
-  editRankingDesc = '';
-  editRankingStart = '';
-  editRankingEnd = '';
-  editRankingLocationId = '';
-  editRankingLevelId = '';
-  editRankingCategoryId = '';
-
-  showCreateTeamModal = false;
-  newTeamName = '';
-  newTeamP1N = '';
-  newTeamP1S = '';
-  newTeamP2N = '';
-  newTeamP2S = '';
-  newTeamRN = '';
-  newTeamRS = '';
-  newTeamEmail1 = '';
-  newTeamEmail2 = '';
-
-  showEditTeamModal = false;
-  editTeamId = '';
-  editTeamName = '';
-  editTeamP1N = '';
-  editTeamP1S = '';
-  editTeamP2N = '';
-  editTeamP2S = '';
-  editTeamRN = '';
-  editTeamRS = '';
-  editTeamEmail1 = '';
-  editTeamEmail2 = '';
-
-  showOverrideModal = false;
-  activeOverrideMatch = signal<Match | null>(null);
-  overrideSetsOne = 0;
-  overrideSetsTwo = 0;
-  overrideStatus = 'CONFIRMED';
-  overrideReason = '';
-
-  showResolveIncidentModal = false;
-  activeResolveIncident = signal<Incident | null>(null);
-  incResolveStatus = 'RESOLVED';
-  incResolution = '';
-
-  showCreateAuxModal = false;
-  newAuxName = '';
-  newAuxDesc = '';
 
   ngOnInit(): void {
     this.loadAllData();
@@ -160,7 +94,7 @@ export class AdminDashboardComponent implements OnInit {
 
   setTab(tab: AdminTab): void {
     this.activeTab.set(tab);
-    if (tab === 'matches' && this.selectedRankingId) {
+    if (tab === 'matches' && this.selectedRankingId()) {
       this.loadMatchesForSelectedRanking();
     }
     if (tab === 'audit') {
@@ -172,8 +106,8 @@ export class AdminDashboardComponent implements OnInit {
     this.rankingService.getAll().subscribe({
       next: (res) => {
         this.rankings.set(res.data);
-        if (res.data.length > 0 && !this.selectedRankingId) {
-          this.selectedRankingId = res.data[0].id;
+        if (res.data.length > 0 && !this.selectedRankingId()) {
+          this.selectedRankingId.set(res.data[0].id);
           this.loadMatchesForSelectedRanking();
         }
       }
@@ -187,8 +121,9 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadMatchesForSelectedRanking(): void {
-    if (!this.selectedRankingId) return;
-    this.matchService.getAll({ rankingId: this.selectedRankingId }).subscribe({
+    const rankingId = this.selectedRankingId();
+    if (!rankingId) return;
+    this.matchService.getAll({ rankingId }).subscribe({
       next: (res) => this.matches.set(res.data)
     });
   }
@@ -214,7 +149,7 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
-  setAuxType(type: 'levels' | 'categories' | 'locations' | 'sponsors'): void {
+  setAuxType(type: AuxCatalogType): void {
     this.auxType.set(type);
     this.loadAuxItems();
   }
@@ -223,302 +158,288 @@ export class AdminDashboardComponent implements OnInit {
     return this.incidents().filter(i => i.status === 'OPEN').length;
   }
 
-  getTeamEmailsList(team: Team): string[] {
-    if (!team.emails) return [];
-    if (typeof team.emails[0] === 'string') return team.emails as string[];
-    return (team.emails as any[]).map(e => e.email);
-  }
-
-  // Create & Edit Ranking
-  openCreateRankingModal(): void {
-    this.newRankingName = '';
-    this.newRankingDesc = '';
-    this.newRankingStart = '2026-11-01';
-    this.newRankingEnd = '2026-12-31';
-    this.newRankingLocationId = '';
-    this.newRankingLevelId = '';
-    this.newRankingCategoryId = '';
-    this.showCreateRankingModal = true;
-  }
-
-  createRanking(): void {
+  // Ranking actions
+  handleCreateRanking(payload: CreateRankingPayload): void {
     this.rankingService.create({
-      name: this.newRankingName,
-      description: this.newRankingDesc,
-      startDate: this.newRankingStart,
-      endDate: this.newRankingEnd,
-      locationId: this.newRankingLocationId || undefined,
-      levelId: this.newRankingLevelId || undefined,
-      categoryId: this.newRankingCategoryId || undefined,
+      name: payload.name,
+      description: payload.description,
+      startDate: payload.startDate,
+      endDate: payload.endDate,
+      locationId: payload.locationId,
+      levelId: payload.levelId,
+      categoryId: payload.categoryId,
       active: true,
     }).subscribe({
       next: () => {
-        this.showCreateRankingModal = false;
-        this.messageService.add({ severity: 'success', summary: 'Ranking Creado', detail: 'El ranking ha sido creado correctamente.' });
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('ADMIN.RANKING_CREATED_SUCCESS'),
+          detail: this.translate.instant('ADMIN.RANKING_CREATED_DETAIL')
+        });
         this.loadRankings();
       },
-      error: (err) => this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Error al crear el ranking.' })
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
     });
   }
 
-  openEditRankingModal(r: Ranking): void {
-    this.editRankingId = r.id;
-    this.editRankingName = r.name;
-    this.editRankingDesc = r.description || '';
-    this.editRankingStart = r.startDate || '';
-    this.editRankingEnd = r.endDate || '';
-    this.editRankingLocationId = r.locationId || '';
-    this.editRankingLevelId = r.levelId || '';
-    this.editRankingCategoryId = r.categoryId || '';
-    this.showEditRankingModal = true;
-  }
-
-  saveEditRanking(): void {
-    if (!this.editRankingId) return;
-    this.rankingService.update(this.editRankingId, {
-      name: this.editRankingName,
-      description: this.editRankingDesc,
-      startDate: this.editRankingStart,
-      endDate: this.editRankingEnd,
-      locationId: this.editRankingLocationId || null as any,
-      levelId: this.editRankingLevelId || null as any,
-      categoryId: this.editRankingCategoryId || null as any,
+  handleUpdateRanking(payload: UpdateRankingPayload): void {
+    this.rankingService.update(payload.id, {
+      name: payload.name,
+      description: payload.description,
+      startDate: payload.startDate,
+      endDate: payload.endDate,
+      locationId: payload.locationId || null as any,
+      levelId: payload.levelId || null as any,
+      categoryId: payload.categoryId || null as any,
     }).subscribe({
       next: () => {
-        this.showEditRankingModal = false;
-        this.messageService.add({ severity: 'success', summary: 'Ranking Actualizado', detail: 'Categoría, nivel, sede y datos del ranking actualizados con éxito.' });
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('ADMIN.RANKING_UPDATED_SUCCESS'),
+          detail: this.translate.instant('ADMIN.RANKING_UPDATED_DETAIL')
+        });
         this.loadRankings();
       },
-      error: (err) => this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Error al actualizar el ranking.' })
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
     });
   }
 
   toggleRankingActive(r: Ranking): void {
     this.rankingService.toggleActive(r.id, !r.active).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'info', summary: 'Estado Actualizado', detail: `Ranking ${!r.active ? 'activado' : 'desactivado'}.` });
+        this.messageService.add({
+          severity: 'info',
+          summary: this.translate.instant('ADMIN.STATUS_UPDATED_INFO'),
+          detail: !r.active
+            ? this.translate.instant('ADMIN.RANKING_ACTIVATED')
+            : this.translate.instant('ADMIN.RANKING_DEACTIVATED')
+        });
         this.loadRankings();
       }
     });
   }
 
-  selectForMatches(r: Ranking): void {
-    this.selectedRankingId = r.id;
+  selectRankingForMatches(r: Ranking): void {
+    this.selectedRankingId.set(r.id);
     this.setTab('matches');
     this.loadMatchesForSelectedRanking();
   }
 
-  // Create Team
-  openCreateTeamModal(): void {
-    this.newTeamName = '';
-    this.newTeamP1N = '';
-    this.newTeamP1S = '';
-    this.newTeamP2N = '';
-    this.newTeamP2S = '';
-    this.newTeamRN = '';
-    this.newTeamRS = '';
-    this.newTeamEmail1 = '';
-    this.newTeamEmail2 = '';
-    this.showCreateTeamModal = true;
-  }
-
-  createTeam(): void {
-    const emails = [this.newTeamEmail1];
-    if (this.newTeamEmail2.trim()) emails.push(this.newTeamEmail2.trim());
-
+  // Team actions
+  handleCreateTeam(payload: CreateTeamPayload): void {
     this.teamService.create({
-      name: this.newTeamName,
-      player1Name: this.newTeamP1N,
-      player1Surname: this.newTeamP1S,
-      player2Name: this.newTeamP2N,
-      player2Surname: this.newTeamP2S,
-      reserveName: this.newTeamRN.trim() || null,
-      reserveSurname: this.newTeamRS.trim() || null,
-      emails,
+      name: payload.name,
+      player1Name: payload.player1Name,
+      player1Surname: payload.player1Surname,
+      player2Name: payload.player2Name,
+      player2Surname: payload.player2Surname,
+      reserveName: payload.reserveName,
+      reserveSurname: payload.reserveSurname,
+      emails: payload.emails,
     }).subscribe({
       next: () => {
-        this.showCreateTeamModal = false;
-        this.messageService.add({ severity: 'success', summary: 'Equipo Registrado', detail: 'Email de bienvenida enviado con token de acceso.' });
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('ADMIN.TEAM_REGISTERED_SUCCESS'),
+          detail: this.translate.instant('ADMIN.TEAM_REGISTERED_DETAIL')
+        });
         this.loadTeams();
       },
-      error: (err) => this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Error al crear el equipo.' })
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
     });
   }
 
-  openEditTeamModal(t: Team): void {
-    this.editTeamId = t.id;
-    this.editTeamName = t.name;
-    this.editTeamP1N = t.player1Name;
-    this.editTeamP1S = t.player1Surname;
-    this.editTeamP2N = t.player2Name;
-    this.editTeamP2S = t.player2Surname;
-    this.editTeamRN = t.reserveName || '';
-    this.editTeamRS = t.reserveSurname || '';
-    const emails = this.getTeamEmailsList(t);
-    this.editTeamEmail1 = emails[0] || '';
-    this.editTeamEmail2 = emails[1] || '';
-    this.showEditTeamModal = true;
-  }
-
-  saveEditTeam(): void {
-    if (!this.editTeamId) return;
-    const emails = [this.editTeamEmail1];
-    if (this.editTeamEmail2.trim()) emails.push(this.editTeamEmail2.trim());
-
-    this.teamService.update(this.editTeamId, {
-      name: this.editTeamName,
-      player1Name: this.editTeamP1N,
-      player1Surname: this.editTeamP1S,
-      player2Name: this.editTeamP2N,
-      player2Surname: this.editTeamP2S,
-      reserveName: this.editTeamRN.trim() || null,
-      reserveSurname: this.editTeamRS.trim() || null,
-      emails,
+  handleUpdateTeam(payload: UpdateTeamPayload): void {
+    this.teamService.update(payload.id, {
+      name: payload.name,
+      player1Name: payload.player1Name,
+      player1Surname: payload.player1Surname,
+      player2Name: payload.player2Name,
+      player2Surname: payload.player2Surname,
+      reserveName: payload.reserveName,
+      reserveSurname: payload.reserveSurname,
+      emails: payload.emails,
     }).subscribe({
       next: () => {
-        this.showEditTeamModal = false;
-        this.messageService.add({ severity: 'success', summary: 'Equipo Actualizado', detail: 'Datos del equipo y usuarios actualizados con éxito.' });
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('ADMIN.TEAM_UPDATED_SUCCESS'),
+          detail: this.translate.instant('ADMIN.TEAM_UPDATED_DETAIL')
+        });
         this.loadTeams();
       },
-      error: (err) => this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Error al actualizar el equipo.' })
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
     });
   }
 
   toggleTeamActive(t: Team): void {
     this.teamService.toggleActive(t.id, !t.active).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'info', summary: 'Estado Actualizado', detail: `Equipo ${!t.active ? 'activado' : 'desactivado'}.` });
+        this.messageService.add({
+          severity: 'info',
+          summary: this.translate.instant('ADMIN.STATUS_UPDATED_INFO'),
+          detail: !t.active
+            ? this.translate.instant('ADMIN.TEAM_ACTIVATED')
+            : this.translate.instant('ADMIN.TEAM_DEACTIVATED')
+        });
         this.loadTeams();
       },
-      error: (err) => this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Error al cambiar estado del equipo.' })
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
     });
   }
 
-  resendWelcome(t: Team): void {
+  resendTeamWelcome(t: Team): void {
     this.teamService.resendWelcome(t.id).subscribe({
-      next: () => this.messageService.add({ severity: 'success', summary: 'Email Enviado', detail: `Email de acceso reenviado a ${t.name}.` }),
-      error: (err) => this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Error al reenviar email.' })
+      next: () => this.messageService.add({
+        severity: 'success',
+        summary: this.translate.instant('ADMIN.EMAIL_SENT_SUCCESS'),
+        detail: `${t.name}: ${this.translate.instant('ADMIN.EMAIL_SENT_SUCCESS')}`
+      }),
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
     });
   }
 
-  // Round-Robin Generator
+  // Matches actions
+  onRankingSelectChange(rankingId: string): void {
+    this.selectedRankingId.set(rankingId);
+    this.loadMatchesForSelectedRanking();
+  }
+
   generateRoundRobin(): void {
-    if (!this.selectedRankingId) return;
+    const rankingId = this.selectedRankingId();
+    if (!rankingId) return;
     const teamIds = this.teams().map(t => t.id);
     if (teamIds.length < 4) {
-      this.messageService.add({ severity: 'warn', summary: 'Equipos Insuficientes', detail: 'Se necesitan al menos 4 equipos para generar partidos.' });
+      this.messageService.add({
+        severity: 'warn',
+        summary: this.translate.instant('ADMIN.INSUFFICIENT_TEAMS_WARN'),
+        detail: this.translate.instant('ADMIN.INSUFFICIENT_TEAMS_DETAIL')
+      });
       return;
     }
 
-    this.matchService.generateMatches(this.selectedRankingId, teamIds).subscribe({
+    this.matchService.generateMatches(rankingId, teamIds).subscribe({
       next: (res) => {
-        this.messageService.add({ severity: 'success', summary: 'Partidos Generados', detail: res.data.message || 'Calendario round-robin generado con éxito.' });
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('ADMIN.MATCHES_GENERATED_SUCCESS'),
+          detail: res.data.message || this.translate.instant('ADMIN.MATCHES_GENERATED_SUCCESS')
+        });
         this.loadMatchesForSelectedRanking();
       },
-      error: (err) => this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Error al generar partidos.' })
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
     });
   }
 
-  // Admin Override Match
-  openAdminOverrideModal(m: Match): void {
-    this.activeOverrideMatch.set(m);
-    this.overrideSetsOne = m.setsTeamOne ?? 0;
-    this.overrideSetsTwo = m.setsTeamTwo ?? 0;
-    this.overrideStatus = m.status === 'PENDING_RESULT' ? 'CONFIRMED' : m.status;
-    this.overrideReason = '';
-    this.showOverrideModal = true;
-  }
-
-  submitAdminOverride(): void {
-    const m = this.activeOverrideMatch();
-    if (!m) return;
-
-    this.matchService.adminOverride(m.id, {
-      setsTeamOne: this.overrideSetsOne,
-      setsTeamTwo: this.overrideSetsTwo,
-      status: this.overrideStatus,
-      matchDate: m.matchDate || new Date().toISOString().split('T')[0],
-      reason: this.overrideReason,
+  handleAdminOverride(payload: AdminOverridePayload): void {
+    this.matchService.adminOverride(payload.matchId, {
+      set1TeamOne: payload.set1TeamOne,
+      set1TeamTwo: payload.set1TeamTwo,
+      set2TeamOne: payload.set2TeamOne,
+      set2TeamTwo: payload.set2TeamTwo,
+      set3TeamOne: payload.set3TeamOne,
+      set3TeamTwo: payload.set3TeamTwo,
+      setsTeamOne: payload.setsTeamOne,
+      setsTeamTwo: payload.setsTeamTwo,
+      status: payload.status,
+      matchDate: payload.matchDate,
+      reason: payload.reason,
     }).subscribe({
       next: () => {
-        this.showOverrideModal = false;
-        this.activeOverrideMatch.set(null);
-        this.messageService.add({ severity: 'success', summary: 'Partido Modificado', detail: 'Puntos y clasificación recalculados.' });
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('ADMIN.MATCH_MODIFIED_SUCCESS'),
+          detail: this.translate.instant('ADMIN.MATCH_MODIFIED_DETAIL')
+        });
         this.loadMatchesForSelectedRanking();
       },
-      error: (err) => this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Error al modificar el partido.' })
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
     });
   }
 
-  // Resolve Incident
-  openResolveIncidentModal(inc: Incident): void {
-    this.activeResolveIncident.set(inc);
-    this.incResolveStatus = 'RESOLVED';
-    this.incResolution = '';
-    this.showResolveIncidentModal = true;
-  }
-
-  submitResolveIncident(): void {
-    const inc = this.activeResolveIncident();
-    if (!inc) return;
-
-    this.incidentService.resolve(inc.id, {
-      status: this.incResolveStatus,
-      resolution: this.incResolution,
+  // Incidents actions
+  handleResolveIncident(payload: ResolveIncidentPayload): void {
+    this.incidentService.resolve(payload.incidentId, {
+      status: payload.status,
+      resolution: payload.resolution,
     }).subscribe({
       next: () => {
-        this.showResolveIncidentModal = false;
-        this.activeResolveIncident.set(null);
-        this.messageService.add({ severity: 'success', summary: 'Incidencia Resuelta', detail: 'La disputa ha sido cerrada.' });
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('ADMIN.INCIDENT_RESOLVED_SUCCESS'),
+          detail: this.translate.instant('ADMIN.INCIDENT_RESOLVED_DETAIL')
+        });
         this.loadIncidents();
       },
-      error: (err) => this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Error al resolver la incidencia.' })
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
     });
   }
 
-  // Auxiliary
-  openCreateAuxModal(): void {
-    this.newAuxName = '';
-    this.newAuxDesc = '';
-    this.showCreateAuxModal = true;
-  }
-
-  createAuxItem(): void {
-    this.auxService.createItem(this.auxType(), {
-      name: this.newAuxName,
-      description: this.newAuxDesc,
-    }).subscribe({
+  // Auxiliary actions
+  handleCreateAuxItem(payload: { name: string; description: string }): void {
+    this.auxService.createItem(this.auxType(), payload).subscribe({
       next: () => {
-        this.showCreateAuxModal = false;
-        this.messageService.add({ severity: 'success', summary: 'Registro Creado', detail: `Elemento añadido a ${this.auxType()}.` });
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('ADMIN.AUX_CREATED_SUCCESS'),
+          detail: this.translate.instant('ADMIN.AUX_CREATED_SUCCESS')
+        });
         this.loadAuxItems();
       },
-      error: (err) => this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Error al crear elemento.' })
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
     });
   }
 
-  deleteAuxItem(id: string): void {
+  handleDeleteAuxItem(id: string): void {
     this.auxService.deleteItem(this.auxType(), id).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'info', summary: 'Eliminado', detail: 'Elemento eliminado con éxito.' });
+        this.messageService.add({
+          severity: 'info',
+          summary: this.translate.instant('ADMIN.AUX_DELETED_INFO'),
+          detail: this.translate.instant('ADMIN.AUX_DELETED_DETAIL')
+        });
         this.loadAuxItems();
       }
     });
-  }
-
-  getTagSeverity(status: string): 'success' | 'warn' | 'danger' | 'info' | 'secondary' {
-    switch (status) {
-      case 'CONFIRMED': return 'success';
-      case 'PENDING_CONFIRMATION': return 'warn';
-      case 'DISPUTED': return 'danger';
-      case 'PENDING_RESULT': return 'secondary';
-      default: return 'info';
-    }
-  }
-
-  formatLogData(data: any): string {
-    if (!data) return '-';
-    if (typeof data === 'string') return data;
-    return JSON.stringify(data);
   }
 }

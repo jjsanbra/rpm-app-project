@@ -1,0 +1,72 @@
+<header class="admin-header glass-panel-glow">
+  <div>
+    <span class="admin-tag"><i class="pi pi-shield"></i> {{ 'ADMIN.HEADER_TAG' | translate }}</span>
+    <h1 class="admin-title">{{ 'ADMIN.TITLE' | translate }}</h1>
+  </div>
+
+  <div class="nav-tabs">
+    <button
+      type="button"
+      pButton
+      [outlined]="activeTab() !== 'rankings'"
+      severity="success"
+      size="small"
+      (click)="tabChange.emit('rankings')">
+      <i class="pi pi-trophy"></i>
+      <span>{{ 'ADMIN.TAB_RANKINGS' | translate }} ({{ rankingsCount() }})</span>
+    </button>
+    <button
+      type="button"
+      pButton
+      [outlined]="activeTab() !== 'teams'"
+      severity="success"
+      size="small"
+      (click)="tabChange.emit('teams')">
+      <i class="pi pi-users"></i>
+      <span>{{ 'ADMIN.TAB_TEAMS' | translate }} ({{ teamsCount() }})</span>
+    </button>
+    <button
+      type="button"
+      pButton
+      [outlined]="activeTab() !== 'matches'"
+      severity="success"
+      size="small"
+      (click)="tabChange.emit('matches')">
+      <i class="pi pi-calendar"></i>
+      <span>{{ 'ADMIN.TAB_MATCHES' | translate }} ({{ matchesCount() }})</span>
+    </button>
+    <button
+      type="button"
+      pButton
+      [outlined]="activeTab() !== 'incidents'"
+      severity="danger"
+      size="small"
+      (click)="tabChange.emit('incidents')">
+      <i class="pi pi-flag"></i>
+      <span>{{ 'ADMIN.TAB_INCIDENTS' | translate }}</span>
+      @if (openIncidentsCount() > 0) {
+        <p-badge [value]="openIncidentsCount().toString()" severity="danger"></p-badge>
+      }
+    </button>
+    <button
+      type="button"
+      pButton
+      [outlined]="activeTab() !== 'auxiliary'"
+      severity="secondary"
+      size="small"
+      (click)="tabChange.emit('auxiliary')">
+      <i class="pi pi-database"></i>
+      <span>{{ 'ADMIN.TAB_AUXILIARY' | translate }}</span>
+    </button>
+    <button
+      type="button"
+      pButton
+      [outlined]="activeTab() !== 'audit'"
+      severity="secondary"
+      size="small"
+      (click)="tabChange.emit('audit')">
+      <i class="pi pi-history"></i>
+      <span>{{ 'ADMIN.TAB_AUDIT' | translate }}</span>
+    </button>
+  </div>
+</header>

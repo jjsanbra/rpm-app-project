@@ -1,0 +1,42 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [header]="'TEAM_PORTAL.MODAL_DISPUTE_TITLE' | translate"
+  [style]="{ width: '90vw', maxWidth: '500px' }"
+  styleClass="custom-p-dialog">
+
+  <p class="modal-sub">
+    {{ 'TEAM_PORTAL.DISPUTE_SUB' | translate }}
+  </p>
+
+  <form (ngSubmit)="onSubmit()" class="modal-form">
+    <div class="form-group">
+      <label class="form-label" for="incidentDesc">{{ 'TEAM_PORTAL.INCIDENT_DESC_LABEL' | translate }}</label>
+      <textarea
+        id="incidentDesc"
+        class="form-control"
+        rows="4"
+        [placeholder]="'TEAM_PORTAL.INCIDENT_DESC_PLACEHOLDER' | translate"
+        [(ngModel)]="disputeDescription"
+        name="incidentDesc"
+        required
+      ></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" pButton severity="secondary" (click)="onClose()">
+        <span>{{ 'COMMON.CANCEL' | translate }}</span>
+      </button>
+      <button
+        pButton
+        severity="danger"
+        type="submit"
+        [loading]="submitting()"
+        [disabled]="submitting() || !disputeDescription.trim()">
+        <i class="pi pi-send"></i>
+        <span>{{ 'TEAM_PORTAL.NOTIFY_ADMIN_BTN' | translate }}</span>
+      </button>
+    </div>
+  </form>
+</p-dialog>

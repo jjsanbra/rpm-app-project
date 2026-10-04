@@ -1,0 +1,223 @@
+<section class="tab-section">
+  <div class="section-actions">
+    <h2>{{ 'ADMIN.TEAMS_HEADING' | translate }}</h2>
+    <button type="button" pButton severity="success" size="small" (click)="openCreateModal()">
+      <i class="pi pi-plus"></i>
+      <span>{{ 'ADMIN.CREATE_TEAM_BTN' | translate }}</span>
+    </button>
+  </div>
+
+  <div class="table-container glass-panel">
+    <p-table [value]="teams()" [tableStyle]="{ 'min-width': '50rem' }" responsiveLayout="scroll">
+      <ng-template #header>
+        <tr>
+          <th>{{ 'ADMIN.TH_TEAM' | translate }}</th>
+          <th>{{ 'ADMIN.TH_PLAYERS' | translate }}</th>
+          <th>{{ 'ADMIN.TH_RESERVE' | translate }}</th>
+          <th>{{ 'ADMIN.TH_EMAILS' | translate }}</th>
+          <th>{{ 'ADMIN.TH_STATUS' | translate }}</th>
+          <th>{{ 'ADMIN.TH_ACTIONS' | translate }}</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-t>
+        <tr>
+          <td>
+            <strong>{{ t.name }}</strong>
+          </td>
+          <td>
+            <div>{{ t.player1Name }} {{ t.player1Surname }}</div>
+            <div>{{ t.player2Name }} {{ t.player2Surname }}</div>
+          </td>
+          <td>
+            @if (t.reserveName) {
+              <span class="reserve-text">{{ t.reserveName }} {{ t.reserveSurname }}</span>
+            } @else {
+              <span class="text-dim">-</span>
+            }
+          </td>
+          <td>
+            @for (em of getTeamEmailsList(t); track em) {
+              <div class="email-row"><i class="pi pi-envelope"></i> {{ em }}</div>
+            }
+          </td>
+          <td>
+            <p-tag [value]="(t.active ? 'STATUS.ACTIVE' : 'STATUS.INACTIVE') | translate" [severity]="t.active ? 'success' : 'secondary'"></p-tag>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button
+                type="button"
+                pButton
+                severity="warn"
+                size="small"
+                [outlined]="true"
+                (click)="openEditModal(t)"
+                [pTooltip]="'COMMON.EDIT' | translate">
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button
+                type="button"
+                pButton
+                [severity]="t.active ? 'secondary' : 'success'"
+                size="small"
+                (click)="toggleActive.emit(t)"
+                [pTooltip]="(t.active ? 'ADMIN.DEACTIVATE_BTN' : 'ADMIN.ACTIVATE_BTN') | translate">
+                <i [class]="t.active ? 'pi pi-ban' : 'pi pi-check'"></i>
+              </button>
+              <button
+                type="button"
+                pButton
+                severity="info"
+                size="small"
+                [outlined]="true"
+                (click)="resendWelcome.emit(t)"
+                [pTooltip]="'ADMIN.RESEND_EMAIL_BTN' | translate">
+                <i class="pi pi-send"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</section>
+
+<!-- MODAL CREAR EQUIPO -->
+<p-dialog
+  [(visible)]="showCreateModal"
+  [modal]="true"
+  [header]="'ADMIN.MODAL_CREATE_TEAM_TITLE' | translate"
+  [style]="{ width: '90vw', maxWidth: '580px' }"
+  styleClass="custom-p-dialog">
+  
+  <form (ngSubmit)="submitCreate()" class="modal-form">
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.TEAM_NAME_LABEL' | translate }}</label>
+      <input type="text" class="form-control" [(ngModel)]="newTeamName" name="teamName" required />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.P1_NAME_LABEL' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="newTeamP1N" name="p1n" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.P1_SURNAME_LABEL' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="newTeamP1S" name="p1s" required />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.P2_NAME_LABEL' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="newTeamP2N" name="p2n" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.P2_SURNAME_LABEL' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="newTeamP2S" name="p2s" required />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.RES_NAME_LABEL' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="newTeamRN" name="rn" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.RES_SURNAME_LABEL' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="newTeamRS" name="rs" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.EMAIL1_LABEL' | translate }}</label>
+        <input type="email" class="form-control" [(ngModel)]="newTeamEmail1" name="email1" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.EMAIL2_LABEL' | translate }}</label>
+        <input type="email" class="form-control" [(ngModel)]="newTeamEmail2" name="email2" />
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" pButton severity="secondary" (click)="showCreateModal = false">
+        <span>{{ 'COMMON.CANCEL' | translate }}</span>
+      </button>
+      <button type="submit" pButton severity="success">
+        <i class="pi pi-check"></i>
+        <span>{{ 'ADMIN.CREATE_TEAM_SUBMIT' | translate }}</span>
+      </button>
+    </div>
+  </form>
+</p-dialog>
+
+<!-- MODAL EDITAR EQUIPO -->
+<p-dialog
+  [(visible)]="showEditModal"
+  [modal]="true"
+  [header]="'ADMIN.MODAL_EDIT_TEAM_TITLE' | translate"
+  [style]="{ width: '90vw', maxWidth: '580px' }"
+  styleClass="custom-p-dialog">
+  
+  <form (ngSubmit)="submitEdit()" class="modal-form">
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.TEAM_NAME_LABEL' | translate }}</label>
+      <input type="text" class="form-control" [(ngModel)]="editTeamName" name="editTeamName" required />
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.P1_NAME_LABEL' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="editTeamP1N" name="editP1n" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.P1_SURNAME_LABEL' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="editTeamP1S" name="editP1s" required />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.P2_NAME_LABEL' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="editTeamP2N" name="editP2n" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.P2_SURNAME_LABEL' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="editTeamP2S" name="editP2s" required />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.RES_NAME_LABEL' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="editTeamRN" name="editRn" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.RES_SURNAME_LABEL' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="editTeamRS" name="editRs" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.EMAIL1_LABEL' | translate }}</label>
+        <input type="email" class="form-control" [(ngModel)]="editTeamEmail1" name="editEmail1" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.EMAIL2_LABEL' | translate }}</label>
+        <input type="email" class="form-control" [(ngModel)]="editTeamEmail2" name="editEmail2" />
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" pButton severity="secondary" (click)="showEditModal = false">
+        <span>{{ 'COMMON.CANCEL' | translate }}</span>
+      </button>
+      <button type="submit" pButton severity="success">
+        <i class="pi pi-check"></i>
+        <span>{{ 'COMMON.SAVE' | translate }}</span>
+      </button>
+    </div>
+  </form>
+</p-dialog>

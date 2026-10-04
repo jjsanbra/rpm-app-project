@@ -1,0 +1,142 @@
+<section class="matches-section">
+  <div class="section-top">
+    <div>
+      <span class="section-tag">{{ 'TEAM_PORTAL.SECTION_TAG' | translate }}</span>
+      <h2 class="section-title">{{ 'TEAM_PORTAL.SECTION_TITLE' | translate }}</h2>
+    </div>
+    <span class="help-text">
+      <i class="pi pi-info-circle"></i> {{ 'TEAM_PORTAL.HELP_TEXT' | translate }}
+    </span>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-box glass-panel">
+      <i class="pi pi-spin pi-spinner"></i> {{ 'TEAM_PORTAL.LOADING' | translate }}
+    </div>
+  } @else if (matches().length === 0) {
+    <div class="empty-box glass-panel">
+      <i class="pi pi-calendar-times"></i> {{ 'TEAM_PORTAL.EMPTY' | translate }}
+    </div>
+  } @else {
+    <div class="team-matches-grid">
+      @for (m of matches(); track m.id) {
+        <div class="portal-match-card glass-panel" [class.confirmed]="m.status === 'CONFIRMED'" [class.disputed]="m.status === 'DISPUTED'" [class.pending-conf]="m.status === 'PENDING_CONFIRMATION'">
+          <div class="card-top">
+            <p-tag [value]="formatStatus(m.status) | translate" [severity]="getTagSeverity(m.status)"></p-tag>
+            @if (m.matchDate) {
+              <span class="m-date"><i class="pi pi-calendar"></i> {{ m.matchDate | date }}</span>
+            }
+          </div>
+
+          <!-- Enfrentamiento -->
+          <div class="versus-layout">
+            <div class="team-side" [class.my-team]="isMyTeam(m.teamOneId)">
+              <span class="name">{{ m.teamOneName }} @if (isMyTeam(m.teamOneId)) { <strong class="you-tag">{{ 'TEAM_PORTAL.YOU' | translate }}</strong> }</span>
+              <span class="sub">{{ m.t1p1Name }} / {{ m.t1p2Name }}</span>
+              @if (m.setsTeamOne !== null && m.setsTeamOne !== undefined) {
+                <div class="score-pill">
+                  <span class="sets">{{ m.setsTeamOne }} {{ 'TEAM_PORTAL.SETS_LABEL' | translate }}</span>
+                  <p-badge [value]="m.pointsTeamOne + ' ' + ('MATCHES.PTS_SUFFIX' | translate)" severity="secondary"></p-badge>
+                </div>
+              }
+            </div>
+
+            <div class="vs-circle">{{ 'MATCHES.VS' | translate }}</div>
+
+            <div class="team-side" [class.my-team]="isMyTeam(m.teamTwoId)">
+              <span class="name">{{ m.teamTwoName }} @if (isMyTeam(m.teamTwoId)) { <strong class="you-tag">{{ 'TEAM_PORTAL.YOU' | translate }}</strong> }</span>
+              <span class="sub">{{ m.t2p1Name }} / {{ m.t2p2Name }}</span>
+              @if (m.setsTeamTwo !== null && m.setsTeamTwo !== undefined) {
+                <div class="score-pill">
+                  <span class="sets">{{ m.setsTeamTwo }} {{ 'TEAM_PORTAL.SETS_LABEL' | translate }}</span>
+                  <p-badge [value]="m.pointsTeamTwo + ' ' + ('MATCHES.PTS_SUFFIX' | translate)" severity="secondary"></p-badge>
+                </div>
+              }
+            </div>
+          </div>
+
+          @if (formatSetScores(m); as setScore) {
+            <div class="games-breakdown-pill">
+              <span class="pill-label">Parciales:</span>
+              <strong class="pill-score">{{ setScore }}</strong>
+              @if (m.gamesTeamOne !== null && m.gamesTeamOne !== undefined && m.gamesTeamTwo !== null && m.gamesTeamTwo !== undefined) {
+                <span class="pill-games">({{ m.gamesTeamOne }}-{{ m.gamesTeamTwo }} juegos)</span>
+              }
+            </div>
+          }
+
+          <!-- Acciones PrimeNG Buttons -->
+          <div class="card-actions">
+            @if (m.status === 'PENDING_RESULT') {
+              <div class="pending-actions-grid">
+                <button
+                  type="button"
+                  pButton
+                  severity="info"
+                  size="small"
+                  styleClass="flex-1 live-start-btn"
+                  (click)="goToLive(m)">
+                  <i class="pi pi-bolt"></i>
+                  <span>{{ 'LIVE.ENTER_LIVE_TRACKER' | translate }}</span>
+                </button>
+                <button
+                  type="button"
+                  pButton
+                  severity="secondary"
+                  size="small"
+                  styleClass="flex-1"
+                  (click)="submitResult.emit(m)">
+                  <i class="pi pi-pencil"></i>
+                  <span>{{ 'TEAM_PORTAL.SUBMIT_RESULT_BTN' | translate }}</span>
+                </button>
+              </div>
+            }
+
+            @if (m.status === 'PENDING_CONFIRMATION') {
+              @if (canIConfirm(m)) {
+                <div class="confirm-actions">
+                  <button
+                    type="button"
+                    pButton
+                    severity="success"
+                    size="small"
+                    styleClass="flex-1"
+                    (click)="confirmResult.emit(m)">
+                    <i class="pi pi-check"></i>
+                    <span>{{ 'TEAM_PORTAL.CONFIRM_RESULT_BTN' | translate }}</span>
+                  </button>
+                  <button
+                    type="button"
+                    pButton
+                    severity="danger"
+                    size="small"
+                    (click)="openDispute.emit(m)">
+                    <i class="pi pi-flag"></i>
+                    <span>{{ 'TEAM_PORTAL.INCIDENT_BTN' | translate }}</span>
+                  </button>
+                </div>
+                <p class="small-hint">{{ 'TEAM_PORTAL.CONFIRM_HINT' | translate }}</p>
+              } @else {
+                <div class="waiting-box">
+                  <i class="pi pi-clock"></i> {{ 'TEAM_PORTAL.WAITING_RIVAL_BOX' | translate }}
+                </div>
+              }
+            }
+
+            @if (m.status === 'CONFIRMED') {
+              <div class="confirmed-box">
+                <i class="pi pi-check-circle text-green"></i> {{ 'TEAM_PORTAL.CONFIRMED_BOX' | translate }}
+              </div>
+            }
+
+            @if (m.status === 'DISPUTED') {
+              <div class="disputed-box">
+                <i class="pi pi-exclamation-triangle text-red"></i> {{ 'TEAM_PORTAL.DISPUTED_BOX' | translate }}
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</section>

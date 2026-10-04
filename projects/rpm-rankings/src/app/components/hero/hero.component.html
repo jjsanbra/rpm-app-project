@@ -1,0 +1,34 @@
+<section class="hero-section">
+  <div class="hero-badge">
+    <span class="pulse-dot"></span> {{ 'HERO.BADGE' | translate }}
+  </div>
+  <h1 class="hero-title">
+    {{ 'HERO.TITLE_PREFIX' | translate }} <br/>
+    <span class="gradient-text">{{ 'HERO.TITLE_GRADIENT' | translate }}</span>
+  </h1>
+  <p class="hero-subtitle">
+    {{ 'HERO.SUBTITLE' | translate }}
+  </p>
+
+  <!-- Ranking Selector con PrimeNG Select -->
+  @if (rankings().length > 0) {
+    <div class="ranking-selector-card glass-panel-glow">
+      <div class="selector-header">
+        <span class="label">{{ 'HERO.SELECTED_RANKING' | translate }}</span>
+        <div class="dates-pill">
+          <i class="pi pi-calendar"></i>
+          {{ selectedRanking()?.startDate | date }} → {{ selectedRanking()?.endDate | date }}
+        </div>
+      </div>
+      <p-select
+        [options]="rankings()"
+        optionLabel="name"
+        optionValue="id"
+        [ngModel]="selectedRanking()?.id"
+        (ngModelChange)="onRankingChange($event)"
+        [placeholder]="'HERO.SELECT_RANKING_PLACEHOLDER' | translate"
+        styleClass="w-full">
+      </p-select>
+    </div>
+  }
+</section>

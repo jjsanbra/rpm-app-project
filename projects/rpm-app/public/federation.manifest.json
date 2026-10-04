@@ -2,5 +2,7 @@
   "rpm-admin": "http://localhost:4201/remoteEntry.json",
   "rpm-rankings": "http://localhost:4202/remoteEntry.json",
   "rpm-teams": "http://localhost:4203/remoteEntry.json",
-  "rpm-users": "http://localhost:4204/remoteEntry.json"
+  "rpm-users": "http://localhost:4204/remoteEntry.json",
+  "rpm-live": "http://localhost:4205/remoteEntry.json"
 }
+

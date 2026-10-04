@@ -2,13 +2,14 @@ import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '@core';
 
 // PrimeNG Modules
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
-import { ButtonModule } from 'primeng/button';
+import { ButtonDirective } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 
 @Component({
@@ -21,8 +22,9 @@ import { MessageModule } from 'primeng/message';
     CardModule,
     InputTextModule,
     PasswordModule,
-    ButtonModule,
-    MessageModule
+    ButtonDirective,
+    MessageModule,
+    TranslatePipe
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
@@ -30,6 +32,7 @@ import { MessageModule } from 'primeng/message';
 export class LoginComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private translate = inject(TranslateService);
 
   email = '';
   password = '';
@@ -53,7 +56,7 @@ export class LoginComponent {
       },
       error: (err) => {
         this.loading.set(false);
-        this.errorMessage.set(err.error?.error || 'Credenciales incorrectas.');
+        this.errorMessage.set(err.error?.error || this.translate.instant('AUTH.INVALID_CREDENTIALS'));
       }
     });
   }

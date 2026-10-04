@@ -1,0 +1,109 @@
+<section class="tab-section">
+  <div class="section-actions">
+    <h2>{{ 'ADMIN.INCIDENTS_HEADING' | translate }}</h2>
+  </div>
+
+  <div class="table-container glass-panel">
+    <p-table [value]="incidents()" [tableStyle]="{ 'min-width': '50rem' }" responsiveLayout="scroll">
+      <ng-template #header>
+        <tr>
+          <th>{{ 'ADMIN.TH_STATUS' | translate }}</th>
+          <th>{{ 'ADMIN.TH_REPORTED_BY' | translate }}</th>
+          <th>{{ 'ADMIN.TH_DATE' | translate }}</th>
+          <th>{{ 'ADMIN.TH_DESCRIPTION' | translate }}</th>
+          <th>{{ 'ADMIN.TH_RESOLUTION' | translate }}</th>
+          <th>{{ 'ADMIN.TH_ACTIONS' | translate }}</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-inc>
+        <tr>
+          <td>
+            <p-tag [value]="formatStatus(inc.status) | translate" [severity]="getTagSeverity(inc.status)"></p-tag>
+          </td>
+          <td>{{ inc.reportedByEmail || inc.reportedBy }}</td>
+          <td>{{ inc.reportedAt ? (inc.reportedAt | date) : (inc.createdAt | date) }}</td>
+          <td>
+            <p class="inc-desc">{{ inc.description }}</p>
+          </td>
+          <td>
+            @if (inc.resolution) {
+              <span class="text-success">{{ inc.resolution }}</span>
+            } @else {
+              <span class="text-dim">{{ 'ADMIN.PENDING_RESOLUTION' | translate }}</span>
+            }
+          </td>
+          <td>
+            @if (inc.status === 'OPEN' || inc.status === 'IN_REVIEW') {
+              <button
+                type="button"
+                pButton
+                severity="success"
+                size="small"
+                (click)="openResolveModal(inc)">
+                <i class="pi pi-check-circle"></i>
+                <span>{{ 'ADMIN.RESOLVE_BTN' | translate }}</span>
+              </button>
+            } @else {
+              <span class="text-dim"><i class="pi pi-lock"></i> {{ 'ADMIN.CLOSED_STATUS' | translate }}</span>
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</section>
+
+<!-- MODAL RESOLVER INCIDENCIA -->
+<p-dialog
+  [(visible)]="showResolveModal"
+  [modal]="true"
+  [header]="'ADMIN.MODAL_RESOLVE_TITLE' | translate"
+  [style]="{ width: '90vw', maxWidth: '500px' }"
+  styleClass="custom-p-dialog">
+  
+  @if (activeIncident; as inc) {
+    <div class="incident-summary-box">
+      <strong>{{ 'ADMIN.DISPUTE_LABEL' | translate }}:</strong> {{ inc.description }}
+    </div>
+
+    <form (ngSubmit)="submitResolve()" class="modal-form">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.FINAL_STATUS_LABEL' | translate }}</label>
+        <p-select
+          [options]="resolutionStatusOptions"
+          optionValue="value"
+          [(ngModel)]="incResolveStatus"
+          name="resolveStatus"
+          styleClass="w-full">
+          <ng-template #selectedItem let-selectedOption>
+            {{ selectedOption?.labelKey | translate }}
+          </ng-template>
+          <ng-template #item let-option>
+            {{ option.labelKey | translate }}
+          </ng-template>
+        </p-select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.RESOLUTION_LABEL' | translate }}</label>
+        <textarea
+          class="form-control"
+          [(ngModel)]="incResolution"
+          name="resolution"
+          rows="3"
+          [placeholder]="'ADMIN.RESOLUTION_PLACEHOLDER' | translate"
+          required></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" pButton severity="secondary" (click)="showResolveModal = false">
+          <span>{{ 'COMMON.CANCEL' | translate }}</span>
+        </button>
+        <button type="submit" pButton severity="success">
+          <i class="pi pi-check"></i>
+          <span>{{ 'ADMIN.SAVE_RESOLUTION_BTN' | translate }}</span>
+        </button>
+      </div>
+    </form>
+  }
+</p-dialog>

@@ -1,0 +1,110 @@
+<section class="tab-section">
+  <div class="section-actions">
+    <div class="aux-tabs">
+      <button
+        type="button"
+        pButton
+        [outlined]="auxType() !== 'levels'"
+        severity="success"
+        size="small"
+        (click)="auxTypeChange.emit('levels')">
+        <span>{{ 'ADMIN.CAT_LEVELS' | translate }}</span>
+      </button>
+      <button
+        type="button"
+        pButton
+        [outlined]="auxType() !== 'categories'"
+        severity="success"
+        size="small"
+        (click)="auxTypeChange.emit('categories')">
+        <span>{{ 'ADMIN.CAT_CATEGORIES' | translate }}</span>
+      </button>
+      <button
+        type="button"
+        pButton
+        [outlined]="auxType() !== 'locations'"
+        severity="success"
+        size="small"
+        (click)="auxTypeChange.emit('locations')">
+        <span>{{ 'ADMIN.CAT_LOCATIONS' | translate }}</span>
+      </button>
+      <button
+        type="button"
+        pButton
+        [outlined]="auxType() !== 'sponsors'"
+        severity="success"
+        size="small"
+        (click)="auxTypeChange.emit('sponsors')">
+        <span>{{ 'ADMIN.CAT_SPONSORS' | translate }}</span>
+      </button>
+    </div>
+
+    <button type="button" pButton severity="success" size="small" (click)="openCreateModal()">
+      <i class="pi pi-plus"></i>
+      <span>{{ 'ADMIN.CREATE_RECORD_BTN' | translate }}</span>
+    </button>
+  </div>
+
+  <div class="table-container glass-panel">
+    <p-table [value]="items()" [tableStyle]="{ 'min-width': '40rem' }" responsiveLayout="scroll">
+      <ng-template #header>
+        <tr>
+          <th>{{ 'ADMIN.TH_NAME' | translate }}</th>
+          <th>{{ 'ADMIN.TH_DESCRIPTION' | translate }}</th>
+          <th>{{ 'ADMIN.TH_ACTIONS' | translate }}</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-item>
+        <tr>
+          <td>
+            <strong>{{ item.name }}</strong>
+          </td>
+          <td>{{ item.description || '-' }}</td>
+          <td>
+            <button
+              type="button"
+              pButton
+              severity="danger"
+              size="small"
+              [outlined]="true"
+              (click)="deleteItem.emit(item.id)">
+              <i class="pi pi-trash"></i>
+              <span>{{ 'COMMON.DELETE' | translate }}</span>
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</section>
+
+<!-- MODAL CREAR ELEMENTO AUXILIAR -->
+<p-dialog
+  [(visible)]="showCreateModal"
+  [modal]="true"
+  [header]="'ADMIN.MODAL_CREATE_RECORD_TITLE' | translate"
+  [style]="{ width: '90vw', maxWidth: '450px' }"
+  styleClass="custom-p-dialog">
+  
+  <form (ngSubmit)="submitCreate()" class="modal-form">
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.NAME_LABEL' | translate }}</label>
+      <input type="text" class="form-control" [(ngModel)]="newName" name="auxName" required />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.DESCRIPTION_LABEL' | translate }}</label>
+      <textarea class="form-control" [(ngModel)]="newDesc" name="auxDesc" rows="2"></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" pButton severity="secondary" (click)="showCreateModal = false">
+        <span>{{ 'COMMON.CANCEL' | translate }}</span>
+      </button>
+      <button type="submit" pButton severity="success">
+        <i class="pi pi-check"></i>
+        <span>{{ 'ADMIN.SAVE_RECORD_BTN' | translate }}</span>
+      </button>
+    </div>
+  </form>
+</p-dialog>

@@ -1,0 +1,222 @@
+<section class="tab-section">
+  <div class="section-actions">
+    <h2>{{ 'ADMIN.RANKINGS_HEADING' | translate }}</h2>
+    <button type="button" pButton severity="success" size="small" (click)="openCreateModal()">
+      <i class="pi pi-plus"></i>
+      <span>{{ 'ADMIN.CREATE_RANKING_BTN' | translate }}</span>
+    </button>
+  </div>
+
+  <div class="cards-grid">
+    @for (r of rankings(); track r.id) {
+      <div class="admin-card glass-panel">
+        <div class="card-head">
+          <p-tag [value]="(r.active ? 'STATUS.ACTIVE' : 'STATUS.INACTIVE') | translate" [severity]="r.active ? 'success' : 'secondary'"></p-tag>
+          <span class="date-txt">{{ r.startDate | date }} → {{ r.endDate | date }}</span>
+        </div>
+        <h3 class="card-title">{{ r.name }}</h3>
+        <p class="card-desc">{{ r.description || ('ADMIN.NO_DESC' | translate) }}</p>
+
+        <div class="card-tags">
+          <span class="mini-tag"><i class="pi pi-map-marker"></i> {{ r.locationName || ('ADMIN.DEFAULT_LOCATION' | translate) }}</span>
+          <span class="mini-tag"><i class="pi pi-chart-line"></i> {{ r.levelName || ('ADMIN.DEFAULT_LEVEL' | translate) }}</span>
+          <span class="mini-tag"><i class="pi pi-users"></i> {{ r.categoryName || ('ADMIN.DEFAULT_CATEGORY' | translate) }}</span>
+        </div>
+
+        <div class="card-foot">
+          <button
+            type="button"
+            pButton
+            severity="warn"
+            size="small"
+            [outlined]="true"
+            (click)="openEditModal(r)">
+            <i class="pi pi-pencil"></i>
+            <span>{{ 'COMMON.EDIT' | translate }}</span>
+          </button>
+          <button
+            type="button"
+            pButton
+            [severity]="r.active ? 'secondary' : 'success'"
+            size="small"
+            (click)="toggleActive.emit(r)">
+            <span>{{ (r.active ? 'ADMIN.DEACTIVATE_BTN' : 'ADMIN.ACTIVATE_BTN') | translate }}</span>
+          </button>
+          <button
+            type="button"
+            pButton
+            severity="info"
+            size="small"
+            (click)="selectForMatches.emit(r)">
+            <i class="pi pi-calendar"></i>
+            <span>{{ 'ADMIN.MATCHES_BTN' | translate }}</span>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</section>
+
+<!-- MODAL CREAR RANKING -->
+<p-dialog
+  [(visible)]="showCreateModal"
+  [modal]="true"
+  [header]="'ADMIN.MODAL_CREATE_RANKING_TITLE' | translate"
+  [style]="{ width: '90vw', maxWidth: '550px' }"
+  styleClass="custom-p-dialog">
+  
+  <form (ngSubmit)="submitCreate()" class="modal-form">
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.RANKING_NAME_LABEL' | translate }}</label>
+      <input type="text" class="form-control" [(ngModel)]="newRankingName" name="name" required />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.RANKING_DESC_LABEL' | translate }}</label>
+      <textarea class="form-control" [(ngModel)]="newRankingDesc" name="desc" rows="2"></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.START_DATE_LABEL' | translate }}</label>
+        <input type="date" class="form-control" [(ngModel)]="newRankingStart" name="start" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.END_DATE_LABEL' | translate }}</label>
+        <input type="date" class="form-control" [(ngModel)]="newRankingEnd" name="end" required />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.LOCATION_LABEL' | translate }}</label>
+      <p-select
+        [options]="locations()"
+        optionLabel="name"
+        optionValue="id"
+        [(ngModel)]="newRankingLocationId"
+        name="location"
+        [placeholder]="'ADMIN.SELECT_LOCATION_OPTION' | translate"
+        styleClass="w-full">
+      </p-select>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.LEVEL_LABEL' | translate }}</label>
+        <p-select
+          [options]="levels()"
+          optionLabel="name"
+          optionValue="id"
+          [(ngModel)]="newRankingLevelId"
+          name="level"
+          [placeholder]="'ADMIN.SELECT_LEVEL_OPTION' | translate"
+          styleClass="w-full">
+        </p-select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.CATEGORY_LABEL' | translate }}</label>
+        <p-select
+          [options]="categories()"
+          optionLabel="name"
+          optionValue="id"
+          [(ngModel)]="newRankingCategoryId"
+          name="category"
+          [placeholder]="'ADMIN.SELECT_CATEGORY_OPTION' | translate"
+          styleClass="w-full">
+        </p-select>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" pButton severity="secondary" (click)="showCreateModal = false">
+        <span>{{ 'COMMON.CANCEL' | translate }}</span>
+      </button>
+      <button type="submit" pButton severity="success">
+        <i class="pi pi-check"></i>
+        <span>{{ 'ADMIN.CREATE_BTN' | translate }}</span>
+      </button>
+    </div>
+  </form>
+</p-dialog>
+
+<!-- MODAL EDITAR RANKING -->
+<p-dialog
+  [(visible)]="showEditModal"
+  [modal]="true"
+  [header]="'ADMIN.MODAL_EDIT_RANKING_TITLE' | translate"
+  [style]="{ width: '90vw', maxWidth: '550px' }"
+  styleClass="custom-p-dialog">
+  
+  <form (ngSubmit)="submitEdit()" class="modal-form">
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.RANKING_NAME_LABEL' | translate }}</label>
+      <input type="text" class="form-control" [(ngModel)]="editRankingName" name="editName" required />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.RANKING_DESC_LABEL' | translate }}</label>
+      <textarea class="form-control" [(ngModel)]="editRankingDesc" name="editDesc" rows="2"></textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.START_DATE_LABEL' | translate }}</label>
+        <input type="date" class="form-control" [(ngModel)]="editRankingStart" name="editStart" required />
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.END_DATE_LABEL' | translate }}</label>
+        <input type="date" class="form-control" [(ngModel)]="editRankingEnd" name="editEnd" required />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.LOCATION_LABEL' | translate }}</label>
+      <p-select
+        [options]="locations()"
+        optionLabel="name"
+        optionValue="id"
+        [(ngModel)]="editRankingLocationId"
+        name="editLocation"
+        [placeholder]="'ADMIN.SELECT_LOCATION_OPTION' | translate"
+        styleClass="w-full">
+      </p-select>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.LEVEL_LABEL' | translate }}</label>
+        <p-select
+          [options]="levels()"
+          optionLabel="name"
+          optionValue="id"
+          [(ngModel)]="editRankingLevelId"
+          name="editLevel"
+          [placeholder]="'ADMIN.SELECT_LEVEL_OPTION' | translate"
+          styleClass="w-full">
+        </p-select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.CATEGORY_LABEL' | translate }}</label>
+        <p-select
+          [options]="categories()"
+          optionLabel="name"
+          optionValue="id"
+          [(ngModel)]="editRankingCategoryId"
+          name="editCategory"
+          [placeholder]="'ADMIN.SELECT_CATEGORY_OPTION' | translate"
+          styleClass="w-full">
+        </p-select>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" pButton severity="secondary" (click)="showEditModal = false">
+        <span>{{ 'COMMON.CANCEL' | translate }}</span>
+      </button>
+      <button type="submit" pButton severity="success">
+        <i class="pi pi-check"></i>
+        <span>{{ 'COMMON.SAVE' | translate }}</span>
+      </button>
+    </div>
+  </form>
+</p-dialog>

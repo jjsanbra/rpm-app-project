@@ -1,0 +1,111 @@
+<section id="partidos" class="section container">
+  <div class="section-header">
+    <div>
+      <span class="section-tag">{{ 'MATCHES.SECTION_TAG' | translate }}</span>
+      <h2 class="section-title">{{ 'MATCHES.TITLE' | translate }}</h2>
+    </div>
+    <div class="filter-pills">
+      <button type="button" pButton [outlined]="matchFilter() !== 'ALL'" size="small" severity="secondary" (click)="setMatchFilter('ALL')">
+        <span>{{ 'MATCHES.FILTER_ALL' | translate }}</span>
+      </button>
+      <button type="button" pButton [outlined]="matchFilter() !== 'CONFIRMED'" size="small" severity="success" (click)="setMatchFilter('CONFIRMED')">
+        <span>{{ 'MATCHES.FILTER_CONFIRMED' | translate }}</span>
+      </button>
+      <button type="button" pButton [outlined]="matchFilter() !== 'PENDING_CONFIRMATION'" size="small" severity="warn" (click)="setMatchFilter('PENDING_CONFIRMATION')">
+        <span>{{ 'MATCHES.FILTER_PENDING' | translate }}</span>
+      </button>
+      <button type="button" pButton [outlined]="matchFilter() !== 'DISPUTED'" size="small" severity="danger" (click)="setMatchFilter('DISPUTED')">
+        <span>{{ 'MATCHES.FILTER_DISPUTED' | translate }}</span>
+      </button>
+    </div>
+  </div>
+
+  @if (filteredMatches().length === 0) {
+    <p-card styleClass="empty-card">
+      <div class="text-center p-4">
+        <i class="pi pi-calendar-times" style="font-size: 2rem; color: var(--text-dim);"></i>
+        <p class="mt-2 text-muted">{{ 'MATCHES.NO_MATCHES' | translate }}</p>
+      </div>
+    </p-card>
+  } @else {
+    <div class="matches-grid">
+      @for (m of filteredMatches(); track m.id) {
+        <div class="match-card glass-panel" [class.confirmed]="m.status === 'CONFIRMED'" [class.disputed]="m.status === 'DISPUTED'">
+          <div class="match-meta">
+            <p-tag [value]="formatStatus(m.status) | translate" [severity]="getTagSeverity(m.status)"></p-tag>
+            @if (m.matchDate) {
+              <span class="match-date"><i class="pi pi-calendar"></i> {{ m.matchDate | date }}</span>
+            } @else {
+              <span class="match-date text-dim"><i class="pi pi-clock"></i> {{ 'MATCHES.TO_BE_PLAYED' | translate }}</span>
+            }
+          </div>
+
+          <div class="match-teams-box">
+            <div class="match-team" [class.winner]="m.setsTeamOne !== null && m.setsTeamTwo !== null && (m.setsTeamOne ?? 0) > (m.setsTeamTwo ?? 0)">
+              <div class="team-info">
+                <span class="team-title">{{ m.teamOneName }}</span>
+                <span class="players-sub">{{ m.t1p1Name }} {{ m.t1p1Surname }} / {{ m.t1p2Name }} {{ m.t1p2Surname }}</span>
+              </div>
+              <div class="score-display">
+                @if (m.setsTeamOne !== null && m.setsTeamOne !== undefined) {
+                  <span class="sets-num">{{ m.setsTeamOne }}</span>
+                  <p-badge [value]="m.pointsTeamOne + ' ' + ('MATCHES.PTS_SUFFIX' | translate)" severity="secondary"></p-badge>
+                } @else {
+                  <span class="sets-dash">-</span>
+                }
+              </div>
+            </div>
+
+            <div class="match-divider"><span>{{ 'MATCHES.VS' | translate }}</span></div>
+
+            <div class="match-team" [class.winner]="m.setsTeamOne !== null && m.setsTeamTwo !== null && (m.setsTeamTwo ?? 0) > (m.setsTeamOne ?? 0)">
+              <div class="team-info">
+                <span class="team-title">{{ m.teamTwoName }}</span>
+                <span class="players-sub">{{ m.t2p1Name }} {{ m.t2p1Surname }} / {{ m.t2p2Name }} {{ m.t2p2Surname }}</span>
+              </div>
+              <div class="score-display">
+                @if (m.setsTeamTwo !== null && m.setsTeamTwo !== undefined) {
+                  <span class="sets-num">{{ m.setsTeamTwo }}</span>
+                  <p-badge [value]="m.pointsTeamTwo + ' ' + ('MATCHES.PTS_SUFFIX' | translate)" severity="secondary"></p-badge>
+                } @else {
+                  <span class="sets-dash">-</span>
+                }
+              </div>
+            </div>
+          </div>
+
+          @if (formatSetScores(m); as setScore) {
+            <div class="match-breakdown-pill">
+              <span class="breakdown-label">Sets:</span>
+              <strong class="breakdown-val">{{ setScore }}</strong>
+              @if (m.gamesTeamOne !== null && m.gamesTeamOne !== undefined && m.gamesTeamTwo !== null && m.gamesTeamTwo !== undefined) {
+                <span class="breakdown-games">({{ m.gamesTeamOne }}-{{ m.gamesTeamTwo }} juegos)</span>
+              }
+            </div>
+          }
+
+          @if (m.status === 'PENDING_CONFIRMATION') {
+            <div class="match-alert-pending">
+              <i class="pi pi-info-circle"></i> {{ 'MATCHES.PENDING_ALERT_PREFIX' | translate }} <strong>{{ m.submittedByEmail }}</strong>. {{ 'MATCHES.PENDING_ALERT_SUFFIX' | translate }}
+            </div>
+          }
+          @if (m.status === 'DISPUTED') {
+            <div class="match-alert-dispute">
+              <i class="pi pi-exclamation-triangle"></i> {{ 'MATCHES.DISPUTED_ALERT' | translate }}
+            </div>
+          }
+
+          <div class="match-live-action">
+            <button
+              type="button"
+              class="btn-live-spectate"
+              (click)="goToLive(m)">
+              <i class="pi pi-bolt"></i>
+              <span>{{ 'LIVE.VIEW_LIVE_SPECTATOR' | translate }}</span>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</section>

@@ -1,30 +1,23 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { RankingService, MatchService, ClassificationService, Ranking, Match, ClassificationRow } from '@core';
 
-// PrimeNG Components
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
-import { CardModule } from 'primeng/card';
-import { BadgeModule } from 'primeng/badge';
-import { SelectModule } from 'primeng/select';
+import { HeroComponent } from './components/hero/hero.component';
+import { RankingInfoComponent } from './components/ranking-info/ranking-info.component';
+import { StandingsComponent } from './components/standings/standings.component';
+import { MatchesComponent } from './components/matches/matches.component';
+import { RulesComponent } from './components/rules/rules.component';
 
 @Component({
   selector: 'app-landing',
   standalone: true,
   imports: [
     CommonModule,
-    RouterModule,
-    FormsModule,
-    TableModule,
-    ButtonModule,
-    TagModule,
-    CardModule,
-    BadgeModule,
-    SelectModule
+    HeroComponent,
+    RankingInfoComponent,
+    StandingsComponent,
+    MatchesComponent,
+    RulesComponent
   ],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss'
@@ -40,7 +33,6 @@ export class LandingComponent implements OnInit {
   matches = signal<Match[]>([]);
   
   viewMode = signal<'official' | 'provisional'>('official');
-  matchFilter = signal<string>('ALL');
   loadingClassification = signal<boolean>(false);
 
   ngOnInit(): void {
@@ -99,34 +91,5 @@ export class LandingComponent implements OnInit {
     this.viewMode.set(mode);
     const r = this.selectedRanking();
     if (r) this.loadClassification(r.id);
-  }
-
-  setMatchFilter(filter: string): void {
-    this.matchFilter.set(filter);
-  }
-
-  filteredMatches(): Match[] {
-    const f = this.matchFilter();
-    if (f === 'ALL') return this.matches();
-    return this.matches().filter(m => m.status === f);
-  }
-
-  getTagSeverity(status: string): 'success' | 'warn' | 'danger' | 'info' | 'secondary' {
-    switch (status) {
-      case 'CONFIRMED': return 'success';
-      case 'PENDING_CONFIRMATION': return 'warn';
-      case 'DISPUTED': return 'danger';
-      default: return 'secondary';
-    }
-  }
-
-  formatStatus(status: string): string {
-    switch (status) {
-      case 'CONFIRMED': return 'Confirmado';
-      case 'PENDING_CONFIRMATION': return 'Pendiente Confirmar';
-      case 'DISPUTED': return 'En Disputa';
-      case 'PENDING_RESULT': return 'Pendiente Resultado';
-      default: return status;
-    }
   }
 }

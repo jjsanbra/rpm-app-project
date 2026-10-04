@@ -29,22 +29,25 @@ describe('TeamPortalComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should format status labels correctly', () => {
-    expect(component.formatStatus('CONFIRMED')).toBe('Confirmado');
-    expect(component.formatStatus('PENDING_CONFIRMATION')).toBe('Pendiente Confirmar');
-    expect(component.formatStatus('DISPUTED')).toBe('En Disputa');
-    expect(component.formatStatus('PENDING_RESULT')).toBe('Por Jugar');
+  it('should open and close submit modal', () => {
+    const dummyMatch: any = { id: 'm-1', teamOneName: 'T1', teamTwoName: 'T2' };
+    component.openSubmitModal(dummyMatch);
+    expect(component.showSubmitModal()).toBeTrue();
+    expect(component.activeSubmitMatch()?.id).toBe('m-1');
+
+    component.closeSubmitModal();
+    expect(component.showSubmitModal()).toBeFalse();
+    expect(component.activeSubmitMatch()).toBeNull();
   });
 
-  it('should compute preview points correctly for 2-0 score', () => {
-    component.setScore(2, 0);
-    expect(component.previewPointsOne()).toBe(5);
-    expect(component.previewPointsTwo()).toBe(1);
-  });
+  it('should open and close dispute modal', () => {
+    const dummyMatch: any = { id: 'm-1', teamOneName: 'T1', teamTwoName: 'T2' };
+    component.openDisputeModal(dummyMatch);
+    expect(component.showDisputeModal()).toBeTrue();
+    expect(component.activeDisputeMatch()?.id).toBe('m-1');
 
-  it('should compute preview points correctly for 1-2 score', () => {
-    component.setScore(1, 2);
-    expect(component.previewPointsOne()).toBe(2);
-    expect(component.previewPointsTwo()).toBe(4);
+    component.closeDisputeModal();
+    expect(component.showDisputeModal()).toBeFalse();
+    expect(component.activeDisputeMatch()).toBeNull();
   });
 });

@@ -76,6 +76,14 @@ export interface Match {
   resultSubmittedBy?: string | null;
   submittedByEmail?: string | null;
   status: MatchStatus;
+  set1TeamOne?: number | null;
+  set1TeamTwo?: number | null;
+  set2TeamOne?: number | null;
+  set2TeamTwo?: number | null;
+  set3TeamOne?: number | null;
+  set3TeamTwo?: number | null;
+  gamesTeamOne?: number | null;
+  gamesTeamTwo?: number | null;
   setsTeamOne?: number | null;
   setsTeamTwo?: number | null;
   pointsTeamOne?: number | null;
@@ -90,6 +98,18 @@ export interface Match {
   updatedAt: string;
 }
 
+export interface SubmitResultPayload {
+  matchDate: string;
+  set1TeamOne?: number;
+  set1TeamTwo?: number;
+  set2TeamOne?: number;
+  set2TeamTwo?: number;
+  set3TeamOne?: number | null;
+  set3TeamTwo?: number | null;
+  setsTeamOne?: number;
+  setsTeamTwo?: number;
+}
+
 export interface ClassificationRow {
   position: number;
   teamId: string;
@@ -102,6 +122,9 @@ export interface ClassificationRow {
   setsWon: number;
   setsLost: number;
   setsDiff: number;
+  gamesWon: number;
+  gamesLost: number;
+  gamesDiff: number;
   pointsFor: number;
   pointsAgainst: number;
   pointsDiff: number;
@@ -145,3 +168,50 @@ export interface AuxiliaryItem {
   state?: string;
   country?: string;
 }
+
+export type LiveMatchStatus = 'REQUESTED' | 'IN_PROGRESS' | 'COMPLETED' | 'CONFIRMED' | 'CANCELLED';
+
+export interface LiveMatchSession {
+  id: string;
+  matchId: string;
+  rankingId: string;
+  rankingName?: string;
+  teamOneId: string;
+  teamOneName?: string;
+  teamTwoId: string;
+  teamTwoName?: string;
+  requestedBy: string;
+  requestedByName?: string;
+  requestedByEmail?: string;
+  requestedByTeamId?: string;
+  requestedByTeamName?: string;
+  status: LiveMatchStatus;
+  currentSet: number;
+  pointsTeamOne: string;
+  pointsTeamTwo: string;
+  set1TeamOne: number;
+  set1TeamTwo: number;
+  set2TeamOne: number;
+  set2TeamTwo: number;
+  set3TeamOne: number | null;
+  set3TeamTwo: number | null;
+  setsTeamOne: number;
+  setsTeamTwo: number;
+  gamesTeamOne: number;
+  gamesTeamTwo: number;
+  gameMode?: 'GOLDEN_POINT' | 'ADVANTAGE';
+  servingTeam: 1 | 2;
+  isTiebreak: number; // 0 or 1
+  tiebreakPointsTeamOne: number;
+  tiebreakPointsTeamTwo: number;
+  confirmedByTeamOne: number;
+  confirmedByTeamTwo: number;
+  startedAt?: string;
+  endedAt?: string;
+  updatedAt: string;
+}
+
+export interface LivePointPayload {
+  team: 1 | 2;
+}
+

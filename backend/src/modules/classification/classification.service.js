@@ -8,15 +8,18 @@ const { getDb } = require('../../database/db');
  * La clasificación oficial solo incluye resultados CONFIRMED.
  * La clasificación provisional incluye también PENDING_CONFIRMATION.
  *
- * Ordenada principalmente por puntos. La arquitectura permite añadir
- * criterios de desempate (diferencia de sets, puntos) en el futuro.
+ * Criterios de ordenación y desempate:
+ *   1º Puntos totales (totalPoints)
+ *   2º Diferencia de sets (setsDiff)
+ *   3º Diferencia de juegos (gamesDiff)
+ *   4º Diferencia de puntos (pointsDiff)
  */
 
 /**
  * Obtiene la clasificación oficial de un ranking.
  * Solo cuenta resultados en estado CONFIRMED.
  * @param {string} rankingId
- * @returns {object[]} Clasificación ordenada por puntos desc
+ * @returns {object[]} Clasificación ordenada
  */
 function getOfficialClassification(rankingId) {
   return _buildClassification(rankingId, ['CONFIRMED']);
@@ -52,7 +55,9 @@ function _buildClassification(rankingId, statuses) {
 
   // Obtener partidos con resultados en los estados indicados
   const matches = db.prepare(`
-    SELECT teamOneId, teamTwoId, setsTeamOne, setsTeamTwo, pointsTeamOne, pointsTeamTwo, status
+    SELECT teamOneId, teamTwoId,
+           set1TeamOne, set1TeamTwo, set2TeamOne, set2TeamTwo, set3TeamOne, set3TeamTwo,
+           gamesTeamOne, gamesTeamTwo, setsTeamOne, setsTeamTwo, pointsTeamOne, pointsTeamTwo, status
     FROM matches
     WHERE rankingId = ? AND status IN (${statusPlaceholders})
   `).all(rankingId, ...statuses);
@@ -71,6 +76,9 @@ function _buildClassification(rankingId, statuses) {
       setsWon: 0,
       setsLost: 0,
       setsDiff: 0,
+      gamesWon: 0,
+      gamesLost: 0,
+      gamesDiff: 0,
       pointsFor: 0,
       pointsAgainst: 0,
       pointsDiff: 0,
@@ -88,20 +96,35 @@ function _buildClassification(rankingId, statuses) {
     s1.played++;
     s2.played++;
 
-    s1.setsWon += match.setsTeamOne;
-    s1.setsLost += match.setsTeamTwo;
-    s2.setsWon += match.setsTeamTwo;
-    s2.setsLost += match.setsTeamOne;
+    // Sets
+    s1.setsWon += (match.setsTeamOne || 0);
+    s1.setsLost += (match.setsTeamTwo || 0);
+    s2.setsWon += (match.setsTeamTwo || 0);
+    s2.setsLost += (match.setsTeamOne || 0);
 
-    s1.pointsFor += match.pointsTeamOne;
-    s1.pointsAgainst += match.pointsTeamTwo;
-    s2.pointsFor += match.pointsTeamTwo;
-    s2.pointsAgainst += match.pointsTeamOne;
+    // Juegos
+    const g1 = match.gamesTeamOne !== null && match.gamesTeamOne !== undefined
+      ? match.gamesTeamOne
+      : (match.set1TeamOne || 0) + (match.set2TeamOne || 0) + (match.set3TeamOne || 0);
+    const g2 = match.gamesTeamTwo !== null && match.gamesTeamTwo !== undefined
+      ? match.gamesTeamTwo
+      : (match.set1TeamTwo || 0) + (match.set2TeamTwo || 0) + (match.set3TeamTwo || 0);
 
-    s1.totalPoints += match.pointsTeamOne;
-    s2.totalPoints += match.pointsTeamTwo;
+    s1.gamesWon += g1;
+    s1.gamesLost += g2;
+    s2.gamesWon += g2;
+    s2.gamesLost += g1;
 
-    if (match.setsTeamOne > match.setsTeamTwo) {
+    // Puntos de ranking
+    s1.pointsFor += (match.pointsTeamOne || 0);
+    s1.pointsAgainst += (match.pointsTeamTwo || 0);
+    s2.pointsFor += (match.pointsTeamTwo || 0);
+    s2.pointsAgainst += (match.pointsTeamOne || 0);
+
+    s1.totalPoints += (match.pointsTeamOne || 0);
+    s2.totalPoints += (match.pointsTeamTwo || 0);
+
+    if ((match.setsTeamOne || 0) > (match.setsTeamTwo || 0)) {
       s1.wins++;
       s2.losses++;
     } else {
@@ -113,13 +136,15 @@ function _buildClassification(rankingId, statuses) {
   // Calcular diferencias
   for (const teamId of Object.keys(stats)) {
     stats[teamId].setsDiff = stats[teamId].setsWon - stats[teamId].setsLost;
+    stats[teamId].gamesDiff = stats[teamId].gamesWon - stats[teamId].gamesLost;
     stats[teamId].pointsDiff = stats[teamId].pointsFor - stats[teamId].pointsAgainst;
   }
 
-  // Ordenar: 1º por totalPoints, 2º por setsDiff, 3º por pointsDiff (preparado para desempates)
+  // Ordenar: 1º por totalPoints, 2º por setsDiff, 3º por gamesDiff, 4º por pointsDiff
   const sorted = Object.values(stats).sort((a, b) => {
     if (b.totalPoints !== a.totalPoints) return b.totalPoints - a.totalPoints;
     if (b.setsDiff !== a.setsDiff) return b.setsDiff - a.setsDiff;
+    if (b.gamesDiff !== a.gamesDiff) return b.gamesDiff - a.gamesDiff;
     if (b.pointsDiff !== a.pointsDiff) return b.pointsDiff - a.pointsDiff;
     return a.teamName.localeCompare(b.teamName);
   });

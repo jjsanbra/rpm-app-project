@@ -439,22 +439,26 @@ Al registrar resultado se solicitará:
 
 Por ejemplo:
 
-2-0
-2-1
-1-2
-0-2
+Entrada por juegos en cada set (reglamentario de pádel: 6-0..6-4, 7-5, 7-6 o súper tie-break en 3º set):
+- Set 1: 6-3
+- Set 2: 4-6
+- Set 3 (Desempate si 1-1): 7-5
 
-Validar que el resultado de sets sea coherente.
+El sistema (frontend y backend) calcula automáticamente:
+- Sets ganados: 2-1 (Solo lectura en UI)
+- Juegos totales y diferencia de juegos
+- Puntos correspondientes (4 pts al ganador, 2 pts al perdedor)
 
-No permitir resultados imposibles.
+Validar que el resultado de sets y parciales de juegos sea coherente y reglamentario.
+No permitir resultados imposibles ni sets empatados.
 
 Una vez enviado:
 
 1. Validar permisos.
 2. Validar fecha.
-3. Validar resultado.
-4. Calcular automáticamente los puntos.
-5. Guardar resultado.
+3. Validar tanteo de juegos por set.
+4. Calcular automáticamente sets ganados, juegos totales y puntos.
+5. Guardar resultado completo y parciales.
 6. Guardar quién lo registró.
 7. Guardar cuándo se registró.
 8. Cambiar estado a PENDING_CONFIRMATION.
@@ -466,12 +470,12 @@ Una vez enviado:
 
 REGLAS DEFINITIVAS:
 
-Victoria en 2 sets:
+Victoria en 2 sets (2-0 / 0-2):
 
 - Ganador: 5 puntos
-- Perdedor: 1 punto
+- Perdedor: 1 punto (por disputar el partido)
 
-Victoria en 3 sets:
+Victoria en 3 sets (2-1 / 1-2):
 
 - Ganador: 4 puntos
 - Perdedor: 2 puntos
@@ -485,13 +489,11 @@ Tabla:
 | 2-1       | 4       | 2        |
 | 1-2       | 4       | 2        |
 
-Los puntos:
-- Se calculan exclusivamente en backend.
-- Nunca son editables manualmente por TEAM_USER.
-- No se reciben como valor confiable desde frontend.
-- Se recalculan si el administrador modifica el resultado.
-
-Preparar la arquitectura para que en el futuro se puedan añadir desempates configurables, pero NO inventar reglas de desempate que no hayan sido especificadas.
+Los puntos y sets:
+- Se calculan a partir de los juegos por set introducidos.
+- Se calculan exclusivamente en backend (con visualización en tiempo real en frontend).
+- Nunca son editables manualmente como valores arbitrarios por TEAM_USER.
+- Se recalculan si el administrador modifica el acta (el motivo de modificación de acta es opcional pero queda auditado).
 
 ==================================================
 14. CONFIRMACIÓN DE RESULTADOS
@@ -501,18 +503,19 @@ Flujo obligatorio:
 
 ### Paso 1
 
-Equipo A registra:
+Equipo A registra tanteo de juegos:
 
 Equipo A vs Equipo B
 
 Ejemplo:
 - Fecha: 15/09
-- Resultado: 2-1
+- Parciales: 6-4, 3-6, 7-5
+- Sets calculados: 2-1
 
 Backend calcula:
 
-Equipo A: 4 puntos
-Equipo B: 2 puntos
+Equipo A: 4 puntos (16 juegos)
+Equipo B: 2 puntos (15 juegos)
 
 Estado:
 
@@ -528,7 +531,7 @@ El email debe indicar:
 - Equipo que registró el resultado.
 - Equipos participantes.
 - Fecha del partido.
-- Resultado.
+- Resultado (sets y parciales de juegos).
 - Puntos calculados.
 - Quién registró el resultado.
 - Botón "Confirmar resultado".
@@ -558,8 +561,8 @@ Resultado:
 El administrador revisa la incidencia.
 
 Puede:
-- Modificar resultado.
-- Modificar fecha si corresponde y sigue cumpliendo las reglas.
+- Modificar resultado / acta (parciales de juegos, sets, fecha, estado).
+- Motivo opcional de resolución arbitral auditada.
 - Confirmar.
 - Resolver incidencia.
 - Dejar constancia de la resolución.
@@ -578,6 +581,38 @@ Una vez confirmado un resultado:
 El administrador sí podrá realizar modificaciones desde la zona administrativa.
 
 Toda modificación administrativa debe quedar registrada en una auditoría mínima.
+
+==================================================
+15.1 TANTEO EN TIEMPO REAL Y RETRANSMISIÓN EN PISTA (LIVE MATCH TRACKER)
+==================================================
+
+La aplicación incluye un sistema de tanteo punto a punto en tiempo real para disputar partidos en pista, implementado en el microfrontend independiente `rpm-live`.
+
+### Flujo de Activación y Validación Cruzada Obligatoria
+
+1. **Solicitud de inicio (`REQUESTED`)**:
+   - Uno de los equipos participantes (o el administrador) inicia la sesión en directo desde la app seleccionando la modalidad de juego.
+   - La sesión pasa a estado `REQUESTED`.
+   - **Regla de seguridad estricta**: El equipo que inició la solicitud queda en espera (`isWaitingForRival`) y **NO puede auto-aprobarse**. Si intenta llamar al endpoint de aceptación, el backend rechazará la petición con error 400.
+2. **Aceptación por el rival (`IN_PROGRESS`)**:
+   - El equipo rival recibe la notificación visual en su dispositivo con el nombre del equipo retador y la modalidad elegida.
+   - Al pulsar *"Aceptar y Empezar Partido"*, el estado pasa a `IN_PROGRESS` y ambos dispositivos se sincronizan instantáneamente en pista.
+3. **Modalidades de Puntuación Soportadas**:
+   - **Punto de Oro (`GOLDEN_POINT`)**: En 40-40, el siguiente punto otorga directamente el juego al equipo anotador (estándar Premier Padel / WPT).
+   - **Con Ventajas (`ADVANTAGE`)**: En 40-40 (Iguales / Deuce), se requiere ganar por 2 puntos consecutivos (`40-40` -> `AD` -> `Juego` o vuelta a `40-40` si anota el rival).
+4. **Mecánica del Marcador en Directo**:
+   - Secuencia tradicional de puntos: `0` -> `15` -> `30` -> `40` -> `AD` / `Juego`.
+   - Conteo de juegos y sets (mejor de 3 sets reglamentarios).
+   - En empate 6-6 en un set, activación automática del **Tie-Break** (a 7 puntos con diferencia de 2).
+   - Alerta visual automática de **Cambio de lado de pista** en juegos totales impares.
+   - Indicador visual del equipo al servicio (saque).
+   - Botón **Deshacer (Undo)** para retroceder el último punto ante cualquier error humano.
+5. **Doble Firma Digital del Acta Oficial**:
+   - Al concluir el último set (`COMPLETED`), se habilita el panel de firma digital de capitanes.
+   - Requiere la firma de validación de ambos capitanes de equipo.
+   - Con ambas firmas registradas, el partido transiciona automáticamente a `CONFIRMED` y actualiza de inmediato la clasificación oficial del ranking.
+6. **Retransmisión en Vivo para Espectadores (Streaming SSE)**:
+   - Los espectadores pueden presenciar en directo la evolución punto a punto del marcador sin recargar la página, utilizando una conexión unidireccional de baja latencia mediante Server-Sent Events (SSE).
 
 ==================================================
 16. INCIDENCIAS
@@ -615,20 +650,22 @@ Mostrar como mínimo:
 - Posición
 - Equipo
 - Jugadores
-- Partidos jugados
-- Victorias
-- Derrotas
-- Sets ganados
-- Sets perdidos
-- Diferencia de sets
-- Diferencia de puntos
-- Puntos
+- Partidos jugados (PJ)
+- Victorias (PG)
+- Derrotas (PP)
+- Sets ganados / Sets perdidos
+- Diferencia de sets (SDIF)
+- Juegos ganados / Juegos perdidos
+- Diferencia de juegos (JDIF)
+- Diferencia de puntos (PDIF)
+- Puntos totales (PTS)
 
-La clasificación se ordenará principalmente por:
+La clasificación se ordenará jerárquicamente por:
 
-1. Puntos
-
-La arquitectura debe permitir usar como criterios de desempate las diferencias de sets y puntos.
+1. Puntos totales
+2. Diferencia de sets
+3. Diferencia de juegos
+4. Diferencia de puntos
 
 La clasificación debe actualizarse automáticamente cuando un resultado pase a estado CONFIRMED.
 
@@ -1612,9 +1649,15 @@ Prioriza primero la funcionalidad y las reglas de negocio y después el refinami
 La aplicación debe quedar preparada para ejecutar localmente en entorno de desarrollo.
 
 
-# Obervaciones generales de tecnologias y arquitectura del frontend
+# Observaciones generales de tecnologías y arquitectura del frontend
 
-- This is a **micro-frontend** Angular application using **Native Federation**. Create the host and remotes as you think best. Create a clear documentation about it.
+- This is a **micro-frontend** Angular application using **Native Federation**:
+  - **`rpm-app` (Puerto 4200)**: Host / Shell application con layout global, navbar, footer, auth guard y enrutador federado.
+  - **`rpm-admin` (Puerto 4201)**: Remote para administración, rankings, equipos, resolución de disputas y auditoría.
+  - **`rpm-rankings` (Puerto 4202)**: Remote para landing pública, visor de rankings, clasificaciones y calendarios.
+  - **`rpm-teams` (Puerto 4203)**: Remote para portal de equipos, carga de resultados y apertura de incidencias.
+  - **`rpm-users` (Puerto 4204)**: Remote para autenticación, login y gestión de credenciales.
+  - **`rpm-live` (Puerto 4205)**: Remote para tanteo de partidos en tiempo real, selector Punto de Oro/Ventajas, firma digital y streaming SSE.
 - Always use standalone components over NgModules (default in project)
 - Use signals for state management
 - Implement lazy loading for feature routes
@@ -1639,3 +1682,9 @@ La aplicación debe quedar preparada para ejecutar localmente en entorno de desa
 - Spanish as default language (`defaultLanguage: 'es'`)
 - **PrimeNG** with Aura theme for UI components
 - Translation files in `src/assets/i18n/es.json`
+
+### API Integration
+
+- Services in `projects/rpm-app/src/app/core/services/`
+- Real-time streaming with EventSource / SSE (`listenMatchStream`, `listenGlobalMatches`)
+- All API calls intercepted by `authInterceptor` for JWT token attachment

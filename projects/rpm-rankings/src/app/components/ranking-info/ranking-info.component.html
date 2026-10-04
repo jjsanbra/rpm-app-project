@@ -1,0 +1,33 @@
+@if (ranking(); as r) {
+  <section class="info-strip container">
+    <p-card styleClass="info-card-p">
+      <div class="info-card-inner">
+        <i class="pi pi-map-marker icon"></i>
+        <div>
+          <span class="info-label">{{ 'HERO.LOCATION' | translate }}</span>
+          <span class="info-val">{{ r.locationName || ('HERO.DEFAULT_LOCATION' | translate) }}</span>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card styleClass="info-card-p">
+      <div class="info-card-inner">
+        <i class="pi pi-chart-line icon"></i>
+        <div>
+          <span class="info-label">{{ 'HERO.LEVEL' | translate }}</span>
+          <span class="info-val">{{ r.levelName || ('HERO.DEFAULT_LEVEL' | translate) }}</span>
+        </div>
+      </div>
+    </p-card>
+
+    <p-card styleClass="info-card-p">
+      <div class="info-card-inner">
+        <i class="pi pi-users icon"></i>
+        <div>
+          <span class="info-label">{{ 'HERO.CATEGORY' | translate }}</span>
+          <span class="info-val">{{ r.categoryName || ('HERO.DEFAULT_CATEGORY' | translate) }}</span>
+        </div>
+      </div>
+    </p-card>
+  </section>
+}

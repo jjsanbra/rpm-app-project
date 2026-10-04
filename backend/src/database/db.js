@@ -200,6 +200,14 @@ function _createSchema() {
       resultSubmittedBy   TEXT REFERENCES users(id) ON DELETE SET NULL,
       status              TEXT NOT NULL DEFAULT 'PENDING_RESULT'
                             CHECK(status IN ('PENDING_RESULT','PENDING_CONFIRMATION','CONFIRMED','DISPUTED','CANCELLED')),
+      set1TeamOne         INTEGER,
+      set1TeamTwo         INTEGER,
+      set2TeamOne         INTEGER,
+      set2TeamTwo         INTEGER,
+      set3TeamOne         INTEGER,
+      set3TeamTwo         INTEGER,
+      gamesTeamOne        INTEGER,
+      gamesTeamTwo        INTEGER,
       setsTeamOne         INTEGER,
       setsTeamTwo         INTEGER,
       pointsTeamOne       INTEGER,
@@ -232,6 +240,41 @@ function _createSchema() {
     );
 
     -- =============================================
+    -- LIVE MATCH SESSIONS
+    -- =============================================
+    CREATE TABLE IF NOT EXISTS live_matches (
+      matchId             TEXT PRIMARY KEY REFERENCES matches(id) ON DELETE CASCADE,
+      status              TEXT NOT NULL DEFAULT 'REQUESTED'
+                            CHECK(status IN ('REQUESTED', 'IN_PROGRESS', 'COMPLETED', 'CONFIRMED', 'CANCELLED')),
+      requestedBy         TEXT NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
+      requestedAt         TEXT NOT NULL,
+      acceptedBy          TEXT REFERENCES users(id) ON DELETE SET NULL,
+      acceptedAt          TEXT,
+      servingTeam         INTEGER NOT NULL DEFAULT 1,
+      pointsTeamOne       TEXT NOT NULL DEFAULT '0',
+      pointsTeamTwo       TEXT NOT NULL DEFAULT '0',
+      isTiebreak          INTEGER NOT NULL DEFAULT 0,
+      set1TeamOne         INTEGER NOT NULL DEFAULT 0,
+      set1TeamTwo         INTEGER NOT NULL DEFAULT 0,
+      set2TeamOne         INTEGER NOT NULL DEFAULT 0,
+      set2TeamTwo         INTEGER NOT NULL DEFAULT 0,
+      set3TeamOne         INTEGER,
+      set3TeamTwo         INTEGER,
+      currentSet          INTEGER NOT NULL DEFAULT 1,
+      setsTeamOne         INTEGER NOT NULL DEFAULT 0,
+      setsTeamTwo         INTEGER NOT NULL DEFAULT 0,
+      gamesTeamOne        INTEGER NOT NULL DEFAULT 0,
+      gamesTeamTwo        INTEGER NOT NULL DEFAULT 0,
+      gameMode            TEXT NOT NULL DEFAULT 'GOLDEN_POINT'
+                            CHECK(gameMode IN ('GOLDEN_POINT', 'ADVANTAGE')),
+      confirmedByTeamOne  INTEGER NOT NULL DEFAULT 0,
+      confirmedByTeamTwo  INTEGER NOT NULL DEFAULT 0,
+      historyJson         TEXT,
+      createdAt           TEXT NOT NULL,
+      updatedAt           TEXT NOT NULL
+    );
+
+    -- =============================================
     -- AUDIT LOGS
     -- =============================================
     CREATE TABLE IF NOT EXISTS audit_logs (
@@ -244,6 +287,25 @@ function _createSchema() {
       createdAt   TEXT NOT NULL
     );
   `);
+
+  // Migraciones idempotentes para bases de datos existentes
+  const matchCols = [
+    'set1TeamOne INTEGER',
+    'set1TeamTwo INTEGER',
+    'set2TeamOne INTEGER',
+    'set2TeamTwo INTEGER',
+    'set3TeamOne INTEGER',
+    'set3TeamTwo INTEGER',
+    'gamesTeamOne INTEGER',
+    'gamesTeamTwo INTEGER'
+  ];
+  for (const col of matchCols) {
+    try {
+      _db.exec(`ALTER TABLE matches ADD COLUMN ${col};`);
+    } catch (_) {
+      // Ignorar si la columna ya existe
+    }
+  }
 }
 
 /**

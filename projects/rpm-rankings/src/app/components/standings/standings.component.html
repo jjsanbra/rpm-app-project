@@ -1,0 +1,94 @@
+<section id="clasificacion" class="section container">
+  <div class="section-header">
+    <div>
+      <span class="section-tag">{{ 'STANDINGS.SECTION_TAG' | translate }}</span>
+      <h2 class="section-title">{{ 'STANDINGS.TITLE' | translate }}</h2>
+    </div>
+    <div class="table-switcher">
+      <button
+        type="button"
+        pButton
+        [outlined]="viewMode() !== 'official'"
+        severity="success"
+        size="small"
+        (click)="setMode('official')">
+        <span>{{ 'STANDINGS.OFFICIAL_BTN' | translate }}</span>
+      </button>
+      <button
+        type="button"
+        pButton
+        [outlined]="viewMode() !== 'provisional'"
+        severity="secondary"
+        size="small"
+        (click)="setMode('provisional')">
+        <span>{{ 'STANDINGS.PROVISIONAL_BTN' | translate }}</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="glass-panel p-3">
+    <p-table
+      [value]="classification()"
+      [loading]="loading()"
+      responsiveLayout="scroll"
+      styleClass="p-datatable-striped">
+      <ng-template #header>
+        <tr>
+          <th style="width: 70px;">{{ 'STANDINGS.POS' | translate }}</th>
+          <th>{{ 'STANDINGS.TEAM_PLAYERS' | translate }}</th>
+          <th class="text-center" style="width: 80px;">{{ 'STANDINGS.PJ' | translate }}</th>
+          <th class="text-center" style="width: 80px;">{{ 'STANDINGS.PG' | translate }}</th>
+          <th class="text-center" style="width: 80px;">{{ 'STANDINGS.PP' | translate }}</th>
+          <th class="text-center">{{ 'STANDINGS.SETS_DIF' | translate }}</th>
+          <th class="text-center">{{ 'STANDINGS.GAMES_DIF' | translate }}</th>
+          <th class="text-center">{{ 'STANDINGS.POINTS_DIF' | translate }}</th>
+          <th class="text-right" style="width: 120px;">{{ 'STANDINGS.TOTAL_PTS' | translate }}</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-row let-idx="rowIndex">
+        <tr [class.podium-gold]="row.position === 1" [class.podium-silver]="row.position === 2" [class.podium-bronze]="row.position === 3">
+          <td>
+            <span class="pos-badge" [class.gold]="row.position === 1" [class.silver]="row.position === 2" [class.bronze]="row.position === 3">
+              {{ row.position }}
+            </span>
+          </td>
+          <td>
+            <div class="team-name">{{ row.teamName }}</div>
+            <div class="player-names">{{ row.player1 }} • {{ row.player2 }}</div>
+          </td>
+          <td class="text-center font-bold">{{ row.played }}</td>
+          <td class="text-center text-green font-bold">{{ row.wins }}</td>
+          <td class="text-center text-red font-bold">{{ row.losses }}</td>
+          <td class="text-center">
+            {{ row.setsWon }}/{{ row.setsLost }}
+            <span class="diff-tag" [class.pos]="row.setsDiff > 0" [class.neg]="row.setsDiff < 0">
+              ({{ row.setsDiff > 0 ? '+' : '' }}{{ row.setsDiff }})
+            </span>
+          </td>
+          <td class="text-center">
+            {{ row.gamesWon }}/{{ row.gamesLost }}
+            <span class="diff-tag" [class.pos]="row.gamesDiff > 0" [class.neg]="row.gamesDiff < 0">
+              ({{ row.gamesDiff > 0 ? '+' : '' }}{{ row.gamesDiff }})
+            </span>
+          </td>
+          <td class="text-center">
+            {{ row.pointsFor }}/{{ row.pointsAgainst }}
+            <span class="diff-tag" [class.pos]="row.pointsDiff > 0" [class.neg]="row.pointsDiff < 0">
+              ({{ row.pointsDiff > 0 ? '+' : '' }}{{ row.pointsDiff }})
+            </span>
+          </td>
+          <td class="text-right">
+            <span class="points-val">{{ row.totalPoints }}</span>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="9" class="text-center p-4 text-muted">
+            <i class="pi pi-info-circle"></i> {{ 'STANDINGS.NO_DATA' | translate }}
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</section>
