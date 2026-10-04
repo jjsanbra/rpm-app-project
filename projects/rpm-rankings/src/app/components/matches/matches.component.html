@@ -94,6 +94,16 @@
               <i class="pi pi-exclamation-triangle"></i> {{ 'MATCHES.DISPUTED_ALERT' | translate }}
             </div>
           }
+
+          <div class="match-live-action">
+            <button
+              type="button"
+              class="btn-live-spectate"
+              (click)="goToLive(m)">
+              <i class="pi pi-bolt"></i>
+              <span>{{ 'LIVE.VIEW_LIVE_SPECTATOR' | translate }}</span>
+            </button>
+          </div>
         </div>
       }
     </div>

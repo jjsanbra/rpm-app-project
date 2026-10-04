@@ -1,5 +1,6 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, input, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, RouterModule } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
 import { ButtonDirective } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
@@ -10,13 +11,19 @@ import { Match } from '@core';
 @Component({
   selector: 'rpm-matches',
   standalone: true,
-  imports: [CommonModule, ButtonDirective, TagModule, CardModule, BadgeModule, TranslatePipe],
+  imports: [CommonModule, RouterModule, ButtonDirective, TagModule, CardModule, BadgeModule, TranslatePipe],
   templateUrl: './matches.component.html',
   styleUrl: './matches.component.scss'
 })
 export class MatchesComponent {
+  private router = inject(Router);
+
   matches = input<Match[]>([]);
   matchFilter = signal<string>('ALL');
+
+  goToLive(m: Match): void {
+    this.router.navigate(['/live', m.id]);
+  }
 
   setMatchFilter(filter: string): void {
     this.matchFilter.set(filter);

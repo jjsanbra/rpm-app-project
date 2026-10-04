@@ -216,4 +216,20 @@ router.post('/:id/dispute', authenticate, [
 router.put('/:id', authenticate, authorize('ADMIN'), ctrl.adminUpdate);
 router.put('/:id/admin-override', authenticate, authorize('ADMIN'), ctrl.adminUpdate);
 
+// ─── PARTIDOS EN TIEMPO REAL / LIVE MATCH TRACKER ─────────────────────────
+const liveCtrl = require('./liveMatch.controller');
+
+// Consulta de partidos activos en vivo y streaming global
+router.get('/live/active', authenticateOptional, liveCtrl.getActiveLiveMatches);
+router.get('/live/stream', authenticateOptional, liveCtrl.streamGlobalLiveMatches);
+
+// Gestión y streaming de un partido específico
+router.get('/:id/live', authenticateOptional, liveCtrl.getLiveSession);
+router.get('/:id/live/stream', authenticateOptional, liveCtrl.streamLiveMatch);
+router.post('/:id/live/request', authenticate, liveCtrl.requestLiveMatch);
+router.post('/:id/live/accept', authenticate, liveCtrl.acceptLiveMatch);
+router.post('/:id/live/point', authenticate, liveCtrl.scorePoint);
+router.post('/:id/live/undo', authenticate, liveCtrl.undoPoint);
+router.post('/:id/live/sign', authenticate, liveCtrl.signLiveMatch);
+
 module.exports = router;

@@ -5,12 +5,12 @@
   "private": true,
   "scripts": {
     "ng": "ng",
-    "start": "concurrently -n \"API,APP,ADMIN,RANKINGS,TEAMS,USERS\" -c \"cyan.bold,green.bold,yellow.bold,blue.bold,magenta.bold,red.bold\" \"npm run dev:backend\" \"ng serve rpm-app\" \"ng serve rpm-admin\" \"ng serve rpm-rankings\" \"ng serve rpm-teams\" \"ng serve rpm-users\"",
+    "start": "concurrently -n \"API,APP,ADMIN,RANKINGS,TEAMS,USERS,LIVE\" -c \"cyan.bold,green.bold,yellow.bold,blue.bold,magenta.bold,red.bold,white.bold\" \"npm run dev:backend\" \"ng serve rpm-app\" \"ng serve rpm-admin\" \"ng serve rpm-rankings\" \"ng serve rpm-teams\" \"ng serve rpm-users\" \"ng serve rpm-live\"",
     "start:app": "concurrently -n \"API,APP\" -c \"cyan.bold,green.bold\" \"npm run dev:backend\" \"ng serve rpm-app\"",
     "dev:backend": "cd backend && npm run dev",
     "test:backend": "cd backend && npm test",
-    "build": "ng build rpm-admin && ng build rpm-rankings && ng build rpm-teams && ng build rpm-users && ng build rpm-app",
-    "build:all": "ng build rpm-admin && ng build rpm-rankings && ng build rpm-teams && ng build rpm-users && ng build rpm-app",
+    "build": "ng build rpm-admin && ng build rpm-rankings && ng build rpm-teams && ng build rpm-users && ng build rpm-live && ng build rpm-app",
+    "build:all": "ng build rpm-admin && ng build rpm-rankings && ng build rpm-teams && ng build rpm-users && ng build rpm-live && ng build rpm-app",
     "test": "ng test"
   },
   "keywords": [

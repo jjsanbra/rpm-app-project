@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Ranking, Team, Match, ClassificationRow, Incident, AuditLog, AuxiliaryItem, SubmitResultPayload } from '../models';
+import { Ranking, Team, Match, ClassificationRow, Incident, AuditLog, AuxiliaryItem, SubmitResultPayload, LiveMatchSession, LivePointPayload } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class RankingService {
@@ -173,3 +173,85 @@ export class AuxiliaryService {
     return this.http.delete(`/api/${type}/${id}`);
   }
 }
+
+@Injectable({ providedIn: 'root' })
+export class LiveMatchService {
+  private http = inject(HttpClient);
+  private apiUrl = '/api/matches';
+
+  getActiveLiveMatches(): Observable<{ data: LiveMatchSession[] }> {
+    return this.http.get<{ data: LiveMatchSession[] }>(`${this.apiUrl}/live/active`);
+  }
+
+  getLiveSession(matchId: string): Observable<{ data: LiveMatchSession | null }> {
+    return this.http.get<{ data: LiveMatchSession | null }>(`${this.apiUrl}/${matchId}/live`);
+  }
+
+  requestLive(matchId: string): Observable<{ data: LiveMatchSession }> {
+    return this.http.post<{ data: LiveMatchSession }>(`${this.apiUrl}/${matchId}/live/request`, {});
+  }
+
+  acceptLive(matchId: string): Observable<{ data: LiveMatchSession }> {
+    return this.http.post<{ data: LiveMatchSession }>(`${this.apiUrl}/${matchId}/live/accept`, {});
+  }
+
+  scorePoint(matchId: string, team: 1 | 2): Observable<{ data: LiveMatchSession }> {
+    return this.http.post<{ data: LiveMatchSession }>(`${this.apiUrl}/${matchId}/live/point`, { team });
+  }
+
+  undoPoint(matchId: string): Observable<{ data: LiveMatchSession }> {
+    return this.http.post<{ data: LiveMatchSession }>(`${this.apiUrl}/${matchId}/live/undo`, {});
+  }
+
+  signLive(matchId: string): Observable<{ data: LiveMatchSession }> {
+    return this.http.post<{ data: LiveMatchSession }>(`${this.apiUrl}/${matchId}/live/sign`, {});
+  }
+
+  listenMatchStream(matchId: string): Observable<LiveMatchSession> {
+    return new Observable<LiveMatchSession>((observer) => {
+      const eventSource = new EventSource(`${this.apiUrl}/${matchId}/live/stream`);
+
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          observer.next(data);
+        } catch (err) {
+          console.error('Error parsing SSE match data', err);
+        }
+      };
+
+      eventSource.onerror = (error) => {
+        // SSE automatically attempts reconnection; emit error or handle
+        console.warn('SSE connection warning on live match', error);
+      };
+
+      return () => {
+        eventSource.close();
+      };
+    });
+  }
+
+  listenGlobalActiveStream(): Observable<LiveMatchSession[]> {
+    return new Observable<LiveMatchSession[]>((observer) => {
+      const eventSource = new EventSource(`${this.apiUrl}/live/stream`);
+
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          observer.next(data);
+        } catch (err) {
+          console.error('Error parsing global active matches SSE', err);
+        }
+      };
+
+      eventSource.onerror = (error) => {
+        console.warn('SSE connection warning on global live stream', error);
+      };
+
+      return () => {
+        eventSource.close();
+      };
+    });
+  }
+}
+

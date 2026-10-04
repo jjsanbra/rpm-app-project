@@ -1,0 +1,276 @@
+<p-toast position="top-right"></p-toast>
+
+<div class="live-container">
+  <!-- Top Navigation & Header -->
+  <header class="live-header glass-panel">
+    <div class="header-left">
+      <button class="btn-back" (click)="goBack()" title="{{ 'COMMON.BACK' | translate }}">
+        <i class="pi pi-arrow-left"></i>
+        <span>{{ 'COMMON.BACK' | translate }}</span>
+      </button>
+      <div class="match-meta">
+        <span class="ranking-pill">
+          <i class="pi pi-trophy"></i>
+          {{ session()?.rankingName || match()?.rankingName || ('LIVE.RANKING_MATCH' | translate) }}
+        </span>
+        <span class="date-text" *ngIf="match()?.matchDate">
+          <i class="pi pi-calendar"></i>
+          {{ match()?.matchDate }}
+        </span>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <!-- Status Badge -->
+      <div class="live-status-badge" [ngClass]="session()?.status || 'PENDING'">
+        <span class="status-dot" *ngIf="session()?.status === 'IN_PROGRESS'"></span>
+        <span *ngIf="session()?.status === 'IN_PROGRESS'">{{ 'LIVE.STATUS_IN_PROGRESS' | translate }}</span>
+        <span *ngIf="session()?.status === 'REQUESTED'">{{ 'LIVE.STATUS_REQUESTED' | translate }}</span>
+        <span *ngIf="session()?.status === 'COMPLETED'">{{ 'LIVE.STATUS_COMPLETED' | translate }}</span>
+        <span *ngIf="session()?.status === 'CONFIRMED'">{{ 'LIVE.STATUS_CONFIRMED' | translate }}</span>
+        <span *ngIf="!session()">{{ 'LIVE.STATUS_PENDING' | translate }}</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Loading State -->
+  <div class="loading-state glass-panel" *ngIf="loading()">
+    <i class="pi pi-spin pi-spinner text-4xl text-emerald-400"></i>
+    <p>{{ 'COMMON.LOADING' | translate }}</p>
+  </div>
+
+  <ng-container *ngIf="!loading()">
+    <!-- Case 1: No live session yet -> Request Live Mode -->
+    <div class="setup-card glass-panel text-center" *ngIf="!session()">
+      <div class="setup-icon-wrapper">
+        <i class="pi pi-bolt pulse-live"></i>
+      </div>
+      <h2>{{ 'LIVE.START_LIVE_TITLE' | translate }}</h2>
+      <p class="setup-desc">{{ 'LIVE.START_LIVE_DESC' | translate }}</p>
+
+      <div class="teams-preview">
+        <div class="team-chip">{{ match()?.teamOneName || 'Equipo 1' }}</div>
+        <span class="vs-badge">VS</span>
+        <div class="team-chip">{{ match()?.teamTwoName || 'Equipo 2' }}</div>
+      </div>
+
+      <div class="setup-actions" *ngIf="isParticipant()">
+        <button class="btn btn-primary btn-lg" (click)="onRequestLive()" [disabled]="actionLoading()">
+          <i class="pi pi-play" *ngIf="!actionLoading()"></i>
+          <i class="pi pi-spin pi-spinner" *ngIf="actionLoading()"></i>
+          {{ 'LIVE.REQUEST_LIVE_BUTTON' | translate }}
+        </button>
+      </div>
+      <div class="spectator-msg" *ngIf="isSpectator()">
+        <p>{{ 'LIVE.WAITING_MATCH_START' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- Case 2: Session is REQUESTED -> Waiting for rival / Accept button -->
+    <div class="setup-card glass-panel text-center" *ngIf="session() && session()?.status === 'REQUESTED'">
+      <div class="setup-icon-wrapper waiting">
+        <i class="pi pi-clock pulse-live"></i>
+      </div>
+      <h2>{{ 'LIVE.INVITATION_PENDING_TITLE' | translate }}</h2>
+
+      <!-- If user is the rival (Team Two or non-requesting team) or admin -> CAN ACCEPT -->
+      <div *ngIf="(isTeamTwo() || (isTeamOne() && session()?.requestedBy !== currentUser()?.id) || isAdmin())" class="accept-box">
+        <p class="setup-desc">
+          <strong>{{ session()?.requestedByEmail || ('LIVE.RIVAL' | translate) }}</strong>
+          {{ 'LIVE.RIVAL_INVITED_MESSAGE' | translate }}
+        </p>
+        <button class="btn btn-primary btn-lg" (click)="onAcceptLive()" [disabled]="actionLoading()">
+          <i class="pi pi-check" *ngIf="!actionLoading()"></i>
+          <i class="pi pi-spin pi-spinner" *ngIf="actionLoading()"></i>
+          {{ 'LIVE.ACCEPT_AND_START_BUTTON' | translate }}
+        </button>
+      </div>
+
+      <!-- If user requested -> WAITING FOR RIVAL -->
+      <div *ngIf="!(isTeamTwo() || (isTeamOne() && session()?.requestedBy !== currentUser()?.id) || isAdmin())" class="waiting-box">
+        <p class="setup-desc">{{ 'LIVE.WAITING_FOR_RIVAL_DESC' | translate }}</p>
+        <div class="waiting-indicator">
+          <span class="dot"></span>
+          <span class="dot"></span>
+          <span class="dot"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Case 3: Session is IN_PROGRESS or COMPLETED or CONFIRMED -> MAIN COURTSIDE SCOREBOARD -->
+    <div class="scoreboard-wrapper" *ngIf="session() && (session()?.status === 'IN_PROGRESS' || session()?.status === 'COMPLETED' || session()?.status === 'CONFIRMED')">
+      
+      <!-- Match Banner Alert (Golden point, side switch, etc.) -->
+      <div class="match-alerts">
+        <div class="alert-pill golden-point" *ngIf="isGoldenPoint()">
+          <i class="pi pi-star-fill"></i>
+          <span>{{ 'LIVE.GOLDEN_POINT_ALERT' | translate }}</span>
+        </div>
+        <div class="alert-pill tiebreak" *ngIf="session()?.isTiebreak">
+          <i class="pi pi-bolt"></i>
+          <span>{{ 'LIVE.TIEBREAK_ALERT' | translate }}</span>
+        </div>
+        <div class="alert-pill side-switch" *ngIf="isSideSwitch() && session()?.status === 'IN_PROGRESS'">
+          <i class="pi pi-sync"></i>
+          <span>{{ 'LIVE.SIDE_SWITCH_ALERT' | translate }}</span>
+        </div>
+      </div>
+
+      <!-- Center Court Scoreboard Table -->
+      <div class="court-scoreboard glass-panel-glow">
+        <div class="scoreboard-table">
+          <!-- Table Header -->
+          <div class="score-row header-row">
+            <div class="col-team">{{ 'LIVE.TEAMS' | translate }}</div>
+            <div class="col-set">S1</div>
+            <div class="col-set">S2</div>
+            <div class="col-set" *ngIf="session()?.set3TeamOne !== null || session()?.currentSet === 3">S3</div>
+            <div class="col-points">{{ 'LIVE.POINTS' | translate }}</div>
+          </div>
+
+          <!-- Team 1 Row -->
+          <div class="score-row team-row" [class.serving]="session()?.servingTeam === 1">
+            <div class="col-team">
+              <div class="team-info">
+                <span class="serve-ball" *ngIf="session()?.servingTeam === 1" title="{{ 'LIVE.SERVING' | translate }}">🎾</span>
+                <span class="team-title">{{ session()?.teamOneName || match()?.teamOneName || 'Equipo 1' }}</span>
+                <span class="winner-crown" *ngIf="session()?.setsTeamOne === 2">👑</span>
+              </div>
+            </div>
+            <div class="col-set font-mono" [class.set-active]="session()?.currentSet === 1">{{ session()?.set1TeamOne ?? 0 }}</div>
+            <div class="col-set font-mono" [class.set-active]="session()?.currentSet === 2">{{ session()?.set2TeamOne ?? 0 }}</div>
+            <div class="col-set font-mono" *ngIf="session()?.set3TeamOne !== null || session()?.currentSet === 3" [class.set-active]="session()?.currentSet === 3">
+              {{ session()?.set3TeamOne ?? 0 }}
+            </div>
+            <div class="col-points">
+              <div class="point-badge" [class.gold]="isGoldenPoint()">
+                {{ session()?.pointsTeamOne }}
+              </div>
+            </div>
+          </div>
+
+          <!-- Team 2 Row -->
+          <div class="score-row team-row" [class.serving]="session()?.servingTeam === 2">
+            <div class="col-team">
+              <div class="team-info">
+                <span class="serve-ball" *ngIf="session()?.servingTeam === 2" title="{{ 'LIVE.SERVING' | translate }}">🎾</span>
+                <span class="team-title">{{ session()?.teamTwoName || match()?.teamTwoName || 'Equipo 2' }}</span>
+                <span class="winner-crown" *ngIf="session()?.setsTeamTwo === 2">👑</span>
+              </div>
+            </div>
+            <div class="col-set font-mono" [class.set-active]="session()?.currentSet === 1">{{ session()?.set1TeamTwo ?? 0 }}</div>
+            <div class="col-set font-mono" [class.set-active]="session()?.currentSet === 2">{{ session()?.set2TeamTwo ?? 0 }}</div>
+            <div class="col-set font-mono" *ngIf="session()?.set3TeamTwo !== null || session()?.currentSet === 3" [class.set-active]="session()?.currentSet === 3">
+              {{ session()?.set3TeamTwo ?? 0 }}
+            </div>
+            <div class="col-points">
+              <div class="point-badge" [class.gold]="isGoldenPoint()">
+                {{ session()?.pointsTeamTwo }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action Touch Buttons (Only for Captains / Admin when in progress) -->
+      <div class="court-controls" *ngIf="canScore()">
+        <div class="scoring-buttons-grid">
+          <button 
+            type="button"
+            class="score-btn team-one-btn"
+            (click)="onScorePoint(1)"
+            [disabled]="actionLoading()">
+            <span class="plus-icon">+</span>
+            <span class="btn-caption">{{ 'LIVE.POINT_FOR' | translate }}</span>
+            <span class="team-sub">{{ session()?.teamOneName || 'Equipo 1' }}</span>
+          </button>
+
+          <button 
+            type="button"
+            class="score-btn team-two-btn"
+            (click)="onScorePoint(2)"
+            [disabled]="actionLoading()">
+            <span class="plus-icon">+</span>
+            <span class="btn-caption">{{ 'LIVE.POINT_FOR' | translate }}</span>
+            <span class="team-sub">{{ session()?.teamTwoName || 'Equipo 2' }}</span>
+          </button>
+        </div>
+
+        <div class="secondary-controls">
+          <button 
+            type="button"
+            class="btn-undo"
+            (click)="onUndoPoint()"
+            [disabled]="actionLoading()">
+            <i class="pi pi-undo"></i>
+            <span>{{ 'LIVE.UNDO_POINT' | translate }}</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Spectator live banner -->
+      <div class="spectator-live-banner glass-panel text-center" *ngIf="isSpectator() && session()?.status === 'IN_PROGRESS'">
+        <i class="pi pi-eye text-emerald-400"></i>
+        <span>{{ 'LIVE.SPECTATING_REALTIME' | translate }}</span>
+      </div>
+
+      <!-- Mutual Digital Confirmation & Signature Card -->
+      <div class="signature-section glass-panel" *ngIf="session()?.status === 'COMPLETED' || session()?.status === 'CONFIRMED' || (isParticipant() && (session()?.setsTeamOne === 2 || session()?.setsTeamTwo === 2))">
+        <div class="signature-header">
+          <i class="pi pi-file-edit text-emerald-400 text-2xl"></i>
+          <div>
+            <h3>{{ 'LIVE.ACTA_SIGNATURE_TITLE' | translate }}</h3>
+            <p>{{ 'LIVE.ACTA_SIGNATURE_DESC' | translate }}</p>
+          </div>
+        </div>
+
+        <div class="captains-status-grid">
+          <!-- Captain 1 Signature status -->
+          <div class="captain-card" [class.signed]="session()?.confirmedByTeamOne === 1">
+            <div class="captain-icon">
+              <i class="pi" [ngClass]="session()?.confirmedByTeamOne === 1 ? 'pi-check-circle text-emerald-400' : 'pi-clock text-amber-400'"></i>
+            </div>
+            <div class="captain-details">
+              <span class="team-label">{{ session()?.teamOneName }}</span>
+              <span class="sign-status">
+                {{ (session()?.confirmedByTeamOne === 1 ? 'LIVE.SIGNED_BY_CAPTAIN' : 'LIVE.PENDING_SIGNATURE') | translate }}
+              </span>
+            </div>
+          </div>
+
+          <!-- Captain 2 Signature status -->
+          <div class="captain-card" [class.signed]="session()?.confirmedByTeamTwo === 1">
+            <div class="captain-icon">
+              <i class="pi" [ngClass]="session()?.confirmedByTeamTwo === 1 ? 'pi-check-circle text-emerald-400' : 'pi-clock text-amber-400'"></i>
+            </div>
+            <div class="captain-details">
+              <span class="team-label">{{ session()?.teamTwoName }}</span>
+              <span class="sign-status">
+                {{ (session()?.confirmedByTeamTwo === 1 ? 'LIVE.SIGNED_BY_CAPTAIN' : 'LIVE.PENDING_SIGNATURE') | translate }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Button for unsigned user -->
+        <div class="signature-action" *ngIf="canSign()">
+          <button class="btn btn-primary btn-lg w-full" (click)="onSign()" [disabled]="actionLoading()">
+            <i class="pi pi-check-square" *ngIf="!actionLoading()"></i>
+            <i class="pi pi-spin pi-spinner" *ngIf="actionLoading()"></i>
+            {{ 'LIVE.SIGN_ACTA_BUTTON' | translate }}
+          </button>
+        </div>
+
+        <!-- Fully Confirmed Success Banner -->
+        <div class="confirmed-success-banner" *ngIf="session()?.status === 'CONFIRMED'">
+          <i class="pi pi-verified text-3xl text-emerald-400"></i>
+          <div>
+            <h4>{{ 'LIVE.OFFICIALLY_CONFIRMED_TITLE' | translate }}</h4>
+            <p>{{ 'LIVE.OFFICIALLY_CONFIRMED_DESC' | translate }}</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </ng-container>
+</div>
