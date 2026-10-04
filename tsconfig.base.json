@@ -1,0 +1,7 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "@core": ["./projects/rpm-app/src/app/core/index.ts"]
+    }
+  }
+}

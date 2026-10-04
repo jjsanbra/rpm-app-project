@@ -1,0 +1,300 @@
+<div class="landing-page">
+  <!-- ─── HERO SECTION ──────────────────────────────────────────────── -->
+  <section class="hero-section">
+    <div class="hero-badge">
+      <span class="pulse-dot"></span> TEMPORADA ACTIVA 2026
+    </div>
+    <h1 class="hero-title">
+      PASIÓN, COMPETICIÓN Y <br/>
+      <span class="gradient-text">RANKING OFICIAL DE PÁDEL</span>
+    </h1>
+    <p class="hero-subtitle">
+      Sigue la clasificación en tiempo real, consulta los enfrentamientos round-robin y confirma los resultados con el sistema oficial de puntuación federado.
+    </p>
+
+    <!-- Ranking Selector con PrimeNG Select -->
+    @if (rankings().length > 0) {
+      <div class="ranking-selector-card glass-panel-glow">
+        <div class="selector-header">
+          <span class="label">Ranking Seleccionado</span>
+          <div class="dates-pill">
+            <i class="pi pi-calendar"></i>
+            {{ selectedRanking()?.startDate | date }} → {{ selectedRanking()?.endDate | date }}
+          </div>
+        </div>
+        <p-select
+          [options]="rankings()"
+          optionLabel="name"
+          optionValue="id"
+          [ngModel]="selectedRanking()?.id"
+          (ngModelChange)="onRankingChange($event)"
+          placeholder="Seleccionar Ranking"
+          styleClass="w-full">
+        </p-select>
+      </div>
+    }
+  </section>
+
+  <!-- ─── RANKING INFO SUMMARY (PrimeNG Cards) ─────────────────────── -->
+  @if (selectedRanking(); as r) {
+    <section class="info-strip container">
+      <p-card styleClass="info-card-p">
+        <div class="info-card-inner">
+          <i class="pi pi-map-marker icon"></i>
+          <div>
+            <span class="info-label">Sede</span>
+            <span class="info-val">{{ r.locationName || 'Club Central' }}</span>
+          </div>
+        </div>
+      </p-card>
+
+      <p-card styleClass="info-card-p">
+        <div class="info-card-inner">
+          <i class="pi pi-chart-line icon"></i>
+          <div>
+            <span class="info-label">Nivel</span>
+            <span class="info-val">{{ r.levelName || 'Intermedio' }}</span>
+          </div>
+        </div>
+      </p-card>
+
+      <p-card styleClass="info-card-p">
+        <div class="info-card-inner">
+          <i class="pi pi-users icon"></i>
+          <div>
+            <span class="info-label">Categoría</span>
+            <span class="info-val">{{ r.categoryName || 'Masculina' }}</span>
+          </div>
+        </div>
+      </p-card>
+    </section>
+  }
+
+  <!-- ─── CLASIFICACIÓN (PrimeNG p-table) ──────────────────────────── -->
+  <section id="clasificacion" class="section container">
+    <div class="section-header">
+      <div>
+        <span class="section-tag">TABLA DE POSICIONES</span>
+        <h2 class="section-title">Clasificación del Ranking</h2>
+      </div>
+      <div class="table-switcher">
+        <p-button
+          label="Oficial (Confirmados)"
+          [outlined]="viewMode() !== 'official'"
+          severity="success"
+          size="small"
+          (onClick)="setMode('official')">
+        </p-button>
+        <p-button
+          label="Provisional (Todos)"
+          [outlined]="viewMode() !== 'provisional'"
+          severity="secondary"
+          size="small"
+          (onClick)="setMode('provisional')">
+        </p-button>
+      </div>
+    </div>
+
+    <div class="glass-panel p-3">
+      <p-table
+        [value]="classification()"
+        [loading]="loadingClassification()"
+        responsiveLayout="scroll"
+        styleClass="p-datatable-striped">
+        <ng-template #header>
+          <tr>
+            <th style="width: 70px;">Pos</th>
+            <th>Equipo & Pareja</th>
+            <th class="text-center" style="width: 80px;">PJ</th>
+            <th class="text-center" style="width: 80px;">PG</th>
+            <th class="text-center" style="width: 80px;">PP</th>
+            <th class="text-center">Sets (DIF)</th>
+            <th class="text-center">Puntos (DIF)</th>
+            <th class="text-right" style="width: 120px;">TOTAL PTS</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-row let-idx="rowIndex">
+          <tr [class.podium-gold]="row.position === 1" [class.podium-silver]="row.position === 2" [class.podium-bronze]="row.position === 3">
+            <td>
+              <span class="pos-badge" [class.gold]="row.position === 1" [class.silver]="row.position === 2" [class.bronze]="row.position === 3">
+                {{ row.position }}
+              </span>
+            </td>
+            <td>
+              <div class="team-name">{{ row.teamName }}</div>
+              <div class="player-names">{{ row.player1 }} • {{ row.player2 }}</div>
+            </td>
+            <td class="text-center font-bold">{{ row.played }}</td>
+            <td class="text-center text-green font-bold">{{ row.wins }}</td>
+            <td class="text-center text-red font-bold">{{ row.losses }}</td>
+            <td class="text-center">
+              {{ row.setsWon }}/{{ row.setsLost }}
+              <span class="diff-tag" [class.pos]="row.setsDiff > 0" [class.neg]="row.setsDiff < 0">
+                ({{ row.setsDiff > 0 ? '+' : '' }}{{ row.setsDiff }})
+              </span>
+            </td>
+            <td class="text-center">
+              {{ row.pointsFor }}/{{ row.pointsAgainst }}
+              <span class="diff-tag" [class.pos]="row.pointsDiff > 0" [class.neg]="row.pointsDiff < 0">
+                ({{ row.pointsDiff > 0 ? '+' : '' }}{{ row.pointsDiff }})
+              </span>
+            </td>
+            <td class="text-right">
+              <span class="points-val">{{ row.totalPoints }}</span>
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="8" class="text-center p-4 text-muted">
+              <i class="pi pi-info-circle"></i> No hay datos de clasificación disponibles aún.
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </section>
+
+  <!-- ─── PARTIDOS Y RESULTADOS (PrimeNG Tags & Cards) ─────────────── -->
+  <section id="partidos" class="section container">
+    <div class="section-header">
+      <div>
+        <span class="section-tag">CALENDARIO DE JUEGO</span>
+        <h2 class="section-title">Partidos y Resultados</h2>
+      </div>
+      <div class="filter-pills">
+        <p-button label="Todos" [outlined]="matchFilter() !== 'ALL'" size="small" severity="secondary" (onClick)="setMatchFilter('ALL')"></p-button>
+        <p-button label="Confirmados" [outlined]="matchFilter() !== 'CONFIRMED'" size="small" severity="success" (onClick)="setMatchFilter('CONFIRMED')"></p-button>
+        <p-button label="Pendientes" [outlined]="matchFilter() !== 'PENDING_CONFIRMATION'" size="small" severity="warn" (onClick)="setMatchFilter('PENDING_CONFIRMATION')"></p-button>
+        <p-button label="En Incidencia" [outlined]="matchFilter() !== 'DISPUTED'" size="small" severity="danger" (onClick)="setMatchFilter('DISPUTED')"></p-button>
+      </div>
+    </div>
+
+    @if (filteredMatches().length === 0) {
+      <p-card styleClass="empty-card">
+        <div class="text-center p-4">
+          <i class="pi pi-calendar-times" style="font-size: 2rem; color: var(--text-dim);"></i>
+          <p class="mt-2 text-muted">No hay partidos en esta categoría.</p>
+        </div>
+      </p-card>
+    } @else {
+      <div class="matches-grid">
+        @for (m of filteredMatches(); track m.id) {
+          <div class="match-card glass-panel" [class.confirmed]="m.status === 'CONFIRMED'" [class.disputed]="m.status === 'DISPUTED'">
+            <div class="match-meta">
+              <p-tag [value]="formatStatus(m.status)" [severity]="getTagSeverity(m.status)"></p-tag>
+              @if (m.matchDate) {
+                <span class="match-date"><i class="pi pi-calendar"></i> {{ m.matchDate | date }}</span>
+              } @else {
+                <span class="match-date text-dim"><i class="pi pi-clock"></i> Por disputar</span>
+              }
+            </div>
+
+            <div class="match-teams-box">
+              <div class="match-team" [class.winner]="m.setsTeamOne !== null && m.setsTeamTwo !== null && (m.setsTeamOne ?? 0) > (m.setsTeamTwo ?? 0)">
+                <div class="team-info">
+                  <span class="team-title">{{ m.teamOneName }}</span>
+                  <span class="players-sub">{{ m.t1p1Name }} {{ m.t1p1Surname }} / {{ m.t1p2Name }} {{ m.t1p2Surname }}</span>
+                </div>
+                <div class="score-display">
+                  @if (m.setsTeamOne !== null && m.setsTeamOne !== undefined) {
+                    <span class="sets-num">{{ m.setsTeamOne }}</span>
+                    <p-badge [value]="m.pointsTeamOne + ' pts'" severity="secondary"></p-badge>
+                  } @else {
+                    <span class="sets-dash">-</span>
+                  }
+                </div>
+              </div>
+
+              <div class="match-divider"><span>VS</span></div>
+
+              <div class="match-team" [class.winner]="m.setsTeamOne !== null && m.setsTeamTwo !== null && (m.setsTeamTwo ?? 0) > (m.setsTeamOne ?? 0)">
+                <div class="team-info">
+                  <span class="team-title">{{ m.teamTwoName }}</span>
+                  <span class="players-sub">{{ m.t2p1Name }} {{ m.t2p1Surname }} / {{ m.t2p2Name }} {{ m.t2p2Surname }}</span>
+                </div>
+                <div class="score-display">
+                  @if (m.setsTeamTwo !== null && m.setsTeamTwo !== undefined) {
+                    <span class="sets-num">{{ m.setsTeamTwo }}</span>
+                    <p-badge [value]="m.pointsTeamTwo + ' pts'" severity="secondary"></p-badge>
+                  } @else {
+                    <span class="sets-dash">-</span>
+                  }
+                </div>
+              </div>
+            </div>
+
+            @if (m.status === 'PENDING_CONFIRMATION') {
+              <div class="match-alert-pending">
+                <i class="pi pi-info-circle"></i> Resultado registrado por <strong>{{ m.submittedByEmail }}</strong>. Pendiente de confirmación.
+              </div>
+            }
+            @if (m.status === 'DISPUTED') {
+              <div class="match-alert-dispute">
+                <i class="pi pi-exclamation-triangle"></i> Incidencia comunicada. En revisión administrativa.
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </section>
+
+  <!-- ─── REGLAMENTO Y SISTEMA DE PUNTUACIÓN ───────────────────────── -->
+  <section id="reglamento" class="section container">
+    <div class="section-header">
+      <div>
+        <span class="section-tag">NORMATIVA DE JUEGO</span>
+        <h2 class="section-title">Reglamento y Puntuación</h2>
+      </div>
+    </div>
+
+    <div class="scoring-rules-grid">
+      <p-card styleClass="rule-card-p">
+        <p-tag value="VICTORIA DIRECTA" severity="success"></p-tag>
+        <h3 class="rule-heading mt-2">Resultado 2 - 0</h3>
+        <div class="points-comparison">
+          <div class="winner-points">
+            <span class="pts">5</span>
+            <span class="lbl">PUNTOS GANADOR</span>
+          </div>
+          <div class="loser-points">
+            <span class="pts">1</span>
+            <span class="lbl">PUNTO PERDEDOR</span>
+          </div>
+        </div>
+        <p class="rule-text mt-3">
+          La victoria contundente en 2 sets otorga la máxima recompensa de 5 puntos al ganador y 1 punto de consolación al derrotado por disputar el partido.
+        </p>
+      </p-card>
+
+      <p-card styleClass="rule-card-p">
+        <p-tag value="VICTORIA AJUSTADA" severity="info"></p-tag>
+        <h3 class="rule-heading mt-2">Resultado 2 - 1</h3>
+        <div class="points-comparison">
+          <div class="winner-points blue">
+            <span class="pts">4</span>
+            <span class="lbl">PUNTOS GANADOR</span>
+          </div>
+          <div class="loser-points blue">
+            <span class="pts">2</span>
+            <span class="lbl">PUNTOS PERDEDOR</span>
+          </div>
+        </div>
+        <p class="rule-text mt-3">
+          Los partidos reñidos a 3 sets otorgan 4 puntos a la pareja ganadora y premian la resistencia del equipo perdedor con 2 puntos en la tabla.
+        </p>
+      </p-card>
+
+      <p-card styleClass="rule-card-p">
+        <p-tag value="VALIDACIÓN Y FECHAS" severity="warn"></p-tag>
+        <h3 class="rule-heading mt-2">Flujo de Resultados</h3>
+        <ul class="rule-list mt-3">
+          <li><i class="pi pi-check text-green"></i> <strong>Fecha Real:</strong> Se registra la fecha exacta dentro del periodo del ranking.</li>
+          <li><i class="pi pi-check text-green"></i> <strong>Confirmación Rival:</strong> El rival debe verificar el resultado o comunicar incidencia.</li>
+          <li><i class="pi pi-check text-green"></i> <strong>Criterios Desempate:</strong> Puntos totales → Diferencia de sets → Puntos a favor.</li>
+        </ul>
+      </p-card>
+    </div>
+  </section>
+</div>

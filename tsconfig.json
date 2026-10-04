@@ -1,0 +1,43 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compileOnSave": false,
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "preserve",
+    "rootDir": "."
+  },
+  "angularCompilerOptions": {
+    "enableI18nLegacyMessageIdFormat": false,
+    "strictInjectionParameters": true,
+    "strictInputAccessModifiers": true,
+    "typeCheckHostBindings": true,
+    "strictTemplates": true
+  },
+  "files": [],
+  "references": [
+    {
+      "path": "./projects/rpm-app/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/rpm-admin/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/rpm-rankings/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/rpm-teams/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/rpm-users/tsconfig.app.json"
+    }
+  ]
+}

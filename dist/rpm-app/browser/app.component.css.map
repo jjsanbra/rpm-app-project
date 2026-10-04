@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["projects/rpm-app/src/app/app.component.scss"],
+  "sourcesContent": [".main-content {\n  min-height: calc(100vh - 160px);\n}\n"],
+  "mappings": ";AAAA,CAAA;AACE,cAAA,KAAA,MAAA,EAAA;;",
+  "names": []
+}

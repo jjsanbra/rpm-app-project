@@ -1,0 +1,214 @@
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
+
+// PrimeNG
+import { ButtonModule } from 'primeng/button';
+import { TagModule } from 'primeng/tag';
+
+@Component({
+  selector: 'app-navbar',
+  standalone: true,
+  imports: [CommonModule, RouterModule, ButtonModule, TagModule],
+  template: `
+    <nav class="navbar glass-panel">
+      <div class="nav-container">
+        <!-- Brand Logo -->
+        <a routerLink="/" class="brand">
+          <span class="logo-icon">🎾</span>
+          <div class="brand-text">
+            <span class="brand-title">PADEL <span class="highlight">RANKING</span></span>
+            <span class="brand-sub">Competición Oficial</span>
+          </div>
+        </a>
+
+        <!-- Desktop Links -->
+        <div class="nav-links">
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">
+            <i class="pi pi-home"></i> Inicio
+          </a>
+          <a routerLink="/" fragment="clasificacion" class="nav-link">
+            <i class="pi pi-chart-bar"></i> Clasificación
+          </a>
+          <a routerLink="/" fragment="partidos" class="nav-link">
+            <i class="pi pi-calendar"></i> Partidos
+          </a>
+          <a routerLink="/" fragment="reglamento" class="nav-link">
+            <i class="pi pi-book"></i> Reglamento
+          </a>
+
+          @if (authService.isAuthenticated()) {
+            @if (authService.isTeamUser()) {
+              <a routerLink="/team" routerLinkActive="active" class="nav-link team-link">
+                <i class="pi pi-users"></i> Mi Equipo
+              </a>
+            }
+            @if (authService.isAdmin()) {
+              <a routerLink="/admin" routerLinkActive="active" class="nav-link admin-link">
+                <i class="pi pi-cog"></i> Panel Admin
+              </a>
+            }
+          }
+        </div>
+
+        <!-- User / Auth Actions -->
+        <div class="nav-actions">
+          @if (authService.isAuthenticated()) {
+            <div class="user-badge">
+              <span class="user-email">{{ authService.currentUser()?.email }}</span>
+              <p-tag
+                [value]="authService.isAdmin() ? 'ADMIN' : (authService.currentUser()?.teamName || 'EQUIPO')"
+                [severity]="authService.isAdmin() ? 'warn' : 'success'">
+              </p-tag>
+            </div>
+            <p-button
+              label="Salir"
+              icon="pi pi-sign-out"
+              severity="secondary"
+              [outlined]="true"
+              size="small"
+              (onClick)="authService.logout()">
+            </p-button>
+          } @else {
+            <p-button
+              label="Acceder"
+              icon="pi pi-user"
+              severity="success"
+              size="small"
+              routerLink="/auth/login">
+            </p-button>
+          }
+        </div>
+      </div>
+    </nav>
+  `,
+  styles: [`
+    .navbar {
+      position: sticky;
+      top: 1rem;
+      z-index: 1000;
+      margin: 1rem auto;
+      max-width: 1240px;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius-md);
+    }
+
+    .nav-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      font-size: 1.8rem;
+      filter: drop-shadow(0 0 10px rgba(0, 230, 118, 0.4));
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title {
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+
+      .highlight {
+        color: var(--primary);
+      }
+    }
+
+    .brand-sub {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+
+      @media (max-width: 768px) {
+        display: none;
+      }
+    }
+
+    .nav-link {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.4rem 0.6rem;
+      border-radius: var(--radius-sm);
+      transition: all 0.2s ease;
+
+      &:hover, &.active {
+        color: var(--primary);
+        background: rgba(16, 185, 129, 0.08);
+      }
+
+      &.team-link {
+        color: var(--accent-cyan);
+        background: rgba(6, 182, 212, 0.1);
+        &:hover { background: rgba(6, 182, 212, 0.2); }
+      }
+
+      &.admin-link {
+        color: #f59e0b;
+        background: rgba(245, 158, 11, 0.1);
+        &:hover { background: rgba(245, 158, 11, 0.2); }
+      }
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .user-badge {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      line-height: 1.2;
+
+      .user-email {
+        font-size: 0.8rem;
+        color: var(--text-main);
+        font-weight: 600;
+      }
+
+      .role-tag {
+        font-size: 0.65rem;
+        color: var(--primary);
+        font-weight: 700;
+        text-transform: uppercase;
+
+        &.admin {
+          color: #f59e0b;
+        }
+      }
+    }
+  `]
+})
+export class NavbarComponent {
+  authService = inject(AuthService);
+}
