@@ -23,12 +23,14 @@ flowchart TD
         R2[rpm-admin:4201 : Admin Dashboard / Teams / Incidents / Audit]
         R3[rpm-teams:4203 : Team Portal / Score Submission / Disputas]
         R4[rpm-users:4204 : Auth / Login / Setup / Reset]
+        R5[rpm-live:4205 : Live Match Tracker / Tanteo en Pista / SSE Retransmisión]
     end
 
     E -->|Lazy Dynamic Federation| R1
     E -->|Lazy Dynamic Federation| R2
     E -->|Lazy Dynamic Federation| R3
     E -->|Lazy Dynamic Federation| R4
+    E -->|Lazy Dynamic Federation| R5
 ```
 
 ---
@@ -52,6 +54,7 @@ flowchart TD
 | **`rpm-admin`** | 4201 | `'./routes': './projects/rpm-admin/src/app/app.routes.ts'` | Panel de control de administración, alta/edición de rankings, alta/edición de equipos y jugadores, generador round-robin, modificación administrativa de partidos (Admin Override), resolución de incidencias arbitrales, tablas maestras y auditoría. |
 | **`rpm-teams`** | 4203 | `'./routes': './projects/rpm-teams/src/app/app.routes.ts'` | Portal exclusivo para usuarios de equipo: consulta de enfrentamientos, registro interactivo de marcadores (2-0, 2-1, 1-2, 0-2), confirmación de resultados y apertura de incidencias. |
 | **`rpm-users`** | 4204 | `'./routes': './projects/rpm-users/src/app/app.routes.ts'` | Flujo de autenticación, login, recuperación y activación de cuentas. |
+| **`rpm-live`** | 4205 | `'./routes': './projects/rpm-live/src/app/app.routes.ts'` | Tanteo en tiempo real punto a punto en pista: selector de modalidad (Punto de Oro o Con Ventajas), confirmación cruzada de rival, marcador en directo con alertas de cambio de lado / desempate / punto decisivo, undo de puntos, firma digital de capitanes y streaming SSE para espectadores. |
 
 ---
 
@@ -68,6 +71,7 @@ module.exports = withNativeFederation({
     'rpm-rankings': 'http://localhost:4202/remoteEntry.js',
     'rpm-teams': 'http://localhost:4203/remoteEntry.js',
     'rpm-users': 'http://localhost:4204/remoteEntry.js',
+    'rpm-live': 'http://localhost:4205/remoteEntry.js',
   },
   shared: {
     ...shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' }),

@@ -583,6 +583,38 @@ El administrador sí podrá realizar modificaciones desde la zona administrativa
 Toda modificación administrativa debe quedar registrada en una auditoría mínima.
 
 ==================================================
+15.1 TANTEO EN TIEMPO REAL Y RETRANSMISIÓN EN PISTA (LIVE MATCH TRACKER)
+==================================================
+
+La aplicación incluye un sistema de tanteo punto a punto en tiempo real para disputar partidos en pista, implementado en el microfrontend independiente `rpm-live`.
+
+### Flujo de Activación y Validación Cruzada Obligatoria
+
+1. **Solicitud de inicio (`REQUESTED`)**:
+   - Uno de los equipos participantes (o el administrador) inicia la sesión en directo desde la app seleccionando la modalidad de juego.
+   - La sesión pasa a estado `REQUESTED`.
+   - **Regla de seguridad estricta**: El equipo que inició la solicitud queda en espera (`isWaitingForRival`) y **NO puede auto-aprobarse**. Si intenta llamar al endpoint de aceptación, el backend rechazará la petición con error 400.
+2. **Aceptación por el rival (`IN_PROGRESS`)**:
+   - El equipo rival recibe la notificación visual en su dispositivo con el nombre del equipo retador y la modalidad elegida.
+   - Al pulsar *"Aceptar y Empezar Partido"*, el estado pasa a `IN_PROGRESS` y ambos dispositivos se sincronizan instantáneamente en pista.
+3. **Modalidades de Puntuación Soportadas**:
+   - **Punto de Oro (`GOLDEN_POINT`)**: En 40-40, el siguiente punto otorga directamente el juego al equipo anotador (estándar Premier Padel / WPT).
+   - **Con Ventajas (`ADVANTAGE`)**: En 40-40 (Iguales / Deuce), se requiere ganar por 2 puntos consecutivos (`40-40` -> `AD` -> `Juego` o vuelta a `40-40` si anota el rival).
+4. **Mecánica del Marcador en Directo**:
+   - Secuencia tradicional de puntos: `0` -> `15` -> `30` -> `40` -> `AD` / `Juego`.
+   - Conteo de juegos y sets (mejor de 3 sets reglamentarios).
+   - En empate 6-6 en un set, activación automática del **Tie-Break** (a 7 puntos con diferencia de 2).
+   - Alerta visual automática de **Cambio de lado de pista** en juegos totales impares.
+   - Indicador visual del equipo al servicio (saque).
+   - Botón **Deshacer (Undo)** para retroceder el último punto ante cualquier error humano.
+5. **Doble Firma Digital del Acta Oficial**:
+   - Al concluir el último set (`COMPLETED`), se habilita el panel de firma digital de capitanes.
+   - Requiere la firma de validación de ambos capitanes de equipo.
+   - Con ambas firmas registradas, el partido transiciona automáticamente a `CONFIRMED` y actualiza de inmediato la clasificación oficial del ranking.
+6. **Retransmisión en Vivo para Espectadores (Streaming SSE)**:
+   - Los espectadores pueden presenciar en directo la evolución punto a punto del marcador sin recargar la página, utilizando una conexión unidireccional de baja latencia mediante Server-Sent Events (SSE).
+
+==================================================
 16. INCIDENCIAS
 ==================================================
 
@@ -1617,9 +1649,15 @@ Prioriza primero la funcionalidad y las reglas de negocio y después el refinami
 La aplicación debe quedar preparada para ejecutar localmente en entorno de desarrollo.
 
 
-# Obervaciones generales de tecnologias y arquitectura del frontend
+# Observaciones generales de tecnologías y arquitectura del frontend
 
-- This is a **micro-frontend** Angular application using **Native Federation**. Create the host and remotes as you think best. Create a clear documentation about it.
+- This is a **micro-frontend** Angular application using **Native Federation**:
+  - **`rpm-app` (Puerto 4200)**: Host / Shell application con layout global, navbar, footer, auth guard y enrutador federado.
+  - **`rpm-admin` (Puerto 4201)**: Remote para administración, rankings, equipos, resolución de disputas y auditoría.
+  - **`rpm-rankings` (Puerto 4202)**: Remote para landing pública, visor de rankings, clasificaciones y calendarios.
+  - **`rpm-teams` (Puerto 4203)**: Remote para portal de equipos, carga de resultados y apertura de incidencias.
+  - **`rpm-users` (Puerto 4204)**: Remote para autenticación, login y gestión de credenciales.
+  - **`rpm-live` (Puerto 4205)**: Remote para tanteo de partidos en tiempo real, selector Punto de Oro/Ventajas, firma digital y streaming SSE.
 - Always use standalone components over NgModules (default in project)
 - Use signals for state management
 - Implement lazy loading for feature routes
@@ -1647,7 +1685,6 @@ La aplicación debe quedar preparada para ejecutar localmente en entorno de desa
 
 ### API Integration
 
-- Services auto-generated with **Orval** from `backend/rpm-api.yaml`
-- Run `npm run api:generate` after API spec changes
-- Generated services in `projects/rpm-app/src/app/core/services/` (auth.ts, ranking.ts, etc.)
+- Services in `projects/rpm-app/src/app/core/services/`
+- Real-time streaming with EventSource / SSE (`listenMatchStream`, `listenGlobalMatches`)
 - All API calls intercepted by `authInterceptor` for JWT token attachment
