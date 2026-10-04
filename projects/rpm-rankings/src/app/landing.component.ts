@@ -2,6 +2,7 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { RankingService, MatchService, ClassificationService, Ranking, Match, ClassificationRow } from '@core';
 
 // PrimeNG Components
@@ -24,7 +25,8 @@ import { SelectModule } from 'primeng/select';
     TagModule,
     CardModule,
     BadgeModule,
-    SelectModule
+    SelectModule,
+    TranslatePipe
   ],
   templateUrl: './landing.component.html',
   styleUrl: './landing.component.scss'
@@ -122,10 +124,10 @@ export class LandingComponent implements OnInit {
 
   formatStatus(status: string): string {
     switch (status) {
-      case 'CONFIRMED': return 'Confirmado';
-      case 'PENDING_CONFIRMATION': return 'Pendiente Confirmar';
-      case 'DISPUTED': return 'En Disputa';
-      case 'PENDING_RESULT': return 'Pendiente Resultado';
+      case 'CONFIRMED': return 'STATUS.CONFIRMED';
+      case 'PENDING_CONFIRMATION': return 'STATUS.PENDING_CONFIRMATION';
+      case 'DISPUTED': return 'STATUS.DISPUTED';
+      case 'PENDING_RESULT': return 'STATUS.PENDING_RESULT';
       default: return status;
     }
   }

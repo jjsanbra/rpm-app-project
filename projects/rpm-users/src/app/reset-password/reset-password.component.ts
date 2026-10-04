@@ -2,6 +2,7 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '@core';
 
 // PrimeNG Modules
@@ -22,7 +23,8 @@ import { MessageModule } from 'primeng/message';
     InputTextModule,
     PasswordModule,
     ButtonModule,
-    MessageModule
+    MessageModule,
+    TranslatePipe
   ],
   template: `
     <div class="auth-wrapper">
@@ -30,8 +32,8 @@ import { MessageModule } from 'primeng/message';
         <ng-template #header>
           <div class="auth-header">
             <span class="auth-icon">🔑</span>
-            <h1 class="auth-title">Restablecer Contraseña</h1>
-            <p class="auth-subtitle">Introduce tu nueva clave de acceso</p>
+            <h1 class="auth-title">{{ 'AUTH.RESET_TITLE' | translate }}</h1>
+            <p class="auth-subtitle">{{ 'AUTH.RESET_SUBTITLE' | translate }}</p>
           </div>
         </ng-template>
 
@@ -39,7 +41,7 @@ import { MessageModule } from 'primeng/message';
           <div class="success-box">
             <p-message severity="success" styleClass="w-full mb-3">{{ successMessage() }}</p-message>
             <p-button
-              label="Iniciar Sesión Ahora"
+              [label]="'AUTH.LOGIN_NOW' | translate"
               icon="pi pi-sign-in"
               severity="success"
               routerLink="/auth/login"
@@ -53,7 +55,7 @@ import { MessageModule } from 'primeng/message';
 
           <form (ngSubmit)="onSubmit()" class="auth-form">
             <div class="form-field">
-              <label class="form-label" for="password">Nueva Contraseña (mínimo 8 caracteres)</label>
+              <label class="form-label" for="password">{{ 'AUTH.NEW_PASSWORD' | translate }}</label>
               <p-password
                 id="password"
                 [(ngModel)]="password"
@@ -69,7 +71,7 @@ import { MessageModule } from 'primeng/message';
             </div>
 
             <div class="form-field">
-              <label class="form-label" for="confirmPassword">Confirmar Nueva Contraseña</label>
+              <label class="form-label" for="confirmPassword">{{ 'AUTH.CONFIRM_PASSWORD' | translate }}</label>
               <p-password
                 id="confirmPassword"
                 [(ngModel)]="confirmPassword"
@@ -85,7 +87,7 @@ import { MessageModule } from 'primeng/message';
 
             <p-button
               type="submit"
-              label="Guardar Nueva Contraseña"
+              [label]="'AUTH.RESET_SUBMIT' | translate"
               icon="pi pi-save"
               severity="success"
               styleClass="w-full mt-2"

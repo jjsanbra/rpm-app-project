@@ -27,6 +27,7 @@ import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
+import { TranslatePipe } from '@ngx-translate/core';
 
 type AdminTab = 'rankings' | 'teams' | 'matches' | 'incidents' | 'auxiliary' | 'audit';
 
@@ -44,7 +45,8 @@ type AdminTab = 'rankings' | 'teams' | 'matches' | 'incidents' | 'auxiliary' | '
     CardModule,
     SelectModule,
     InputTextModule,
-    TooltipModule
+    TooltipModule,
+    TranslatePipe
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss'

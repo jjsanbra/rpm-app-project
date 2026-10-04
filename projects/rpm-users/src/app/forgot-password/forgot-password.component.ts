@@ -2,6 +2,7 @@ import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '@core';
 
 // PrimeNG Modules
@@ -20,7 +21,8 @@ import { MessageModule } from 'primeng/message';
     CardModule,
     InputTextModule,
     ButtonModule,
-    MessageModule
+    MessageModule,
+    TranslatePipe
   ],
   template: `
     <div class="auth-wrapper">
@@ -28,16 +30,16 @@ import { MessageModule } from 'primeng/message';
         <ng-template #header>
           <div class="auth-header">
             <span class="auth-icon">📧</span>
-            <h1 class="auth-title">Recuperar Contraseña</h1>
-            <p class="auth-subtitle">Ingresa tu email para recibir el enlace de restablecimiento</p>
+            <h1 class="auth-title">{{ 'AUTH.FORGOT_TITLE' | translate }}</h1>
+            <p class="auth-subtitle">{{ 'AUTH.FORGOT_SUBTITLE' | translate }}</p>
           </div>
         </ng-template>
 
         @if (submitted()) {
           <div class="success-box">
-            <p-message severity="success" styleClass="w-full mb-3">Si el email está registrado, se han enviado las instrucciones de recuperación.</p-message>
+            <p-message severity="success" styleClass="w-full mb-3">{{ 'AUTH.FORGOT_SUCCESS' | translate }}</p-message>
             <p-button
-              label="Volver al inicio de sesión"
+              [label]="'AUTH.BACK_TO_LOGIN' | translate"
               icon="pi pi-arrow-left"
               severity="secondary"
               routerLink="/auth/login"
@@ -51,13 +53,13 @@ import { MessageModule } from 'primeng/message';
 
           <form (ngSubmit)="onSubmit()" class="auth-form">
             <div class="form-field">
-              <label class="form-label" for="email">Email Registrado</label>
+              <label class="form-label" for="email">{{ 'AUTH.FORGOT_EMAIL_LABEL' | translate }}</label>
               <input
                 id="email"
                 type="email"
                 pInputText
                 class="w-full"
-                placeholder="tu-email@ejemplo.com"
+                [placeholder]="'AUTH.EMAIL_PLACEHOLDER' | translate"
                 [(ngModel)]="email"
                 name="email"
                 required
@@ -66,7 +68,7 @@ import { MessageModule } from 'primeng/message';
 
             <p-button
               type="submit"
-              label="Enviar Instrucciones"
+              [label]="'AUTH.FORGOT_SUBMIT' | translate"
               icon="pi pi-send"
               severity="success"
               styleClass="w-full mt-2"
@@ -76,7 +78,7 @@ import { MessageModule } from 'primeng/message';
 
             <div class="text-center mt-3">
               <a routerLink="/auth/login" class="back-link">
-                <i class="pi pi-arrow-left"></i> Volver al login
+                <i class="pi pi-arrow-left"></i> {{ 'AUTH.BACK_TO_LOGIN' | translate }}
               </a>
             </div>
           </form>

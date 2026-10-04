@@ -1,27 +1,28 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   template: `
     <footer class="footer">
       <div class="container footer-content">
         <div class="footer-brand">
-          <span class="footer-logo">🎾 PADEL <span class="highlight">RANKING</span></span>
+          <span class="footer-logo">🎾 {{ 'APP.TITLE_MAIN' | translate }} <span class="highlight">{{ 'APP.TITLE_HIGHLIGHT' | translate }}</span></span>
           <p class="footer-desc">
-            Sistema oficial de gestión de rankings, puntuaciones y partidos para clubes y federaciones.
+            {{ 'FOOTER.DESC' | translate }}
           </p>
         </div>
 
         <div class="footer-info">
           <div class="rule-box">
-            <span class="rule-title">Sistema de Puntuación Oficial</span>
-            <span class="rule-detail">Victoria 2-0: <strong>5 / 1 pts</strong> • Victoria 2-1: <strong>4 / 2 pts</strong></span>
+            <span class="rule-title">{{ 'FOOTER.SCORING_TITLE' | translate }}</span>
+            <span class="rule-detail">{{ 'FOOTER.SCORING_DETAIL_PREFIX' | translate }}<strong>{{ 'FOOTER.SCORING_DETAIL_2_0' | translate }}</strong>{{ 'FOOTER.SCORING_DETAIL_SEPARATOR' | translate }}<strong>{{ 'FOOTER.SCORING_DETAIL_2_1' | translate }}</strong></span>
           </div>
           <p class="footer-copy">
-            © 2026 Padel Ranking Platform. Todos los derechos reservados.
+            {{ 'FOOTER.COPYRIGHT' | translate }}
           </p>
         </div>
       </div>

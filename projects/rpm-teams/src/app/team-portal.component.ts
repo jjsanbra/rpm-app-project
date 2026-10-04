@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService, MatchService, TeamService, Match, Team } from '@core';
 
 // PrimeNG Components
@@ -23,7 +24,8 @@ import { MessageService, ConfirmationService } from 'primeng/api';
     TagModule,
     BadgeModule,
     CardModule,
-    InputTextModule
+    InputTextModule,
+    TranslatePipe
   ],
   templateUrl: './team-portal.component.html',
   styleUrl: './team-portal.component.scss'
@@ -231,10 +233,10 @@ export class TeamPortalComponent implements OnInit {
 
   formatStatus(status: string): string {
     switch (status) {
-      case 'CONFIRMED': return 'Confirmado';
-      case 'PENDING_CONFIRMATION': return 'Pendiente Confirmar';
-      case 'DISPUTED': return 'En Disputa';
-      case 'PENDING_RESULT': return 'Por Jugar';
+      case 'CONFIRMED': return 'STATUS.CONFIRMED';
+      case 'PENDING_CONFIRMATION': return 'STATUS.PENDING_CONFIRMATION';
+      case 'DISPUTED': return 'STATUS.DISPUTED';
+      case 'PENDING_RESULT': return 'STATUS.PENDING_RESULT';
       default: return status;
     }
   }

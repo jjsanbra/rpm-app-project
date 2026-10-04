@@ -4,13 +4,13 @@
     <div class="header-main">
       <div class="team-badge-large">🎾</div>
       <div>
-        <span class="portal-subtitle">ZONA PRIVADA DE EQUIPO</span>
-        <h1 class="portal-title">{{ team()?.name || authService.currentUser()?.teamName || 'Mi Equipo' }}</h1>
+        <span class="portal-subtitle">{{ 'TEAM_PORTAL.SUBTITLE' | translate }}</span>
+        <h1 class="portal-title">{{ team()?.name || authService.currentUser()?.teamName || ('TEAM_PORTAL.DEFAULT_TEAM_NAME' | translate) }}</h1>
         <div class="team-players">
           <span class="player-tag"><i class="pi pi-user"></i> {{ team()?.player1Name }} {{ team()?.player1Surname }}</span>
           <span class="player-tag"><i class="pi pi-user"></i> {{ team()?.player2Name }} {{ team()?.player2Surname }}</span>
           @if (team()?.reserveName) {
-            <span class="player-tag reserve"><i class="pi pi-user-plus"></i> Reserva: {{ team()?.reserveName }} {{ team()?.reserveSurname }}</span>
+            <span class="player-tag reserve"><i class="pi pi-user-plus"></i> {{ 'TEAM_PORTAL.RESERVE_LABEL' | translate }} {{ team()?.reserveName }} {{ team()?.reserveSurname }}</span>
           }
         </div>
       </div>
@@ -19,15 +19,15 @@
     <div class="header-stats">
       <div class="stat-box">
         <span class="stat-val">{{ matches().length }}</span>
-        <span class="stat-lbl">Partidos</span>
+        <span class="stat-lbl">{{ 'TEAM_PORTAL.STAT_MATCHES' | translate }}</span>
       </div>
       <div class="stat-box">
         <span class="stat-val text-green">{{ countConfirmed() }}</span>
-        <span class="stat-lbl">Jugados</span>
+        <span class="stat-lbl">{{ 'TEAM_PORTAL.STAT_PLAYED' | translate }}</span>
       </div>
       <div class="stat-box">
         <span class="stat-val text-orange">{{ countPending() }}</span>
-        <span class="stat-lbl">Pendientes</span>
+        <span class="stat-lbl">{{ 'TEAM_PORTAL.STAT_PENDING' | translate }}</span>
       </div>
     </div>
   </header>
@@ -36,28 +36,28 @@
   <section class="matches-section">
     <div class="section-top">
       <div>
-        <span class="section-tag">MIS ENFRENTAMIENTOS</span>
-        <h2 class="section-title">Calendario y Resultados</h2>
+        <span class="section-tag">{{ 'TEAM_PORTAL.SECTION_TAG' | translate }}</span>
+        <h2 class="section-title">{{ 'TEAM_PORTAL.SECTION_TITLE' | translate }}</h2>
       </div>
       <span class="help-text">
-        <i class="pi pi-info-circle"></i> Solo puedes gestionar partidos en los que participa tu propio equipo.
+        <i class="pi pi-info-circle"></i> {{ 'TEAM_PORTAL.HELP_TEXT' | translate }}
       </span>
     </div>
 
     @if (loading()) {
       <div class="loading-box glass-panel">
-        <i class="pi pi-spin pi-spinner"></i> Cargando partidos del equipo...
+        <i class="pi pi-spin pi-spinner"></i> {{ 'TEAM_PORTAL.LOADING' | translate }}
       </div>
     } @else if (matches().length === 0) {
       <div class="empty-box glass-panel">
-        <i class="pi pi-calendar-times"></i> Aún no hay partidos asignados para tu equipo en este ranking.
+        <i class="pi pi-calendar-times"></i> {{ 'TEAM_PORTAL.EMPTY' | translate }}
       </div>
     } @else {
       <div class="team-matches-grid">
         @for (m of matches(); track m.id) {
           <div class="portal-match-card glass-panel" [class.confirmed]="m.status === 'CONFIRMED'" [class.disputed]="m.status === 'DISPUTED'" [class.pending-conf]="m.status === 'PENDING_CONFIRMATION'">
             <div class="card-top">
-              <p-tag [value]="formatStatus(m.status)" [severity]="getTagSeverity(m.status)"></p-tag>
+              <p-tag [value]="formatStatus(m.status) | translate" [severity]="getTagSeverity(m.status)"></p-tag>
               @if (m.matchDate) {
                 <span class="m-date"><i class="pi pi-calendar"></i> {{ m.matchDate | date }}</span>
               }
@@ -66,25 +66,25 @@
             <!-- Enfrentamiento -->
             <div class="versus-layout">
               <div class="team-side" [class.my-team]="isMyTeam(m.teamOneId)">
-                <span class="name">{{ m.teamOneName }} @if (isMyTeam(m.teamOneId)) { <strong class="you-tag">(TÚ)</strong> }</span>
+                <span class="name">{{ m.teamOneName }} @if (isMyTeam(m.teamOneId)) { <strong class="you-tag">{{ 'TEAM_PORTAL.YOU' | translate }}</strong> }</span>
                 <span class="sub">{{ m.t1p1Name }} / {{ m.t1p2Name }}</span>
                 @if (m.setsTeamOne !== null && m.setsTeamOne !== undefined) {
                   <div class="score-pill">
-                    <span class="sets">{{ m.setsTeamOne }} Sets</span>
-                    <p-badge [value]="m.pointsTeamOne + ' pts'" severity="secondary"></p-badge>
+                    <span class="sets">{{ m.setsTeamOne }} {{ 'TEAM_PORTAL.SETS_LABEL' | translate }}</span>
+                    <p-badge [value]="m.pointsTeamOne + ' ' + ('MATCHES.PTS_SUFFIX' | translate)" severity="secondary"></p-badge>
                   </div>
                 }
               </div>
 
-              <div class="vs-circle">VS</div>
+              <div class="vs-circle">{{ 'MATCHES.VS' | translate }}</div>
 
               <div class="team-side" [class.my-team]="isMyTeam(m.teamTwoId)">
-                <span class="name">{{ m.teamTwoName }} @if (isMyTeam(m.teamTwoId)) { <strong class="you-tag">(TÚ)</strong> }</span>
+                <span class="name">{{ m.teamTwoName }} @if (isMyTeam(m.teamTwoId)) { <strong class="you-tag">{{ 'TEAM_PORTAL.YOU' | translate }}</strong> }</span>
                 <span class="sub">{{ m.t2p1Name }} / {{ m.t2p2Name }}</span>
                 @if (m.setsTeamTwo !== null && m.setsTeamTwo !== undefined) {
                   <div class="score-pill">
-                    <span class="sets">{{ m.setsTeamTwo }} Sets</span>
-                    <p-badge [value]="m.pointsTeamTwo + ' pts'" severity="secondary"></p-badge>
+                    <span class="sets">{{ m.setsTeamTwo }} {{ 'TEAM_PORTAL.SETS_LABEL' | translate }}</span>
+                    <p-badge [value]="m.pointsTeamTwo + ' ' + ('MATCHES.PTS_SUFFIX' | translate)" severity="secondary"></p-badge>
                   </div>
                 }
               </div>
@@ -94,7 +94,7 @@
             <div class="card-actions">
               @if (m.status === 'PENDING_RESULT') {
                 <p-button
-                  label="Registrar Resultado"
+                  [label]="'TEAM_PORTAL.SUBMIT_RESULT_BTN' | translate"
                   icon="pi pi-pencil"
                   severity="success"
                   size="small"
@@ -107,7 +107,7 @@
                 @if (canIConfirm(m)) {
                   <div class="confirm-actions">
                     <p-button
-                      label="Confirmar Resultado"
+                      [label]="'TEAM_PORTAL.CONFIRM_RESULT_BTN' | translate"
                       icon="pi pi-check"
                       severity="success"
                       size="small"
@@ -115,30 +115,30 @@
                       (onClick)="confirmMatch(m)">
                     </p-button>
                     <p-button
-                      label="Incidencia"
+                      [label]="'TEAM_PORTAL.INCIDENT_BTN' | translate"
                       icon="pi pi-flag"
                       severity="danger"
                       size="small"
                       (onClick)="openDisputeModal(m)">
                     </p-button>
                   </div>
-                  <p class="small-hint">El equipo rival ha registrado este resultado. ¿Estás conforme?</p>
+                  <p class="small-hint">{{ 'TEAM_PORTAL.CONFIRM_HINT' | translate }}</p>
                 } @else {
                   <div class="waiting-box">
-                    <i class="pi pi-clock"></i> Resultado enviado por tu equipo. Esperando confirmación del rival.
+                    <i class="pi pi-clock"></i> {{ 'TEAM_PORTAL.WAITING_RIVAL_BOX' | translate }}
                   </div>
                 }
               }
 
               @if (m.status === 'CONFIRMED') {
                 <div class="confirmed-box">
-                  <i class="pi pi-check-circle text-green"></i> Resultado oficial confirmado. Puntos sumados a la clasificación.
+                  <i class="pi pi-check-circle text-green"></i> {{ 'TEAM_PORTAL.CONFIRMED_BOX' | translate }}
                 </div>
               }
 
               @if (m.status === 'DISPUTED') {
                 <div class="disputed-box">
-                  <i class="pi pi-exclamation-triangle text-red"></i> Incidencia comunicada. La administración está revisando el acta.
+                  <i class="pi pi-exclamation-triangle text-red"></i> {{ 'TEAM_PORTAL.DISPUTED_BOX' | translate }}
                 </div>
               }
             </div>
@@ -152,7 +152,7 @@
   <p-dialog
     [(visible)]="showSubmitModal"
     [modal]="true"
-    [header]="'Registrar Resultado'"
+    [header]="'TEAM_PORTAL.MODAL_SUBMIT_TITLE' | translate"
     [style]="{ width: '90vw', maxWidth: '520px' }"
     styleClass="custom-p-dialog">
     
@@ -163,7 +163,7 @@
 
       <form (ngSubmit)="submitResult()" class="modal-form">
         <div class="form-group">
-          <label class="form-label" for="matchDate">Fecha real del partido</label>
+          <label class="form-label" for="matchDate">{{ 'TEAM_PORTAL.MATCH_DATE_LABEL' | translate }}</label>
           <input
             id="matchDate"
             type="date"
@@ -175,7 +175,7 @@
         </div>
 
         <div class="sets-selector-group">
-          <label class="form-label">Resultado en Sets</label>
+          <label class="form-label">{{ 'TEAM_PORTAL.SETS_RESULT_LABEL' | translate }}</label>
           <div class="sets-options">
             <button
               type="button"
@@ -183,7 +183,7 @@
               [class.selected]="formSetsOne === 2 && formSetsTwo === 0"
               (click)="setScore(2, 0)">
               <strong>2 - 0</strong>
-              <span>{{ m.teamOneName }} gana (5/1 pts)</span>
+              <span>{{ m.teamOneName }} {{ 'TEAM_PORTAL.TEAM_WINS' | translate }} (5/1 {{ 'MATCHES.PTS_SUFFIX' | translate }})</span>
             </button>
             <button
               type="button"
@@ -191,7 +191,7 @@
               [class.selected]="formSetsOne === 2 && formSetsTwo === 1"
               (click)="setScore(2, 1)">
               <strong>2 - 1</strong>
-              <span>{{ m.teamOneName }} gana (4/2 pts)</span>
+              <span>{{ m.teamOneName }} {{ 'TEAM_PORTAL.TEAM_WINS' | translate }} (4/2 {{ 'MATCHES.PTS_SUFFIX' | translate }})</span>
             </button>
             <button
               type="button"
@@ -199,7 +199,7 @@
               [class.selected]="formSetsOne === 1 && formSetsTwo === 2"
               (click)="setScore(1, 2)">
               <strong>1 - 2</strong>
-              <span>{{ m.teamTwoName }} gana (2/4 pts)</span>
+              <span>{{ m.teamTwoName }} {{ 'TEAM_PORTAL.TEAM_WINS' | translate }} (2/4 {{ 'MATCHES.PTS_SUFFIX' | translate }})</span>
             </button>
             <button
               type="button"
@@ -207,23 +207,23 @@
               [class.selected]="formSetsOne === 0 && formSetsTwo === 2"
               (click)="setScore(0, 2)">
               <strong>0 - 2</strong>
-              <span>{{ m.teamTwoName }} gana (1/5 pts)</span>
+              <span>{{ m.teamTwoName }} {{ 'TEAM_PORTAL.TEAM_WINS' | translate }} (1/5 {{ 'MATCHES.PTS_SUFFIX' | translate }})</span>
             </button>
           </div>
         </div>
 
         <div class="points-preview">
-          <span class="preview-title">Previsualización de Puntos en Backend:</span>
+          <span class="preview-title">{{ 'TEAM_PORTAL.POINTS_PREVIEW_TITLE' | translate }}</span>
           <div class="preview-cols">
-            <div>{{ m.teamOneName }}: <strong>{{ previewPointsOne() }} pts</strong></div>
-            <div>{{ m.teamTwoName }}: <strong>{{ previewPointsTwo() }} pts</strong></div>
+            <div>{{ m.teamOneName }}: <strong>{{ previewPointsOne() }} {{ 'MATCHES.PTS_SUFFIX' | translate }}</strong></div>
+            <div>{{ m.teamTwoName }}: <strong>{{ previewPointsTwo() }} {{ 'MATCHES.PTS_SUFFIX' | translate }}</strong></div>
           </div>
         </div>
 
         <div class="modal-actions">
-          <p-button label="Cancelar" severity="secondary" (onClick)="closeSubmitModal()"></p-button>
+          <p-button [label]="'COMMON.CANCEL' | translate" severity="secondary" (onClick)="closeSubmitModal()"></p-button>
           <p-button
-            label="Enviar Resultado"
+            [label]="'TEAM_PORTAL.SUBMIT_MATCH_BTN' | translate"
             icon="pi pi-check"
             severity="success"
             type="submit"
@@ -239,22 +239,22 @@
   <p-dialog
     [(visible)]="showDisputeModal"
     [modal]="true"
-    [header]="'Comunicar Incidencia Arbitral'"
+    [header]="'TEAM_PORTAL.MODAL_DISPUTE_TITLE' | translate"
     [style]="{ width: '90vw', maxWidth: '500px' }"
     styleClass="custom-p-dialog">
 
     <p class="modal-sub">
-      Explica el motivo por el cual no estás de acuerdo con el resultado registrado por el equipo rival.
+      {{ 'TEAM_PORTAL.DISPUTE_SUB' | translate }}
     </p>
 
     <form (ngSubmit)="submitDispute()" class="modal-form">
       <div class="form-group">
-        <label class="form-label" for="incidentDesc">Descripción de la Incidencia</label>
+        <label class="form-label" for="incidentDesc">{{ 'TEAM_PORTAL.INCIDENT_DESC_LABEL' | translate }}</label>
         <textarea
           id="incidentDesc"
           class="form-control"
           rows="4"
-          placeholder="Ej: El resultado registrado no coincide con el acta del partido. Terminamos 1-2..."
+          [placeholder]="'TEAM_PORTAL.INCIDENT_DESC_PLACEHOLDER' | translate"
           [(ngModel)]="disputeDescription"
           name="incidentDesc"
           required
@@ -262,9 +262,9 @@
       </div>
 
       <div class="modal-actions">
-        <p-button label="Cancelar" severity="secondary" (onClick)="closeDisputeModal()"></p-button>
+        <p-button [label]="'COMMON.CANCEL' | translate" severity="secondary" (onClick)="closeDisputeModal()"></p-button>
         <p-button
-          label="Notificar Administrador"
+          [label]="'TEAM_PORTAL.NOTIFY_ADMIN_BTN' | translate"
           icon="pi pi-send"
           severity="danger"
           type="submit"

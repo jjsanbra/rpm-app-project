@@ -2,21 +2,21 @@
   <!-- ─── HERO SECTION ──────────────────────────────────────────────── -->
   <section class="hero-section">
     <div class="hero-badge">
-      <span class="pulse-dot"></span> TEMPORADA ACTIVA 2026
+      <span class="pulse-dot"></span> {{ 'HERO.BADGE' | translate }}
     </div>
     <h1 class="hero-title">
-      PASIÓN, COMPETICIÓN Y <br/>
-      <span class="gradient-text">RANKING OFICIAL DE PÁDEL</span>
+      {{ 'HERO.TITLE_PREFIX' | translate }} <br/>
+      <span class="gradient-text">{{ 'HERO.TITLE_GRADIENT' | translate }}</span>
     </h1>
     <p class="hero-subtitle">
-      Sigue la clasificación en tiempo real, consulta los enfrentamientos round-robin y confirma los resultados con el sistema oficial de puntuación federado.
+      {{ 'HERO.SUBTITLE' | translate }}
     </p>
 
     <!-- Ranking Selector con PrimeNG Select -->
     @if (rankings().length > 0) {
       <div class="ranking-selector-card glass-panel-glow">
         <div class="selector-header">
-          <span class="label">Ranking Seleccionado</span>
+          <span class="label">{{ 'HERO.SELECTED_RANKING' | translate }}</span>
           <div class="dates-pill">
             <i class="pi pi-calendar"></i>
             {{ selectedRanking()?.startDate | date }} → {{ selectedRanking()?.endDate | date }}
@@ -28,7 +28,7 @@
           optionValue="id"
           [ngModel]="selectedRanking()?.id"
           (ngModelChange)="onRankingChange($event)"
-          placeholder="Seleccionar Ranking"
+          [placeholder]="'HERO.SELECT_RANKING_PLACEHOLDER' | translate"
           styleClass="w-full">
         </p-select>
       </div>
@@ -42,8 +42,8 @@
         <div class="info-card-inner">
           <i class="pi pi-map-marker icon"></i>
           <div>
-            <span class="info-label">Sede</span>
-            <span class="info-val">{{ r.locationName || 'Club Central' }}</span>
+            <span class="info-label">{{ 'HERO.LOCATION' | translate }}</span>
+            <span class="info-val">{{ r.locationName || ('HERO.DEFAULT_LOCATION' | translate) }}</span>
           </div>
         </div>
       </p-card>
@@ -52,8 +52,8 @@
         <div class="info-card-inner">
           <i class="pi pi-chart-line icon"></i>
           <div>
-            <span class="info-label">Nivel</span>
-            <span class="info-val">{{ r.levelName || 'Intermedio' }}</span>
+            <span class="info-label">{{ 'HERO.LEVEL' | translate }}</span>
+            <span class="info-val">{{ r.levelName || ('HERO.DEFAULT_LEVEL' | translate) }}</span>
           </div>
         </div>
       </p-card>
@@ -62,8 +62,8 @@
         <div class="info-card-inner">
           <i class="pi pi-users icon"></i>
           <div>
-            <span class="info-label">Categoría</span>
-            <span class="info-val">{{ r.categoryName || 'Masculina' }}</span>
+            <span class="info-label">{{ 'HERO.CATEGORY' | translate }}</span>
+            <span class="info-val">{{ r.categoryName || ('HERO.DEFAULT_CATEGORY' | translate) }}</span>
           </div>
         </div>
       </p-card>
@@ -74,19 +74,19 @@
   <section id="clasificacion" class="section container">
     <div class="section-header">
       <div>
-        <span class="section-tag">TABLA DE POSICIONES</span>
-        <h2 class="section-title">Clasificación del Ranking</h2>
+        <span class="section-tag">{{ 'STANDINGS.SECTION_TAG' | translate }}</span>
+        <h2 class="section-title">{{ 'STANDINGS.TITLE' | translate }}</h2>
       </div>
       <div class="table-switcher">
         <p-button
-          label="Oficial (Confirmados)"
+          [label]="'STANDINGS.OFFICIAL_BTN' | translate"
           [outlined]="viewMode() !== 'official'"
           severity="success"
           size="small"
           (onClick)="setMode('official')">
         </p-button>
         <p-button
-          label="Provisional (Todos)"
+          [label]="'STANDINGS.PROVISIONAL_BTN' | translate"
           [outlined]="viewMode() !== 'provisional'"
           severity="secondary"
           size="small"
@@ -103,14 +103,14 @@
         styleClass="p-datatable-striped">
         <ng-template #header>
           <tr>
-            <th style="width: 70px;">Pos</th>
-            <th>Equipo & Pareja</th>
-            <th class="text-center" style="width: 80px;">PJ</th>
-            <th class="text-center" style="width: 80px;">PG</th>
-            <th class="text-center" style="width: 80px;">PP</th>
-            <th class="text-center">Sets (DIF)</th>
-            <th class="text-center">Puntos (DIF)</th>
-            <th class="text-right" style="width: 120px;">TOTAL PTS</th>
+            <th style="width: 70px;">{{ 'STANDINGS.POS' | translate }}</th>
+            <th>{{ 'STANDINGS.TEAM_PLAYERS' | translate }}</th>
+            <th class="text-center" style="width: 80px;">{{ 'STANDINGS.PJ' | translate }}</th>
+            <th class="text-center" style="width: 80px;">{{ 'STANDINGS.PG' | translate }}</th>
+            <th class="text-center" style="width: 80px;">{{ 'STANDINGS.PP' | translate }}</th>
+            <th class="text-center">{{ 'STANDINGS.SETS_DIF' | translate }}</th>
+            <th class="text-center">{{ 'STANDINGS.POINTS_DIF' | translate }}</th>
+            <th class="text-right" style="width: 120px;">{{ 'STANDINGS.TOTAL_PTS' | translate }}</th>
           </tr>
         </ng-template>
         <ng-template #body let-row let-idx="rowIndex">
@@ -147,7 +147,7 @@
         <ng-template #emptymessage>
           <tr>
             <td colspan="8" class="text-center p-4 text-muted">
-              <i class="pi pi-info-circle"></i> No hay datos de clasificación disponibles aún.
+              <i class="pi pi-info-circle"></i> {{ 'STANDINGS.NO_DATA' | translate }}
             </td>
           </tr>
         </ng-template>
@@ -159,14 +159,14 @@
   <section id="partidos" class="section container">
     <div class="section-header">
       <div>
-        <span class="section-tag">CALENDARIO DE JUEGO</span>
-        <h2 class="section-title">Partidos y Resultados</h2>
+        <span class="section-tag">{{ 'MATCHES.SECTION_TAG' | translate }}</span>
+        <h2 class="section-title">{{ 'MATCHES.TITLE' | translate }}</h2>
       </div>
       <div class="filter-pills">
-        <p-button label="Todos" [outlined]="matchFilter() !== 'ALL'" size="small" severity="secondary" (onClick)="setMatchFilter('ALL')"></p-button>
-        <p-button label="Confirmados" [outlined]="matchFilter() !== 'CONFIRMED'" size="small" severity="success" (onClick)="setMatchFilter('CONFIRMED')"></p-button>
-        <p-button label="Pendientes" [outlined]="matchFilter() !== 'PENDING_CONFIRMATION'" size="small" severity="warn" (onClick)="setMatchFilter('PENDING_CONFIRMATION')"></p-button>
-        <p-button label="En Incidencia" [outlined]="matchFilter() !== 'DISPUTED'" size="small" severity="danger" (onClick)="setMatchFilter('DISPUTED')"></p-button>
+        <p-button [label]="'MATCHES.FILTER_ALL' | translate" [outlined]="matchFilter() !== 'ALL'" size="small" severity="secondary" (onClick)="setMatchFilter('ALL')"></p-button>
+        <p-button [label]="'MATCHES.FILTER_CONFIRMED' | translate" [outlined]="matchFilter() !== 'CONFIRMED'" size="small" severity="success" (onClick)="setMatchFilter('CONFIRMED')"></p-button>
+        <p-button [label]="'MATCHES.FILTER_PENDING' | translate" [outlined]="matchFilter() !== 'PENDING_CONFIRMATION'" size="small" severity="warn" (onClick)="setMatchFilter('PENDING_CONFIRMATION')"></p-button>
+        <p-button [label]="'MATCHES.FILTER_DISPUTED' | translate" [outlined]="matchFilter() !== 'DISPUTED'" size="small" severity="danger" (onClick)="setMatchFilter('DISPUTED')"></p-button>
       </div>
     </div>
 
@@ -174,7 +174,7 @@
       <p-card styleClass="empty-card">
         <div class="text-center p-4">
           <i class="pi pi-calendar-times" style="font-size: 2rem; color: var(--text-dim);"></i>
-          <p class="mt-2 text-muted">No hay partidos en esta categoría.</p>
+          <p class="mt-2 text-muted">{{ 'MATCHES.NO_MATCHES' | translate }}</p>
         </div>
       </p-card>
     } @else {
@@ -182,11 +182,11 @@
         @for (m of filteredMatches(); track m.id) {
           <div class="match-card glass-panel" [class.confirmed]="m.status === 'CONFIRMED'" [class.disputed]="m.status === 'DISPUTED'">
             <div class="match-meta">
-              <p-tag [value]="formatStatus(m.status)" [severity]="getTagSeverity(m.status)"></p-tag>
+              <p-tag [value]="formatStatus(m.status) | translate" [severity]="getTagSeverity(m.status)"></p-tag>
               @if (m.matchDate) {
                 <span class="match-date"><i class="pi pi-calendar"></i> {{ m.matchDate | date }}</span>
               } @else {
-                <span class="match-date text-dim"><i class="pi pi-clock"></i> Por disputar</span>
+                <span class="match-date text-dim"><i class="pi pi-clock"></i> {{ 'MATCHES.TO_BE_PLAYED' | translate }}</span>
               }
             </div>
 
@@ -199,14 +199,14 @@
                 <div class="score-display">
                   @if (m.setsTeamOne !== null && m.setsTeamOne !== undefined) {
                     <span class="sets-num">{{ m.setsTeamOne }}</span>
-                    <p-badge [value]="m.pointsTeamOne + ' pts'" severity="secondary"></p-badge>
+                    <p-badge [value]="m.pointsTeamOne + ' ' + ('MATCHES.PTS_SUFFIX' | translate)" severity="secondary"></p-badge>
                   } @else {
                     <span class="sets-dash">-</span>
                   }
                 </div>
               </div>
 
-              <div class="match-divider"><span>VS</span></div>
+              <div class="match-divider"><span>{{ 'MATCHES.VS' | translate }}</span></div>
 
               <div class="match-team" [class.winner]="m.setsTeamOne !== null && m.setsTeamTwo !== null && (m.setsTeamTwo ?? 0) > (m.setsTeamOne ?? 0)">
                 <div class="team-info">
@@ -216,7 +216,7 @@
                 <div class="score-display">
                   @if (m.setsTeamTwo !== null && m.setsTeamTwo !== undefined) {
                     <span class="sets-num">{{ m.setsTeamTwo }}</span>
-                    <p-badge [value]="m.pointsTeamTwo + ' pts'" severity="secondary"></p-badge>
+                    <p-badge [value]="m.pointsTeamTwo + ' ' + ('MATCHES.PTS_SUFFIX' | translate)" severity="secondary"></p-badge>
                   } @else {
                     <span class="sets-dash">-</span>
                   }
@@ -226,12 +226,12 @@
 
             @if (m.status === 'PENDING_CONFIRMATION') {
               <div class="match-alert-pending">
-                <i class="pi pi-info-circle"></i> Resultado registrado por <strong>{{ m.submittedByEmail }}</strong>. Pendiente de confirmación.
+                <i class="pi pi-info-circle"></i> {{ 'MATCHES.PENDING_ALERT_PREFIX' | translate }} <strong>{{ m.submittedByEmail }}</strong>. {{ 'MATCHES.PENDING_ALERT_SUFFIX' | translate }}
               </div>
             }
             @if (m.status === 'DISPUTED') {
               <div class="match-alert-dispute">
-                <i class="pi pi-exclamation-triangle"></i> Incidencia comunicada. En revisión administrativa.
+                <i class="pi pi-exclamation-triangle"></i> {{ 'MATCHES.DISPUTED_ALERT' | translate }}
               </div>
             }
           </div>
@@ -244,55 +244,55 @@
   <section id="reglamento" class="section container">
     <div class="section-header">
       <div>
-        <span class="section-tag">NORMATIVA DE JUEGO</span>
-        <h2 class="section-title">Reglamento y Puntuación</h2>
+        <span class="section-tag">{{ 'RULES.SECTION_TAG' | translate }}</span>
+        <h2 class="section-title">{{ 'RULES.TITLE' | translate }}</h2>
       </div>
     </div>
 
     <div class="scoring-rules-grid">
       <p-card styleClass="rule-card-p">
-        <p-tag value="VICTORIA DIRECTA" severity="success"></p-tag>
-        <h3 class="rule-heading mt-2">Resultado 2 - 0</h3>
+        <p-tag [value]="'RULES.TAG_DIRECT_WIN' | translate" severity="success"></p-tag>
+        <h3 class="rule-heading mt-2">{{ 'RULES.HEADING_2_0' | translate }}</h3>
         <div class="points-comparison">
           <div class="winner-points">
             <span class="pts">5</span>
-            <span class="lbl">PUNTOS GANADOR</span>
+            <span class="lbl">{{ 'RULES.PTS_WINNER' | translate }}</span>
           </div>
           <div class="loser-points">
             <span class="pts">1</span>
-            <span class="lbl">PUNTO PERDEDOR</span>
+            <span class="lbl">{{ 'RULES.PTS_LOSER' | translate }}</span>
           </div>
         </div>
         <p class="rule-text mt-3">
-          La victoria contundente en 2 sets otorga la máxima recompensa de 5 puntos al ganador y 1 punto de consolación al derrotado por disputar el partido.
+          {{ 'RULES.TEXT_2_0' | translate }}
         </p>
       </p-card>
 
       <p-card styleClass="rule-card-p">
-        <p-tag value="VICTORIA AJUSTADA" severity="info"></p-tag>
-        <h3 class="rule-heading mt-2">Resultado 2 - 1</h3>
+        <p-tag [value]="'RULES.TAG_TIGHT_WIN' | translate" severity="info"></p-tag>
+        <h3 class="rule-heading mt-2">{{ 'RULES.HEADING_2_1' | translate }}</h3>
         <div class="points-comparison">
           <div class="winner-points blue">
             <span class="pts">4</span>
-            <span class="lbl">PUNTOS GANADOR</span>
+            <span class="lbl">{{ 'RULES.PTS_WINNER' | translate }}</span>
           </div>
           <div class="loser-points blue">
             <span class="pts">2</span>
-            <span class="lbl">PUNTOS PERDEDOR</span>
+            <span class="lbl">{{ 'RULES.PTS_LOSER' | translate }}</span>
           </div>
         </div>
         <p class="rule-text mt-3">
-          Los partidos reñidos a 3 sets otorgan 4 puntos a la pareja ganadora y premian la resistencia del equipo perdedor con 2 puntos en la tabla.
+          {{ 'RULES.TEXT_2_1' | translate }}
         </p>
       </p-card>
 
       <p-card styleClass="rule-card-p">
-        <p-tag value="VALIDACIÓN Y FECHAS" severity="warn"></p-tag>
-        <h3 class="rule-heading mt-2">Flujo de Resultados</h3>
+        <p-tag [value]="'RULES.TAG_VALIDATION' | translate" severity="warn"></p-tag>
+        <h3 class="rule-heading mt-2">{{ 'RULES.HEADING_FLOW' | translate }}</h3>
         <ul class="rule-list mt-3">
-          <li><i class="pi pi-check text-green"></i> <strong>Fecha Real:</strong> Se registra la fecha exacta dentro del periodo del ranking.</li>
-          <li><i class="pi pi-check text-green"></i> <strong>Confirmación Rival:</strong> El rival debe verificar el resultado o comunicar incidencia.</li>
-          <li><i class="pi pi-check text-green"></i> <strong>Criterios Desempate:</strong> Puntos totales → Diferencia de sets → Puntos a favor.</li>
+          <li><i class="pi pi-check text-green"></i> <strong>{{ 'RULES.RULE_REAL_DATE_TITLE' | translate }}</strong> {{ 'RULES.RULE_REAL_DATE_DESC' | translate }}</li>
+          <li><i class="pi pi-check text-green"></i> <strong>{{ 'RULES.RULE_CONFIRM_TITLE' | translate }}</strong> {{ 'RULES.RULE_CONFIRM_DESC' | translate }}</li>
+          <li><i class="pi pi-check text-green"></i> <strong>{{ 'RULES.RULE_TIEBREAK_TITLE' | translate }}</strong> {{ 'RULES.RULE_TIEBREAK_DESC' | translate }}</li>
         </ul>
       </p-card>
     </div>

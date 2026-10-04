@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 
 // PrimeNG
@@ -10,7 +11,7 @@ import { TagModule } from 'primeng/tag';
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule, ButtonModule, TagModule],
+  imports: [CommonModule, RouterModule, ButtonModule, TagModule, TranslatePipe],
   template: `
     <nav class="navbar glass-panel">
       <div class="nav-container">
@@ -18,35 +19,35 @@ import { TagModule } from 'primeng/tag';
         <a routerLink="/" class="brand">
           <span class="logo-icon">🎾</span>
           <div class="brand-text">
-            <span class="brand-title">PADEL <span class="highlight">RANKING</span></span>
-            <span class="brand-sub">Competición Oficial</span>
+            <span class="brand-title">{{ 'APP.TITLE_MAIN' | translate }} <span class="highlight">{{ 'APP.TITLE_HIGHLIGHT' | translate }}</span></span>
+            <span class="brand-sub">{{ 'APP.SUBTITLE' | translate }}</span>
           </div>
         </a>
 
         <!-- Desktop Links -->
         <div class="nav-links">
           <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">
-            <i class="pi pi-home"></i> Inicio
+            <i class="pi pi-home"></i> {{ 'NAV.HOME' | translate }}
           </a>
           <a routerLink="/" fragment="clasificacion" class="nav-link">
-            <i class="pi pi-chart-bar"></i> Clasificación
+            <i class="pi pi-chart-bar"></i> {{ 'NAV.STANDINGS' | translate }}
           </a>
           <a routerLink="/" fragment="partidos" class="nav-link">
-            <i class="pi pi-calendar"></i> Partidos
+            <i class="pi pi-calendar"></i> {{ 'NAV.MATCHES' | translate }}
           </a>
           <a routerLink="/" fragment="reglamento" class="nav-link">
-            <i class="pi pi-book"></i> Reglamento
+            <i class="pi pi-book"></i> {{ 'NAV.RULES' | translate }}
           </a>
 
           @if (authService.isAuthenticated()) {
             @if (authService.isTeamUser()) {
               <a routerLink="/team" routerLinkActive="active" class="nav-link team-link">
-                <i class="pi pi-users"></i> Mi Equipo
+                <i class="pi pi-users"></i> {{ 'NAV.MY_TEAM' | translate }}
               </a>
             }
             @if (authService.isAdmin()) {
               <a routerLink="/admin" routerLinkActive="active" class="nav-link admin-link">
-                <i class="pi pi-cog"></i> Panel Admin
+                <i class="pi pi-cog"></i> {{ 'NAV.ADMIN_PANEL' | translate }}
               </a>
             }
           }
@@ -58,12 +59,12 @@ import { TagModule } from 'primeng/tag';
             <div class="user-badge">
               <span class="user-email">{{ authService.currentUser()?.email }}</span>
               <p-tag
-                [value]="authService.isAdmin() ? 'ADMIN' : (authService.currentUser()?.teamName || 'EQUIPO')"
+                [value]="authService.isAdmin() ? ('NAV.ROLE_ADMIN' | translate) : (authService.currentUser()?.teamName || ('NAV.ROLE_TEAM' | translate))"
                 [severity]="authService.isAdmin() ? 'warn' : 'success'">
               </p-tag>
             </div>
             <p-button
-              label="Salir"
+              [label]="'NAV.LOGOUT' | translate"
               icon="pi pi-sign-out"
               severity="secondary"
               [outlined]="true"
@@ -72,7 +73,7 @@ import { TagModule } from 'primeng/tag';
             </p-button>
           } @else {
             <p-button
-              label="Acceder"
+              [label]="'NAV.LOGIN' | translate"
               icon="pi pi-user"
               severity="success"
               size="small"

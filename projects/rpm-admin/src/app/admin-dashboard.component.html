@@ -2,13 +2,13 @@
   <!-- ─── DASHBOARD TOP BAR ────────────────────────────────────────── -->
   <header class="admin-header glass-panel-glow">
     <div>
-      <span class="admin-tag"><i class="pi pi-shield"></i> PANEL DE CONTROL GLOBAL</span>
-      <h1 class="admin-title">Administración del Ranking</h1>
+      <span class="admin-tag"><i class="pi pi-shield"></i> {{ 'ADMIN.HEADER_TAG' | translate }}</span>
+      <h1 class="admin-title">{{ 'ADMIN.TITLE' | translate }}</h1>
     </div>
 
     <div class="nav-tabs">
       <p-button
-        label="Rankings ({{ rankings().length }})"
+        [label]="('ADMIN.TAB_RANKINGS' | translate) + ' (' + rankings().length + ')'"
         icon="pi pi-trophy"
         [outlined]="activeTab() !== 'rankings'"
         severity="success"
@@ -16,7 +16,7 @@
         (onClick)="setTab('rankings')">
       </p-button>
       <p-button
-        label="Equipos ({{ teams().length }})"
+        [label]="('ADMIN.TAB_TEAMS' | translate) + ' (' + teams().length + ')'"
         icon="pi pi-users"
         [outlined]="activeTab() !== 'teams'"
         severity="success"
@@ -24,7 +24,7 @@
         (onClick)="setTab('teams')">
       </p-button>
       <p-button
-        label="Partidos ({{ matches().length }})"
+        [label]="('ADMIN.TAB_MATCHES' | translate) + ' (' + matches().length + ')'"
         icon="pi pi-calendar"
         [outlined]="activeTab() !== 'matches'"
         severity="success"
@@ -32,7 +32,7 @@
         (onClick)="setTab('matches')">
       </p-button>
       <p-button
-        label="Incidencias"
+        [label]="'ADMIN.TAB_INCIDENTS' | translate"
         icon="pi pi-flag"
         [outlined]="activeTab() !== 'incidents'"
         severity="danger"
@@ -42,7 +42,7 @@
         (onClick)="setTab('incidents')">
       </p-button>
       <p-button
-        label="Maestros"
+        [label]="'ADMIN.TAB_AUXILIARY' | translate"
         icon="pi pi-database"
         [outlined]="activeTab() !== 'auxiliary'"
         severity="secondary"
@@ -50,7 +50,7 @@
         (onClick)="setTab('auxiliary')">
       </p-button>
       <p-button
-        label="Auditoría"
+        [label]="'ADMIN.TAB_AUDIT' | translate"
         icon="pi pi-history"
         [outlined]="activeTab() !== 'audit'"
         severity="secondary"
@@ -64,29 +64,29 @@
   @if (activeTab() === 'rankings') {
     <section class="tab-section">
       <div class="section-actions">
-        <h2>Gestión de Rankings</h2>
-        <p-button label="Crear Nuevo Ranking" icon="pi pi-plus" severity="success" size="small" (onClick)="openCreateRankingModal()"></p-button>
+        <h2>{{ 'ADMIN.RANKINGS_HEADING' | translate }}</h2>
+        <p-button [label]="'ADMIN.CREATE_RANKING_BTN' | translate" icon="pi pi-plus" severity="success" size="small" (onClick)="openCreateRankingModal()"></p-button>
       </div>
 
       <div class="cards-grid">
         @for (r of rankings(); track r.id) {
           <div class="admin-card glass-panel">
             <div class="card-head">
-              <p-tag [value]="r.active ? 'ACTIVO' : 'INACTIVO'" [severity]="r.active ? 'success' : 'secondary'"></p-tag>
+              <p-tag [value]="(r.active ? 'STATUS.ACTIVE' : 'STATUS.INACTIVE') | translate" [severity]="r.active ? 'success' : 'secondary'"></p-tag>
               <span class="date-txt">{{ r.startDate | date }} → {{ r.endDate | date }}</span>
             </div>
             <h3 class="card-title">{{ r.name }}</h3>
-            <p class="card-desc">{{ r.description || 'Sin descripción' }}</p>
+            <p class="card-desc">{{ r.description || ('ADMIN.NO_DESC' | translate) }}</p>
 
             <div class="card-tags">
-              <span class="mini-tag"><i class="pi pi-map-marker"></i> {{ r.locationName || 'Sede Club' }}</span>
-              <span class="mini-tag"><i class="pi pi-chart-line"></i> {{ r.levelName || 'Nivel General' }}</span>
-              <span class="mini-tag"><i class="pi pi-users"></i> {{ r.categoryName || 'Categoría Única' }}</span>
+              <span class="mini-tag"><i class="pi pi-map-marker"></i> {{ r.locationName || ('ADMIN.DEFAULT_LOCATION' | translate) }}</span>
+              <span class="mini-tag"><i class="pi pi-chart-line"></i> {{ r.levelName || ('ADMIN.DEFAULT_LEVEL' | translate) }}</span>
+              <span class="mini-tag"><i class="pi pi-users"></i> {{ r.categoryName || ('ADMIN.DEFAULT_CATEGORY' | translate) }}</span>
             </div>
 
             <div class="card-foot">
               <p-button
-                label="Editar"
+                [label]="'COMMON.EDIT' | translate"
                 icon="pi pi-pencil"
                 severity="warn"
                 size="small"
@@ -94,13 +94,13 @@
                 (onClick)="openEditRankingModal(r)">
               </p-button>
               <p-button
-                [label]="r.active ? 'Desactivar' : 'Activar'"
+                [label]="(r.active ? 'ADMIN.DEACTIVATE_BTN' : 'ADMIN.ACTIVATE_BTN') | translate"
                 [severity]="r.active ? 'secondary' : 'success'"
                 size="small"
                 (onClick)="toggleRankingActive(r)">
               </p-button>
               <p-button
-                label="Partidos"
+                [label]="'ADMIN.MATCHES_BTN' | translate"
                 icon="pi pi-calendar"
                 severity="info"
                 size="small"
@@ -119,23 +119,23 @@
     <section class="tab-section">
       <div class="section-actions">
         <div>
-          <h2>Equipos Registrados</h2>
-          <p class="section-sub">Los equipos son dados de alta exclusivamente por la administración y reciben un email con token de configuración de contraseña.</p>
+          <h2>{{ 'ADMIN.TEAMS_HEADING' | translate }}</h2>
+          <p class="section-sub">{{ 'ADMIN.TEAMS_SUB' | translate }}</p>
         </div>
-        <p-button label="Dar de Alta Equipo" icon="pi pi-plus" severity="success" size="small" (onClick)="openCreateTeamModal()"></p-button>
+        <p-button [label]="'ADMIN.CREATE_TEAM_BTN' | translate" icon="pi pi-plus" severity="success" size="small" (onClick)="openCreateTeamModal()"></p-button>
       </div>
 
       <div class="glass-panel p-3">
         <p-table [value]="teams()" responsiveLayout="scroll" [paginator]="true" [rows]="10" styleClass="p-datatable-striped">
           <ng-template #header>
             <tr>
-              <th>Nombre del Equipo</th>
-              <th>Titular 1</th>
-              <th>Titular 2</th>
-              <th>Reserva</th>
-              <th>Emails de Contacto</th>
-              <th>Estado</th>
-              <th class="text-right">Acciones</th>
+              <th>{{ 'ADMIN.TH_TEAM_NAME' | translate }}</th>
+              <th>{{ 'ADMIN.TH_P1' | translate }}</th>
+              <th>{{ 'ADMIN.TH_P2' | translate }}</th>
+              <th>{{ 'ADMIN.TH_RESERVE' | translate }}</th>
+              <th>{{ 'ADMIN.TH_EMAILS' | translate }}</th>
+              <th>{{ 'ADMIN.TH_STATUS' | translate }}</th>
+              <th class="text-right">{{ 'ADMIN.TH_ACTIONS' | translate }}</th>
             </tr>
           </ng-template>
           <ng-template #body let-t>
@@ -150,7 +150,7 @@
                 }
               </td>
               <td>
-                <p-tag [value]="t.active ? 'Activo' : 'Inactivo'" [severity]="t.active ? 'success' : 'danger'"></p-tag>
+                <p-tag [value]="(t.active ? 'STATUS.ACTIVE' : 'STATUS.INACTIVE') | translate" [severity]="t.active ? 'success' : 'danger'"></p-tag>
               </td>
               <td class="text-right flex justify-end gap-2">
                 <p-button
@@ -158,7 +158,7 @@
                   severity="warn"
                   size="small"
                   [outlined]="true"
-                  pTooltip="Editar Equipo"
+                  [pTooltip]="'ADMIN.TOOLTIP_EDIT_TEAM' | translate"
                   (onClick)="openEditTeamModal(t)">
                 </p-button>
                 <p-button
@@ -166,7 +166,7 @@
                   [severity]="t.active ? 'secondary' : 'success'"
                   size="small"
                   [outlined]="true"
-                  [pTooltip]="t.active ? 'Desactivar Equipo' : 'Activar Equipo'"
+                  [pTooltip]="(t.active ? 'ADMIN.TOOLTIP_DEACTIVATE_TEAM' : 'ADMIN.TOOLTIP_ACTIVATE_TEAM') | translate"
                   (onClick)="toggleTeamActive(t)">
                 </p-button>
                 <p-button
@@ -174,7 +174,7 @@
                   severity="secondary"
                   size="small"
                   [outlined]="true"
-                  pTooltip="Reenviar Acceso"
+                  [pTooltip]="'ADMIN.TOOLTIP_RESEND_ACCESS' | translate"
                   (onClick)="resendWelcome(t)">
                 </p-button>
               </td>
@@ -190,20 +190,20 @@
     <section class="tab-section">
       <div class="section-actions">
         <div class="flex items-center gap-3">
-          <h2>Partidos</h2>
+          <h2>{{ 'ADMIN.MATCHES_HEADING' | translate }}</h2>
           <p-select
             [options]="rankings()"
             optionLabel="name"
             optionValue="id"
             [(ngModel)]="selectedRankingId"
             (ngModelChange)="loadMatchesForSelectedRanking()"
-            placeholder="Seleccionar Ranking"
+            [placeholder]="'HERO.SELECT_RANKING_PLACEHOLDER' | translate"
             styleClass="w-64">
           </p-select>
         </div>
 
         <p-button
-          label="Generar Calendario Round-Robin"
+          [label]="'ADMIN.GENERATE_ROUND_ROBIN_BTN' | translate"
           icon="pi pi-refresh"
           severity="success"
           size="small"
@@ -215,23 +215,23 @@
         <p-table [value]="matches()" responsiveLayout="scroll" [paginator]="true" [rows]="10" styleClass="p-datatable-striped">
           <ng-template #header>
             <tr>
-              <th>Estado</th>
-              <th>Equipo 1</th>
-              <th>Equipo 2</th>
-              <th>Fecha Disputa</th>
-              <th>Resultado</th>
-              <th>Puntos Backend</th>
-              <th class="text-right">Acción Admin</th>
+              <th>{{ 'ADMIN.TH_MATCH_STATUS' | translate }}</th>
+              <th>{{ 'ADMIN.TH_TEAM_ONE' | translate }}</th>
+              <th>{{ 'ADMIN.TH_TEAM_TWO' | translate }}</th>
+              <th>{{ 'ADMIN.TH_MATCH_DATE' | translate }}</th>
+              <th>{{ 'ADMIN.TH_RESULT' | translate }}</th>
+              <th>{{ 'ADMIN.TH_BACKEND_POINTS' | translate }}</th>
+              <th class="text-right">{{ 'ADMIN.TH_ADMIN_ACTION' | translate }}</th>
             </tr>
           </ng-template>
           <ng-template #body let-m>
             <tr>
               <td>
-                <p-tag [value]="m.status" [severity]="getTagSeverity(m.status)"></p-tag>
+                <p-tag [value]="('STATUS.' + m.status) | translate" [severity]="getTagSeverity(m.status)"></p-tag>
               </td>
               <td><strong>{{ m.teamOneName }}</strong></td>
               <td><strong>{{ m.teamTwoName }}</strong></td>
-              <td>{{ (m.matchDate | date) || 'Sin fecha' }}</td>
+              <td>{{ (m.matchDate | date) || ('MATCHES.NO_DATE' | translate) }}</td>
               <td>
                 @if (m.setsTeamOne !== null && m.setsTeamTwo !== null) {
                   <strong>{{ m.setsTeamOne }} - {{ m.setsTeamTwo }}</strong>
@@ -239,12 +239,12 @@
               </td>
               <td>
                 @if (m.pointsTeamOne !== null && m.pointsTeamTwo !== null) {
-                  <span class="pts-badge">{{ m.pointsTeamOne }} / {{ m.pointsTeamTwo }} pts</span>
+                  <span class="pts-badge">{{ m.pointsTeamOne }} / {{ m.pointsTeamTwo }} {{ 'MATCHES.PTS_SUFFIX' | translate }}</span>
                 } @else { - }
               </td>
               <td class="text-right">
                 <p-button
-                  label="Modificar / Resolver"
+                  [label]="'ADMIN.MODIFY_RESOLVE_BTN' | translate"
                   icon="pi pi-pencil"
                   severity="warn"
                   size="small"
@@ -262,14 +262,14 @@
   @if (activeTab() === 'incidents') {
     <section class="tab-section">
       <div class="section-actions">
-        <h2>Incidencias y Disputas de Partidos</h2>
+        <h2>{{ 'ADMIN.INCIDENTS_HEADING' | translate }}</h2>
       </div>
 
       @if (incidents().length === 0) {
         <p-card styleClass="empty-card">
           <div class="text-center p-4">
             <i class="pi pi-check-circle text-green" style="font-size: 2rem;"></i>
-            <p class="mt-2 text-muted">No hay incidencias pendientes. ¡Todo en orden!</p>
+            <p class="mt-2 text-muted">{{ 'ADMIN.NO_INCIDENTS_MSG' | translate }}</p>
           </div>
         </p-card>
       } @else {
@@ -277,24 +277,24 @@
           @for (inc of incidents(); track inc.id) {
             <div class="incident-card glass-panel" [class.open-border]="inc.status === 'OPEN'">
               <div class="inc-head">
-                <p-tag [value]="inc.status" [severity]="inc.status === 'OPEN' ? 'danger' : 'success'"></p-tag>
+                <p-tag [value]="('STATUS.' + inc.status) | translate" [severity]="inc.status === 'OPEN' ? 'danger' : 'success'"></p-tag>
                 <span class="inc-date">{{ inc.reportedAt | date }}</span>
               </div>
               <div class="inc-reporter">
-                Reportado por: <strong>{{ inc.reportedByEmail || 'Usuario' }}</strong>
+                {{ 'ADMIN.REPORTED_BY' | translate }} <strong>{{ inc.reportedByEmail || 'Usuario' }}</strong>
               </div>
               <p class="inc-desc">"{{ inc.description }}"</p>
 
               @if (inc.resolution) {
                 <div class="inc-res">
-                  <strong>Resolución:</strong> {{ inc.resolution }}
+                  <strong>{{ 'ADMIN.RESOLUTION_LABEL' | translate }}</strong> {{ inc.resolution }}
                 </div>
               }
 
               @if (inc.status === 'OPEN') {
                 <div class="inc-foot">
                   <p-button
-                    label="Resolver Incidencia"
+                    [label]="'ADMIN.RESOLVE_INCIDENT_BTN' | translate"
                     icon="pi pi-check"
                     severity="success"
                     size="small"
@@ -314,24 +314,24 @@
     <section class="tab-section">
       <div class="section-actions">
         <div>
-          <h2>Datos Maestros Desacoplados</h2>
+          <h2>{{ 'ADMIN.AUX_HEADING' | translate }}</h2>
           <div class="aux-switcher">
-            <p-button label="Niveles" [outlined]="auxType() !== 'levels'" size="small" severity="secondary" (onClick)="setAuxType('levels')"></p-button>
-            <p-button label="Categorías" [outlined]="auxType() !== 'categories'" size="small" severity="secondary" (onClick)="setAuxType('categories')"></p-button>
-            <p-button label="Ubicaciones / Sedes" [outlined]="auxType() !== 'locations'" size="small" severity="secondary" (onClick)="setAuxType('locations')"></p-button>
-            <p-button label="Patrocinadores" [outlined]="auxType() !== 'sponsors'" size="small" severity="secondary" (onClick)="setAuxType('sponsors')"></p-button>
+            <p-button [label]="'ADMIN.AUX_LEVELS' | translate" [outlined]="auxType() !== 'levels'" size="small" severity="secondary" (onClick)="setAuxType('levels')"></p-button>
+            <p-button [label]="'ADMIN.AUX_CATEGORIES' | translate" [outlined]="auxType() !== 'categories'" size="small" severity="secondary" (onClick)="setAuxType('categories')"></p-button>
+            <p-button [label]="'ADMIN.AUX_LOCATIONS' | translate" [outlined]="auxType() !== 'locations'" size="small" severity="secondary" (onClick)="setAuxType('locations')"></p-button>
+            <p-button [label]="'ADMIN.AUX_SPONSORS' | translate" [outlined]="auxType() !== 'sponsors'" size="small" severity="secondary" (onClick)="setAuxType('sponsors')"></p-button>
           </div>
         </div>
-        <p-button [label]="'Añadir ' + auxType()" icon="pi pi-plus" severity="success" size="small" (onClick)="openCreateAuxModal()"></p-button>
+        <p-button [label]="('ADMIN.ADD_AUX_PREFIX' | translate) + auxType()" icon="pi pi-plus" severity="success" size="small" (onClick)="openCreateAuxModal()"></p-button>
       </div>
 
       <div class="glass-panel p-3">
         <p-table [value]="auxItems()" responsiveLayout="scroll" styleClass="p-datatable-striped">
           <ng-template #header>
             <tr>
-              <th>Nombre</th>
-              <th>Descripción</th>
-              <th class="text-right">Acciones</th>
+              <th>{{ 'ADMIN.TH_NAME' | translate }}</th>
+              <th>{{ 'ADMIN.TH_DESC' | translate }}</th>
+              <th class="text-right">{{ 'ADMIN.TH_ACTIONS' | translate }}</th>
             </tr>
           </ng-template>
           <ng-template #body let-item>
@@ -352,18 +352,18 @@
   @if (activeTab() === 'audit') {
     <section class="tab-section">
       <div class="section-actions">
-        <h2>Registro de Auditoría de Seguridad</h2>
+        <h2>{{ 'ADMIN.AUDIT_HEADING' | translate }}</h2>
       </div>
 
       <div class="glass-panel p-3">
         <p-table [value]="auditLogs()" responsiveLayout="scroll" [paginator]="true" [rows]="15" styleClass="p-datatable-striped">
           <ng-template #header>
             <tr>
-              <th>Fecha / Hora</th>
-              <th>Acción</th>
-              <th>Entidad</th>
-              <th>ID Entidad</th>
-              <th>Detalles</th>
+              <th>{{ 'ADMIN.TH_DATETIME' | translate }}</th>
+              <th>{{ 'ADMIN.TH_ACTION' | translate }}</th>
+              <th>{{ 'ADMIN.TH_ENTITY' | translate }}</th>
+              <th>{{ 'ADMIN.TH_ENTITY_ID' | translate }}</th>
+              <th>{{ 'ADMIN.TH_DETAILS' | translate }}</th>
             </tr>
           </ng-template>
           <ng-template #body let-log>
@@ -381,40 +381,40 @@
   }
 
   <!-- ─── MODAL PRIMENG: CREAR RANKING ──────────────────────────────── -->
-  <p-dialog [(visible)]="showCreateRankingModal" [modal]="true" header="Crear Nuevo Ranking" [style]="{ width: '90vw', maxWidth: '580px' }">
+  <p-dialog [(visible)]="showCreateRankingModal" [modal]="true" [header]="'ADMIN.MODAL_CREATE_RANKING' | translate" [style]="{ width: '90vw', maxWidth: '580px' }">
     <form (ngSubmit)="createRanking()" class="modal-form">
       <div class="form-group">
-        <label class="form-label">Nombre del Ranking</label>
-        <input class="form-control" [(ngModel)]="newRankingName" name="rName" required placeholder="Ej: Ranking Primavera 2026" />
+        <label class="form-label">{{ 'ADMIN.RANKING_NAME_LABEL' | translate }}</label>
+        <input class="form-control" [(ngModel)]="newRankingName" name="rName" required [placeholder]="'ADMIN.RANKING_NAME_PLACEHOLDER' | translate" />
       </div>
       <div class="form-group">
-        <label class="form-label">Descripción</label>
-        <input class="form-control" [(ngModel)]="newRankingDesc" name="rDesc" placeholder="Descripción breve" />
+        <label class="form-label">{{ 'ADMIN.RANKING_DESC_LABEL' | translate }}</label>
+        <input class="form-control" [(ngModel)]="newRankingDesc" name="rDesc" [placeholder]="'ADMIN.RANKING_DESC_PLACEHOLDER' | translate" />
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div class="form-group">
-          <label class="form-label">Categoría</label>
+          <label class="form-label">{{ 'ADMIN.CATEGORY_LABEL' | translate }}</label>
           <p-select
             [options]="categoriesList()"
             optionLabel="name"
             optionValue="id"
             [(ngModel)]="newRankingCategoryId"
             name="newRCategory"
-            placeholder="Seleccionar Categoría"
+            [placeholder]="'ADMIN.SELECT_CATEGORY_PLACEHOLDER' | translate"
             [showClear]="true"
             styleClass="w-full">
           </p-select>
         </div>
         <div class="form-group">
-          <label class="form-label">Nivel</label>
+          <label class="form-label">{{ 'ADMIN.LEVEL_LABEL' | translate }}</label>
           <p-select
             [options]="levelsList()"
             optionLabel="name"
             optionValue="id"
             [(ngModel)]="newRankingLevelId"
             name="newRLevel"
-            placeholder="Seleccionar Nivel"
+            [placeholder]="'ADMIN.SELECT_LEVEL_PLACEHOLDER' | translate"
             [showClear]="true"
             styleClass="w-full">
           </p-select>
@@ -422,14 +422,14 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label">Sede / Club</label>
+        <label class="form-label">{{ 'ADMIN.LOCATION_LABEL' | translate }}</label>
         <p-select
           [options]="locationsList()"
           optionLabel="name"
           optionValue="id"
           [(ngModel)]="newRankingLocationId"
           name="newRLocation"
-          placeholder="Seleccionar Sede"
+          [placeholder]="'ADMIN.SELECT_LOCATION_PLACEHOLDER' | translate"
           [showClear]="true"
           styleClass="w-full">
         </p-select>
@@ -437,56 +437,56 @@
 
       <div class="grid grid-cols-2 gap-4">
         <div class="form-group">
-          <label class="form-label">Fecha Inicio</label>
+          <label class="form-label">{{ 'ADMIN.START_DATE_LABEL' | translate }}</label>
           <input type="date" class="form-control" [(ngModel)]="newRankingStart" name="rStart" required />
         </div>
         <div class="form-group">
-          <label class="form-label">Fecha Fin</label>
+          <label class="form-label">{{ 'ADMIN.END_DATE_LABEL' | translate }}</label>
           <input type="date" class="form-control" [(ngModel)]="newRankingEnd" name="rEnd" required />
         </div>
       </div>
       <div class="modal-actions">
-        <p-button label="Cancelar" severity="secondary" (onClick)="showCreateRankingModal = false"></p-button>
-        <p-button label="Crear Ranking" icon="pi pi-check" severity="success" type="submit"></p-button>
+        <p-button [label]="'COMMON.CANCEL' | translate" severity="secondary" (onClick)="showCreateRankingModal = false"></p-button>
+        <p-button [label]="'ADMIN.CREATE_RANKING_SUBMIT' | translate" icon="pi pi-check" severity="success" type="submit"></p-button>
       </div>
     </form>
   </p-dialog>
 
   <!-- ─── MODAL PRIMENG: EDITAR RANKING ──────────────────────────────── -->
-  <p-dialog [(visible)]="showEditRankingModal" [modal]="true" header="Editar Ranking" [style]="{ width: '90vw', maxWidth: '580px' }">
+  <p-dialog [(visible)]="showEditRankingModal" [modal]="true" [header]="'ADMIN.MODAL_EDIT_RANKING' | translate" [style]="{ width: '90vw', maxWidth: '580px' }">
     <form (ngSubmit)="saveEditRanking()" class="modal-form">
       <div class="form-group">
-        <label class="form-label">Nombre del Ranking</label>
-        <input class="form-control" [(ngModel)]="editRankingName" name="editRName" required placeholder="Nombre del Ranking" />
+        <label class="form-label">{{ 'ADMIN.RANKING_NAME_LABEL' | translate }}</label>
+        <input class="form-control" [(ngModel)]="editRankingName" name="editRName" required [placeholder]="'ADMIN.RANKING_NAME_PLACEHOLDER' | translate" />
       </div>
       <div class="form-group">
-        <label class="form-label">Descripción</label>
-        <input class="form-control" [(ngModel)]="editRankingDesc" name="editRDesc" placeholder="Descripción breve" />
+        <label class="form-label">{{ 'ADMIN.RANKING_DESC_LABEL' | translate }}</label>
+        <input class="form-control" [(ngModel)]="editRankingDesc" name="editRDesc" [placeholder]="'ADMIN.RANKING_DESC_PLACEHOLDER' | translate" />
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div class="form-group">
-          <label class="form-label">Categoría</label>
+          <label class="form-label">{{ 'ADMIN.CATEGORY_LABEL' | translate }}</label>
           <p-select
             [options]="categoriesList()"
             optionLabel="name"
             optionValue="id"
             [(ngModel)]="editRankingCategoryId"
             name="editRCategory"
-            placeholder="Seleccionar Categoría"
+            [placeholder]="'ADMIN.SELECT_CATEGORY_PLACEHOLDER' | translate"
             [showClear]="true"
             styleClass="w-full">
           </p-select>
         </div>
         <div class="form-group">
-          <label class="form-label">Nivel</label>
+          <label class="form-label">{{ 'ADMIN.LEVEL_LABEL' | translate }}</label>
           <p-select
             [options]="levelsList()"
             optionLabel="name"
             optionValue="id"
             [(ngModel)]="editRankingLevelId"
             name="editRLevel"
-            placeholder="Seleccionar Nivel"
+            [placeholder]="'ADMIN.SELECT_LEVEL_PLACEHOLDER' | translate"
             [showClear]="true"
             styleClass="w-full">
           </p-select>
@@ -494,14 +494,14 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label">Sede / Club</label>
+        <label class="form-label">{{ 'ADMIN.LOCATION_LABEL' | translate }}</label>
         <p-select
           [options]="locationsList()"
           optionLabel="name"
           optionValue="id"
           [(ngModel)]="editRankingLocationId"
           name="editRLocation"
-          placeholder="Seleccionar Sede"
+          [placeholder]="'ADMIN.SELECT_LOCATION_PLACEHOLDER' | translate"
           [showClear]="true"
           styleClass="w-full">
         </p-select>
@@ -509,133 +509,133 @@
 
       <div class="grid grid-cols-2 gap-4">
         <div class="form-group">
-          <label class="form-label">Fecha Inicio</label>
+          <label class="form-label">{{ 'ADMIN.START_DATE_LABEL' | translate }}</label>
           <input type="date" class="form-control" [(ngModel)]="editRankingStart" name="editRStart" required />
         </div>
         <div class="form-group">
-          <label class="form-label">Fecha Fin</label>
+          <label class="form-label">{{ 'ADMIN.END_DATE_LABEL' | translate }}</label>
           <input type="date" class="form-control" [(ngModel)]="editRankingEnd" name="editREnd" required />
         </div>
       </div>
       <div class="modal-actions">
-        <p-button label="Cancelar" severity="secondary" (onClick)="showEditRankingModal = false"></p-button>
-        <p-button label="Guardar Cambios" icon="pi pi-save" severity="success" type="submit"></p-button>
+        <p-button [label]="'COMMON.CANCEL' | translate" severity="secondary" (onClick)="showEditRankingModal = false"></p-button>
+        <p-button [label]="'ADMIN.SAVE_CHANGES' | translate" icon="pi pi-save" severity="success" type="submit"></p-button>
       </div>
     </form>
   </p-dialog>
 
   <!-- ─── MODAL PRIMENG: CREAR EQUIPO ───────────────────────────────── -->
-  <p-dialog [(visible)]="showCreateTeamModal" [modal]="true" header="Alta de Equipo" [style]="{ width: '90vw', maxWidth: '560px' }">
+  <p-dialog [(visible)]="showCreateTeamModal" [modal]="true" [header]="'ADMIN.MODAL_CREATE_TEAM' | translate" [style]="{ width: '90vw', maxWidth: '560px' }">
     <form (ngSubmit)="createTeam()" class="modal-form">
       <div class="form-group">
-        <label class="form-label">Nombre del Equipo</label>
-        <input class="form-control" [(ngModel)]="newTeamName" name="tName" required placeholder="Ej: Los Smashers" />
+        <label class="form-label">{{ 'ADMIN.TEAM_NAME_LABEL' | translate }}</label>
+        <input class="form-control" [(ngModel)]="newTeamName" name="tName" required [placeholder]="'ADMIN.TEAM_NAME_PLACEHOLDER' | translate" />
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div class="form-group">
-          <label class="form-label">Titular 1 (Nombre)</label>
-          <input class="form-control" [(ngModel)]="newTeamP1N" name="tP1N" required placeholder="Nombre" />
+          <label class="form-label">{{ 'ADMIN.P1_NAME_LABEL' | translate }}</label>
+          <input class="form-control" [(ngModel)]="newTeamP1N" name="tP1N" required [placeholder]="'ADMIN.NAME_PLACEHOLDER' | translate" />
         </div>
         <div class="form-group">
-          <label class="form-label">Titular 1 (Apellido)</label>
-          <input class="form-control" [(ngModel)]="newTeamP1S" name="tP1S" required placeholder="Apellido" />
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-4">
-        <div class="form-group">
-          <label class="form-label">Titular 2 (Nombre)</label>
-          <input class="form-control" [(ngModel)]="newTeamP2N" name="tP2N" required placeholder="Nombre" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Titular 2 (Apellido)</label>
-          <input class="form-control" [(ngModel)]="newTeamP2S" name="tP2S" required placeholder="Apellido" />
+          <label class="form-label">{{ 'ADMIN.P1_SURNAME_LABEL' | translate }}</label>
+          <input class="form-control" [(ngModel)]="newTeamP1S" name="tP1S" required [placeholder]="'ADMIN.SURNAME_PLACEHOLDER' | translate" />
         </div>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div class="form-group">
-          <label class="form-label">Reserva (Nombre - Opcional)</label>
-          <input class="form-control" [(ngModel)]="newTeamRN" name="tRN" placeholder="Opcional" />
+          <label class="form-label">{{ 'ADMIN.P2_NAME_LABEL' | translate }}</label>
+          <input class="form-control" [(ngModel)]="newTeamP2N" name="tP2N" required [placeholder]="'ADMIN.NAME_PLACEHOLDER' | translate" />
         </div>
         <div class="form-group">
-          <label class="form-label">Reserva (Apellido - Opcional)</label>
-          <input class="form-control" [(ngModel)]="newTeamRS" name="tRS" placeholder="Opcional" />
+          <label class="form-label">{{ 'ADMIN.P2_SURNAME_LABEL' | translate }}</label>
+          <input class="form-control" [(ngModel)]="newTeamP2S" name="tP2S" required [placeholder]="'ADMIN.SURNAME_PLACEHOLDER' | translate" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="form-group">
+          <label class="form-label">{{ 'ADMIN.RESERVE_NAME_LABEL' | translate }}</label>
+          <input class="form-control" [(ngModel)]="newTeamRN" name="tRN" [placeholder]="'ADMIN.OPTIONAL_PLACEHOLDER' | translate" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">{{ 'ADMIN.RESERVE_SURNAME_LABEL' | translate }}</label>
+          <input class="form-control" [(ngModel)]="newTeamRS" name="tRS" [placeholder]="'ADMIN.OPTIONAL_PLACEHOLDER' | translate" />
         </div>
       </div>
 
       <div class="form-group">
-        <label class="form-label">Email Principal (Para acceso)</label>
+        <label class="form-label">{{ 'ADMIN.EMAIL1_LABEL' | translate }}</label>
         <input type="email" class="form-control" [(ngModel)]="newTeamEmail1" name="tE1" required placeholder="equipo@dominio.com" />
       </div>
 
       <div class="form-group">
-        <label class="form-label">Email Secundario (Opcional - Máx 2)</label>
+        <label class="form-label">{{ 'ADMIN.EMAIL2_LABEL' | translate }}</label>
         <input type="email" class="form-control" [(ngModel)]="newTeamEmail2" name="tE2" placeholder="segundo_email@dominio.com" />
       </div>
 
       <div class="modal-actions">
-        <p-button label="Cancelar" severity="secondary" (onClick)="showCreateTeamModal = false"></p-button>
-        <p-button label="Crear Equipo y Enviar Accesos" icon="pi pi-check" severity="success" type="submit"></p-button>
+        <p-button [label]="'COMMON.CANCEL' | translate" severity="secondary" (onClick)="showCreateTeamModal = false"></p-button>
+        <p-button [label]="'ADMIN.CREATE_TEAM_SUBMIT' | translate" icon="pi pi-check" severity="success" type="submit"></p-button>
       </div>
     </form>
   </p-dialog>
 
   <!-- ─── MODAL PRIMENG: EDITAR EQUIPO ───────────────────────────────── -->
-  <p-dialog [(visible)]="showEditTeamModal" [modal]="true" header="Editar Equipo y Jugadores" [style]="{ width: '90vw', maxWidth: '560px' }">
+  <p-dialog [(visible)]="showEditTeamModal" [modal]="true" [header]="'ADMIN.MODAL_EDIT_TEAM' | translate" [style]="{ width: '90vw', maxWidth: '560px' }">
     <form (ngSubmit)="saveEditTeam()" class="modal-form">
       <div class="form-group">
-        <label class="form-label">Nombre del Equipo</label>
-        <input class="form-control" [(ngModel)]="editTeamName" name="editTName" required placeholder="Ej: Los Smashers" />
+        <label class="form-label">{{ 'ADMIN.TEAM_NAME_LABEL' | translate }}</label>
+        <input class="form-control" [(ngModel)]="editTeamName" name="editTName" required [placeholder]="'ADMIN.TEAM_NAME_PLACEHOLDER' | translate" />
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div class="form-group">
-          <label class="form-label">Titular 1 (Nombre)</label>
-          <input class="form-control" [(ngModel)]="editTeamP1N" name="editTP1N" required placeholder="Nombre" />
+          <label class="form-label">{{ 'ADMIN.P1_NAME_LABEL' | translate }}</label>
+          <input class="form-control" [(ngModel)]="editTeamP1N" name="editTP1N" required [placeholder]="'ADMIN.NAME_PLACEHOLDER' | translate" />
         </div>
         <div class="form-group">
-          <label class="form-label">Titular 1 (Apellido)</label>
-          <input class="form-control" [(ngModel)]="editTeamP1S" name="editTP1S" required placeholder="Apellido" />
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-4">
-        <div class="form-group">
-          <label class="form-label">Titular 2 (Nombre)</label>
-          <input class="form-control" [(ngModel)]="editTeamP2N" name="editTP2N" required placeholder="Nombre" />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Titular 2 (Apellido)</label>
-          <input class="form-control" [(ngModel)]="editTeamP2S" name="editTP2S" required placeholder="Apellido" />
+          <label class="form-label">{{ 'ADMIN.P1_SURNAME_LABEL' | translate }}</label>
+          <input class="form-control" [(ngModel)]="editTeamP1S" name="editTP1S" required [placeholder]="'ADMIN.SURNAME_PLACEHOLDER' | translate" />
         </div>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
         <div class="form-group">
-          <label class="form-label">Reserva (Nombre - Opcional)</label>
-          <input class="form-control" [(ngModel)]="editTeamRN" name="editTRN" placeholder="Opcional" />
+          <label class="form-label">{{ 'ADMIN.P2_NAME_LABEL' | translate }}</label>
+          <input class="form-control" [(ngModel)]="editTeamP2N" name="editTP2N" required [placeholder]="'ADMIN.NAME_PLACEHOLDER' | translate" />
         </div>
         <div class="form-group">
-          <label class="form-label">Reserva (Apellido - Opcional)</label>
-          <input class="form-control" [(ngModel)]="editTeamRS" name="editTRS" placeholder="Opcional" />
+          <label class="form-label">{{ 'ADMIN.P2_SURNAME_LABEL' | translate }}</label>
+          <input class="form-control" [(ngModel)]="editTeamP2S" name="editTP2S" required [placeholder]="'ADMIN.SURNAME_PLACEHOLDER' | translate" />
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div class="form-group">
+          <label class="form-label">{{ 'ADMIN.RESERVE_NAME_LABEL' | translate }}</label>
+          <input class="form-control" [(ngModel)]="editTeamRN" name="editTRN" [placeholder]="'ADMIN.OPTIONAL_PLACEHOLDER' | translate" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">{{ 'ADMIN.RESERVE_SURNAME_LABEL' | translate }}</label>
+          <input class="form-control" [(ngModel)]="editTeamRS" name="editTRS" [placeholder]="'ADMIN.OPTIONAL_PLACEHOLDER' | translate" />
         </div>
       </div>
 
       <div class="form-group">
-        <label class="form-label">Email Principal (Para acceso)</label>
+        <label class="form-label">{{ 'ADMIN.EMAIL1_LABEL' | translate }}</label>
         <input type="email" class="form-control" [(ngModel)]="editTeamEmail1" name="editTE1" required placeholder="equipo@dominio.com" />
       </div>
 
       <div class="form-group">
-        <label class="form-label">Email Secundario (Opcional - Máx 2)</label>
+        <label class="form-label">{{ 'ADMIN.EMAIL2_LABEL' | translate }}</label>
         <input type="email" class="form-control" [(ngModel)]="editTeamEmail2" name="editTE2" placeholder="segundo_email@dominio.com" />
       </div>
 
       <div class="modal-actions">
-        <p-button label="Cancelar" severity="secondary" (onClick)="showEditTeamModal = false"></p-button>
-        <p-button label="Guardar Cambios" icon="pi pi-save" severity="success" type="submit"></p-button>
+        <p-button [label]="'COMMON.CANCEL' | translate" severity="secondary" (onClick)="showEditTeamModal = false"></p-button>
+        <p-button [label]="'ADMIN.SAVE_CHANGES' | translate" icon="pi pi-save" severity="success" type="submit"></p-button>
       </div>
     </form>
   </p-dialog>
@@ -644,7 +644,7 @@
   <p-dialog
     [(visible)]="showOverrideModal"
     [modal]="true"
-    header="Modificación Administrativa de Partido"
+    [header]="'ADMIN.MODAL_OVERRIDE_TITLE' | translate"
     [style]="{ width: '90vw', maxWidth: '520px' }">
     
     @if (activeOverrideMatch(); as m) {
@@ -655,32 +655,32 @@
       <form (ngSubmit)="submitAdminOverride()" class="modal-form">
         <div class="grid grid-cols-2 gap-4">
           <div class="form-group">
-            <label class="form-label">Sets {{ m.teamOneName }}</label>
+            <label class="form-label">{{ 'ADMIN.SETS_LABEL' | translate }} {{ m.teamOneName }}</label>
             <input type="number" min="0" max="2" class="form-control" [(ngModel)]="overrideSetsOne" name="oS1" required />
           </div>
           <div class="form-group">
-            <label class="form-label">Sets {{ m.teamTwoName }}</label>
+            <label class="form-label">{{ 'ADMIN.SETS_LABEL' | translate }} {{ m.teamTwoName }}</label>
             <input type="number" min="0" max="2" class="form-control" [(ngModel)]="overrideSetsTwo" name="oS2" required />
           </div>
         </div>
 
         <div class="form-group">
-          <label class="form-label">Estado del Partido</label>
+          <label class="form-label">{{ 'ADMIN.MATCH_STATUS_LABEL' | translate }}</label>
           <select class="form-control" [(ngModel)]="overrideStatus" name="oStat">
-            <option value="CONFIRMED">CONFIRMED (Oficial)</option>
-            <option value="PENDING_RESULT">PENDING_RESULT (Reiniciar)</option>
-            <option value="CANCELLED">CANCELLED (Cancelado)</option>
+            <option value="CONFIRMED">{{ 'ADMIN.OVERRIDE_CONFIRMED_OPT' | translate }}</option>
+            <option value="PENDING_RESULT">{{ 'ADMIN.OVERRIDE_PENDING_OPT' | translate }}</option>
+            <option value="CANCELLED">{{ 'ADMIN.OVERRIDE_CANCELLED_OPT' | translate }}</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label class="form-label">Motivo / Acta de Resolución (Auditado)</label>
-          <input class="form-control" [(ngModel)]="overrideReason" name="oReason" required placeholder="Ej: Resolución arbitral tras revisión de actas" />
+          <label class="form-label">{{ 'ADMIN.OVERRIDE_REASON_LABEL' | translate }}</label>
+          <input class="form-control" [(ngModel)]="overrideReason" name="oReason" required [placeholder]="'ADMIN.OVERRIDE_REASON_PLACEHOLDER' | translate" />
         </div>
 
         <div class="modal-actions">
-          <p-button label="Cancelar" severity="secondary" (onClick)="showOverrideModal = false"></p-button>
-          <p-button label="Aplicar y Recalcular" icon="pi pi-check" severity="warn" type="submit"></p-button>
+          <p-button [label]="'COMMON.CANCEL' | translate" severity="secondary" (onClick)="showOverrideModal = false"></p-button>
+          <p-button [label]="'ADMIN.APPLY_RECALCULATE_BTN' | translate" icon="pi pi-check" severity="warn" type="submit"></p-button>
         </div>
       </form>
     }
@@ -690,42 +690,42 @@
   <p-dialog
     [(visible)]="showResolveIncidentModal"
     [modal]="true"
-    header="Resolver Incidencia Arbitral"
+    [header]="'ADMIN.MODAL_RESOLVE_INCIDENT_TITLE' | translate"
     [style]="{ width: '90vw', maxWidth: '500px' }">
     
     <form (ngSubmit)="submitResolveIncident()" class="modal-form">
       <div class="form-group">
-        <label class="form-label">Estado de Resolución</label>
+        <label class="form-label">{{ 'ADMIN.RESOLUTION_STATUS_LABEL' | translate }}</label>
         <select class="form-control" [(ngModel)]="incResolveStatus" name="iStat">
-          <option value="RESOLVED">RESOLVED (Aceptada y Resuelta)</option>
-          <option value="REJECTED">REJECTED (Rechazada / Resultado Válido)</option>
+          <option value="RESOLVED">{{ 'ADMIN.RESOLVE_ACCEPT_OPT' | translate }}</option>
+          <option value="REJECTED">{{ 'ADMIN.RESOLVE_REJECT_OPT' | translate }}</option>
         </select>
       </div>
       <div class="form-group">
-        <label class="form-label">Resolución para los Equipos</label>
-        <textarea rows="3" class="form-control" [(ngModel)]="incResolution" name="iRes" required placeholder="Detalla la decisión arbitral..."></textarea>
+        <label class="form-label">{{ 'ADMIN.RESOLUTION_TEAMS_LABEL' | translate }}</label>
+        <textarea rows="3" class="form-control" [(ngModel)]="incResolution" name="iRes" required [placeholder]="'ADMIN.RESOLUTION_PLACEHOLDER' | translate"></textarea>
       </div>
       <div class="modal-actions">
-        <p-button label="Cancelar" severity="secondary" (onClick)="showResolveIncidentModal = false"></p-button>
-        <p-button label="Cerrar Incidencia" icon="pi pi-check" severity="success" type="submit"></p-button>
+        <p-button [label]="'COMMON.CANCEL' | translate" severity="secondary" (onClick)="showResolveIncidentModal = false"></p-button>
+        <p-button [label]="'ADMIN.CLOSE_INCIDENT_BTN' | translate" icon="pi pi-check" severity="success" type="submit"></p-button>
       </div>
     </form>
   </p-dialog>
 
   <!-- ─── MODAL PRIMENG: CREAR AUXILIAR ────────────────────────────── -->
-  <p-dialog [(visible)]="showCreateAuxModal" [modal]="true" [header]="'Añadir ' + auxType()" [style]="{ width: '90vw', maxWidth: '500px' }">
+  <p-dialog [(visible)]="showCreateAuxModal" [modal]="true" [header]="('ADMIN.MODAL_ADD_AUX_PREFIX' | translate) + auxType()" [style]="{ width: '90vw', maxWidth: '500px' }">
     <form (ngSubmit)="createAuxItem()" class="modal-form">
       <div class="form-group">
-        <label class="form-label">Nombre</label>
-        <input class="form-control" [(ngModel)]="newAuxName" name="aName" required placeholder="Nombre" />
+        <label class="form-label">{{ 'ADMIN.AUX_NAME_LABEL' | translate }}</label>
+        <input class="form-control" [(ngModel)]="newAuxName" name="aName" required [placeholder]="'ADMIN.AUX_NAME_LABEL' | translate" />
       </div>
       <div class="form-group">
-        <label class="form-label">Descripción</label>
-        <input class="form-control" [(ngModel)]="newAuxDesc" name="aDesc" placeholder="Descripción" />
+        <label class="form-label">{{ 'ADMIN.AUX_DESC_LABEL' | translate }}</label>
+        <input class="form-control" [(ngModel)]="newAuxDesc" name="aDesc" [placeholder]="'ADMIN.AUX_DESC_LABEL' | translate" />
       </div>
       <div class="modal-actions">
-        <p-button label="Cancelar" severity="secondary" (onClick)="showCreateAuxModal = false"></p-button>
-        <p-button label="Guardar" icon="pi pi-check" severity="success" type="submit"></p-button>
+        <p-button [label]="'COMMON.CANCEL' | translate" severity="secondary" (onClick)="showCreateAuxModal = false"></p-button>
+        <p-button [label]="'COMMON.SAVE' | translate" icon="pi pi-check" severity="success" type="submit"></p-button>
       </div>
     </form>
   </p-dialog>
