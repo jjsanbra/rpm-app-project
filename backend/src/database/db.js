@@ -200,6 +200,14 @@ function _createSchema() {
       resultSubmittedBy   TEXT REFERENCES users(id) ON DELETE SET NULL,
       status              TEXT NOT NULL DEFAULT 'PENDING_RESULT'
                             CHECK(status IN ('PENDING_RESULT','PENDING_CONFIRMATION','CONFIRMED','DISPUTED','CANCELLED')),
+      set1TeamOne         INTEGER,
+      set1TeamTwo         INTEGER,
+      set2TeamOne         INTEGER,
+      set2TeamTwo         INTEGER,
+      set3TeamOne         INTEGER,
+      set3TeamTwo         INTEGER,
+      gamesTeamOne        INTEGER,
+      gamesTeamTwo        INTEGER,
       setsTeamOne         INTEGER,
       setsTeamTwo         INTEGER,
       pointsTeamOne       INTEGER,
@@ -244,6 +252,25 @@ function _createSchema() {
       createdAt   TEXT NOT NULL
     );
   `);
+
+  // Migraciones idempotentes para bases de datos existentes
+  const matchCols = [
+    'set1TeamOne INTEGER',
+    'set1TeamTwo INTEGER',
+    'set2TeamOne INTEGER',
+    'set2TeamTwo INTEGER',
+    'set3TeamOne INTEGER',
+    'set3TeamTwo INTEGER',
+    'gamesTeamOne INTEGER',
+    'gamesTeamTwo INTEGER'
+  ];
+  for (const col of matchCols) {
+    try {
+      _db.exec(`ALTER TABLE matches ADD COLUMN ${col};`);
+    } catch (_) {
+      // Ignorar si la columna ya existe
+    }
+  }
 }
 
 /**

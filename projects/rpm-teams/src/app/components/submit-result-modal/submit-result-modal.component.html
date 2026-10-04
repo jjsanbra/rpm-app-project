@@ -3,12 +3,14 @@
   (visibleChange)="visibleChange.emit($event)"
   [modal]="true"
   [header]="'TEAM_PORTAL.MODAL_SUBMIT_TITLE' | translate"
-  [style]="{ width: '90vw', maxWidth: '520px' }"
+  [style]="{ width: '92vw', maxWidth: '560px' }"
   styleClass="custom-p-dialog">
   
   @if (match(); as m) {
     <div class="match-summary-pill">
-      <strong>{{ m.teamOneName }}</strong> vs <strong>{{ m.teamTwoName }}</strong>
+      <span class="team-label t1">{{ m.teamOneName }}</span>
+      <span class="vs-badge">VS</span>
+      <span class="team-label t2">{{ m.teamTwoName }}</span>
     </div>
 
     <form (ngSubmit)="onSubmit()" class="modal-form">
@@ -24,51 +26,158 @@
         />
       </div>
 
-      <div class="sets-selector-group">
-        <label class="form-label">{{ 'TEAM_PORTAL.SETS_RESULT_LABEL' | translate }}</label>
-        <div class="sets-options">
-          <button
-            type="button"
-            class="set-option-btn"
-            [class.selected]="formSetsOne === 2 && formSetsTwo === 0"
-            (click)="setScore(2, 0)">
-            <strong>2 - 0</strong>
-            <span>{{ m.teamOneName }} {{ 'TEAM_PORTAL.TEAM_WINS' | translate }} (5/1 {{ 'MATCHES.PTS_SUFFIX' | translate }})</span>
-          </button>
-          <button
-            type="button"
-            class="set-option-btn"
-            [class.selected]="formSetsOne === 2 && formSetsTwo === 1"
-            (click)="setScore(2, 1)">
-            <strong>2 - 1</strong>
-            <span>{{ m.teamOneName }} {{ 'TEAM_PORTAL.TEAM_WINS' | translate }} (4/2 {{ 'MATCHES.PTS_SUFFIX' | translate }})</span>
-          </button>
-          <button
-            type="button"
-            class="set-option-btn"
-            [class.selected]="formSetsOne === 1 && formSetsTwo === 2"
-            (click)="setScore(1, 2)">
-            <strong>1 - 2</strong>
-            <span>{{ m.teamTwoName }} {{ 'TEAM_PORTAL.TEAM_WINS' | translate }} (2/4 {{ 'MATCHES.PTS_SUFFIX' | translate }})</span>
-          </button>
-          <button
-            type="button"
-            class="set-option-btn"
-            [class.selected]="formSetsOne === 0 && formSetsTwo === 2"
-            (click)="setScore(0, 2)">
-            <strong>0 - 2</strong>
-            <span>{{ m.teamTwoName }} {{ 'TEAM_PORTAL.TEAM_WINS' | translate }} (1/5 {{ 'MATCHES.PTS_SUFFIX' | translate }})</span>
-          </button>
+      <div class="sets-entry-section">
+        <label class="form-label mb-2">{{ 'TEAM_PORTAL.GAMES_SCORE_TITLE' | translate }}</label>
+        <p class="section-hint">{{ 'TEAM_PORTAL.GAMES_SCORE_HINT' | translate }}</p>
+
+        <!-- Set 1 -->
+        <div class="set-row">
+          <span class="set-tag">{{ 'TEAM_PORTAL.SET_1' | translate }}</span>
+          <div class="set-inputs">
+            <input
+              type="number"
+              min="0"
+              max="7"
+              class="game-input"
+              [(ngModel)]="set1TeamOne"
+              name="set1TeamOne"
+              placeholder="0"
+              required
+            />
+            <span class="divider">-</span>
+            <input
+              type="number"
+              min="0"
+              max="7"
+              class="game-input"
+              [(ngModel)]="set1TeamTwo"
+              name="set1TeamTwo"
+              placeholder="0"
+              required
+            />
+          </div>
+          <div class="set-status">
+            @if (set1Result().valid) {
+              <span class="badge valid">
+                {{ set1Result().winner === 1 ? m.teamOneName : m.teamTwoName }} {{ 'TEAM_PORTAL.TEAM_WINS' | translate }}
+              </span>
+            } @else if (set1TeamOne !== null && set1TeamTwo !== null) {
+              <span class="badge invalid">{{ 'COMMON.INVALID' | translate }}</span>
+            }
+          </div>
         </div>
+
+        <!-- Set 2 -->
+        <div class="set-row">
+          <span class="set-tag">{{ 'TEAM_PORTAL.SET_2' | translate }}</span>
+          <div class="set-inputs">
+            <input
+              type="number"
+              min="0"
+              max="7"
+              class="game-input"
+              [(ngModel)]="set2TeamOne"
+              name="set2TeamOne"
+              placeholder="0"
+              required
+            />
+            <span class="divider">-</span>
+            <input
+              type="number"
+              min="0"
+              max="7"
+              class="game-input"
+              [(ngModel)]="set2TeamTwo"
+              name="set2TeamTwo"
+              placeholder="0"
+              required
+            />
+          </div>
+          <div class="set-status">
+            @if (set2Result().valid) {
+              <span class="badge valid">
+                {{ set2Result().winner === 1 ? m.teamOneName : m.teamTwoName }} {{ 'TEAM_PORTAL.TEAM_WINS' | translate }}
+              </span>
+            } @else if (set2TeamOne !== null && set2TeamTwo !== null) {
+              <span class="badge invalid">{{ 'COMMON.INVALID' | translate }}</span>
+            }
+          </div>
+        </div>
+
+        <!-- Set 3 (Condicional si 1-1) -->
+        @if (isThirdSetNeeded()) {
+          <div class="set-row tiebreak-row">
+            <div class="set-tag-wrap">
+              <span class="set-tag highlight">{{ 'TEAM_PORTAL.SET_3' | translate }}</span>
+              <span class="set-subtag">{{ 'TEAM_PORTAL.TIEBREAK_LABEL' | translate }}</span>
+            </div>
+            <div class="set-inputs">
+              <input
+                type="number"
+                min="0"
+                max="20"
+                class="game-input"
+                [(ngModel)]="set3TeamOne"
+                name="set3TeamOne"
+                placeholder="0"
+                required
+              />
+              <span class="divider">-</span>
+              <input
+                type="number"
+                min="0"
+                max="20"
+                class="game-input"
+                [(ngModel)]="set3TeamTwo"
+                name="set3TeamTwo"
+                placeholder="0"
+                required
+              />
+            </div>
+            <div class="set-status">
+              @if (set3Result().valid) {
+                <span class="badge valid">
+                  {{ set3Result().winner === 1 ? m.teamOneName : m.teamTwoName }} {{ 'TEAM_PORTAL.TEAM_WINS' | translate }}
+                </span>
+              } @else if (set3TeamOne !== null && set3TeamTwo !== null) {
+                <span class="badge invalid">{{ 'COMMON.INVALID' | translate }}</span>
+              }
+            </div>
+          </div>
+        }
       </div>
 
-      <div class="points-preview">
-        <span class="preview-title">{{ 'TEAM_PORTAL.POINTS_PREVIEW_TITLE' | translate }}</span>
-        <div class="preview-cols">
-          <div>{{ m.teamOneName }}: <strong>{{ previewPointsOne() }} {{ 'MATCHES.PTS_SUFFIX' | translate }}</strong></div>
-          <div>{{ m.teamTwoName }}: <strong>{{ previewPointsTwo() }} {{ 'MATCHES.PTS_SUFFIX' | translate }}</strong></div>
+      <!-- Errores de validación -->
+      @if (validationError(); as errorMsg) {
+        <div class="validation-alert">
+          <i class="pi pi-exclamation-triangle"></i>
+          <span>{{ errorMsg }}</span>
         </div>
-      </div>
+      }
+
+      <!-- Resumen Calculado Automáticamente -->
+      @if (isFormValid()) {
+        <div class="calculation-card">
+          <div class="calc-header">
+            <i class="pi pi-bolt"></i>
+            <span>{{ 'TEAM_PORTAL.AUTO_CALCULATED_RESULT' | translate }}</span>
+          </div>
+          <div class="calc-grid">
+            <div class="calc-item">
+              <span class="label">{{ 'TEAM_PORTAL.SETS_WON' | translate }}</span>
+              <span class="val highlight">{{ calculatedSetsOne() }} - {{ calculatedSetsTwo() }}</span>
+            </div>
+            <div class="calc-item">
+              <span class="label">{{ 'TEAM_PORTAL.TOTAL_GAMES' | translate }}</span>
+              <span class="val">{{ calculatedGamesOne() }} - {{ calculatedGamesTwo() }} ({{ 'TEAM_PORTAL.DIF_LABEL' | translate }} {{ calculatedGamesOne() - calculatedGamesTwo() > 0 ? '+' : '' }}{{ calculatedGamesOne() - calculatedGamesTwo() }})</span>
+            </div>
+            <div class="calc-item">
+              <span class="label">{{ 'TEAM_PORTAL.RANKING_POINTS' | translate }}</span>
+              <span class="val pts">{{ previewPointsOne() }} pts - {{ previewPointsTwo() }} pts</span>
+            </div>
+          </div>
+        </div>
+      }
 
       <div class="modal-actions">
         <button type="button" pButton severity="secondary" (click)="onClose()">
@@ -79,7 +188,7 @@
           severity="success"
           type="submit"
           [loading]="submitting()"
-          [disabled]="submitting() || formSetsOne === null">
+          [disabled]="submitting() || !isFormValid()">
           <i class="pi pi-check"></i>
           <span>{{ 'TEAM_PORTAL.SUBMIT_MATCH_BTN' | translate }}</span>
         </button>

@@ -5,7 +5,7 @@ const matchModel = require('./match.model');
 const rankingModel = require('../rankings/ranking.model');
 const teamModel = require('../teams/team.model');
 const incidentModel = require('../incidents/incident.model');
-const { calculatePoints, validateSets } = require('../../utils/scoring');
+const { calculatePoints, validateSets, calculateMatchFromGames } = require('../../utils/scoring');
 const { validateMatchDate, createError } = require('../../utils/validators');
 const { generateRoundRobinPairs } = require('../../utils/matchGenerator');
 const emailService = require('../../services/email/email.service');
@@ -102,20 +102,53 @@ async function submitResult(matchId, data, user) {
     throw createError(400, dateValidation.error);
   }
 
-  // 4. Validar sets
-  const setsValidation = validateSets(data.setsTeamOne, data.setsTeamTwo);
-  if (!setsValidation.valid) {
-    throw createError(400, setsValidation.error);
-  }
+  // 4. Validar y calcular sets, juegos y puntos
+  let setsTeamOne, setsTeamTwo, gamesTeamOne, gamesTeamTwo, pointsTeamOne, pointsTeamTwo;
+  let set1TeamOne = null, set1TeamTwo = null, set2TeamOne = null, set2TeamTwo = null, set3TeamOne = null, set3TeamTwo = null;
 
-  // 5. Calcular puntos — EXCLUSIVAMENTE en backend
-  const { pointsTeamOne, pointsTeamTwo } = calculatePoints(data.setsTeamOne, data.setsTeamTwo);
+  if (data.set1TeamOne !== undefined && data.set1TeamTwo !== undefined) {
+    const res = calculateMatchFromGames(data);
+    if (!res.valid) {
+      throw createError(400, res.error);
+    }
+    set1TeamOne = res.set1TeamOne;
+    set1TeamTwo = res.set1TeamTwo;
+    set2TeamOne = res.set2TeamOne;
+    set2TeamTwo = res.set2TeamTwo;
+    set3TeamOne = res.set3TeamOne;
+    set3TeamTwo = res.set3TeamTwo;
+    setsTeamOne = res.setsTeamOne;
+    setsTeamTwo = res.setsTeamTwo;
+    gamesTeamOne = res.gamesTeamOne;
+    gamesTeamTwo = res.gamesTeamTwo;
+    pointsTeamOne = res.pointsTeamOne;
+    pointsTeamTwo = res.pointsTeamTwo;
+  } else {
+    // Compatibilidad en caso de envío directo de sets
+    const setsValidation = validateSets(data.setsTeamOne, data.setsTeamTwo);
+    if (!setsValidation.valid) {
+      throw createError(400, setsValidation.error);
+    }
+    const pts = calculatePoints(data.setsTeamOne, data.setsTeamTwo);
+    setsTeamOne = Number(data.setsTeamOne);
+    setsTeamTwo = Number(data.setsTeamTwo);
+    pointsTeamOne = pts.pointsTeamOne;
+    pointsTeamTwo = pts.pointsTeamTwo;
+  }
 
   const now = new Date().toISOString();
   const updated = matchModel.updateResult(matchId, {
     matchDate: data.matchDate,
-    setsTeamOne: Number(data.setsTeamOne),
-    setsTeamTwo: Number(data.setsTeamTwo),
+    set1TeamOne,
+    set1TeamTwo,
+    set2TeamOne,
+    set2TeamTwo,
+    set3TeamOne,
+    set3TeamTwo,
+    gamesTeamOne,
+    gamesTeamTwo,
+    setsTeamOne,
+    setsTeamTwo,
     pointsTeamOne,
     pointsTeamTwo,
     resultSubmittedBy: user.id,
@@ -133,7 +166,13 @@ async function submitResult(matchId, data, user) {
     action: 'SUBMIT_RESULT',
     entity: 'Match',
     entityId: matchId,
-    data: { matchDate: data.matchDate, sets: `${data.setsTeamOne}-${data.setsTeamTwo}`, pointsTeamOne, pointsTeamTwo },
+    data: {
+      matchDate: data.matchDate,
+      sets: `${setsTeamOne}-${setsTeamTwo}`,
+      games: `${gamesTeamOne ?? '-'}-${gamesTeamTwo ?? '-'}`,
+      pointsTeamOne,
+      pointsTeamTwo
+    },
   });
 
   return updated;
@@ -235,8 +274,23 @@ async function disputeResult(matchId, data, user) {
 async function adminUpdateMatch(matchId, data, adminUserId) {
   const match = getById(matchId);
 
-  // Si se modifican sets, recalcular puntos
-  if (data.setsTeamOne !== undefined && data.setsTeamTwo !== undefined) {
+  // Si se modifican juegos o sets, recalcular
+  if (data.set1TeamOne !== undefined && data.set1TeamTwo !== undefined) {
+    const res = calculateMatchFromGames(data);
+    if (!res.valid) throw createError(400, res.error);
+    data.set1TeamOne = res.set1TeamOne;
+    data.set1TeamTwo = res.set1TeamTwo;
+    data.set2TeamOne = res.set2TeamOne;
+    data.set2TeamTwo = res.set2TeamTwo;
+    data.set3TeamOne = res.set3TeamOne;
+    data.set3TeamTwo = res.set3TeamTwo;
+    data.setsTeamOne = res.setsTeamOne;
+    data.setsTeamTwo = res.setsTeamTwo;
+    data.gamesTeamOne = res.gamesTeamOne;
+    data.gamesTeamTwo = res.gamesTeamTwo;
+    data.pointsTeamOne = res.pointsTeamOne;
+    data.pointsTeamTwo = res.pointsTeamTwo;
+  } else if (data.setsTeamOne !== undefined && data.setsTeamTwo !== undefined) {
     const setsValidation = validateSets(data.setsTeamOne, data.setsTeamTwo);
     if (!setsValidation.valid) throw createError(400, setsValidation.error);
 
@@ -288,6 +342,14 @@ async function _notifyRival(match, rivalTeamId, submitterUser) {
       setsTeamTwo: match.setsTeamTwo,
       pointsTeamOne: match.pointsTeamOne,
       pointsTeamTwo: match.pointsTeamTwo,
+      set1TeamOne: match.set1TeamOne,
+      set1TeamTwo: match.set1TeamTwo,
+      set2TeamOne: match.set2TeamOne,
+      set2TeamTwo: match.set2TeamTwo,
+      set3TeamOne: match.set3TeamOne,
+      set3TeamTwo: match.set3TeamTwo,
+      gamesTeamOne: match.gamesTeamOne,
+      gamesTeamTwo: match.gamesTeamTwo,
       submittedByEmail: match.submittedByEmail,
       confirmLink: `${config.frontend.url}/matches/${match.id}/confirm`,
       disputeLink: `${config.frontend.url}/matches/${match.id}/dispute`,

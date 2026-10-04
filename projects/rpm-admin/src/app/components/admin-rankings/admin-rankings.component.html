@@ -89,32 +89,41 @@
 
     <div class="form-group">
       <label class="form-label">{{ 'ADMIN.LOCATION_LABEL' | translate }}</label>
-      <select class="form-control" [(ngModel)]="newRankingLocationId" name="location">
-        <option value="">{{ 'ADMIN.SELECT_LOCATION_OPTION' | translate }}</option>
-        @for (loc of locations(); track loc.id) {
-          <option [value]="loc.id">{{ loc.name }}</option>
-        }
-      </select>
+      <p-select
+        [options]="locations()"
+        optionLabel="name"
+        optionValue="id"
+        [(ngModel)]="newRankingLocationId"
+        name="location"
+        [placeholder]="'ADMIN.SELECT_LOCATION_OPTION' | translate"
+        styleClass="w-full">
+      </p-select>
     </div>
 
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">{{ 'ADMIN.LEVEL_LABEL' | translate }}</label>
-        <select class="form-control" [(ngModel)]="newRankingLevelId" name="level">
-          <option value="">{{ 'ADMIN.SELECT_LEVEL_OPTION' | translate }}</option>
-          @for (lvl of levels(); track lvl.id) {
-            <option [value]="lvl.id">{{ lvl.name }}</option>
-          }
-        </select>
+        <p-select
+          [options]="levels()"
+          optionLabel="name"
+          optionValue="id"
+          [(ngModel)]="newRankingLevelId"
+          name="level"
+          [placeholder]="'ADMIN.SELECT_LEVEL_OPTION' | translate"
+          styleClass="w-full">
+        </p-select>
       </div>
       <div class="form-group">
         <label class="form-label">{{ 'ADMIN.CATEGORY_LABEL' | translate }}</label>
-        <select class="form-control" [(ngModel)]="newRankingCategoryId" name="category">
-          <option value="">{{ 'ADMIN.SELECT_CATEGORY_OPTION' | translate }}</option>
-          @for (cat of categories(); track cat.id) {
-            <option [value]="cat.id">{{ cat.name }}</option>
-          }
-        </select>
+        <p-select
+          [options]="categories()"
+          optionLabel="name"
+          optionValue="id"
+          [(ngModel)]="newRankingCategoryId"
+          name="category"
+          [placeholder]="'ADMIN.SELECT_CATEGORY_OPTION' | translate"
+          styleClass="w-full">
+        </p-select>
       </div>
     </div>
 
@@ -162,32 +171,41 @@
 
     <div class="form-group">
       <label class="form-label">{{ 'ADMIN.LOCATION_LABEL' | translate }}</label>
-      <select class="form-control" [(ngModel)]="editRankingLocationId" name="editLocation">
-        <option value="">{{ 'ADMIN.SELECT_LOCATION_OPTION' | translate }}</option>
-        @for (loc of locations(); track loc.id) {
-          <option [value]="loc.id">{{ loc.name }}</option>
-        }
-      </select>
+      <p-select
+        [options]="locations()"
+        optionLabel="name"
+        optionValue="id"
+        [(ngModel)]="editRankingLocationId"
+        name="editLocation"
+        [placeholder]="'ADMIN.SELECT_LOCATION_OPTION' | translate"
+        styleClass="w-full">
+      </p-select>
     </div>
 
     <div class="form-row">
       <div class="form-group">
         <label class="form-label">{{ 'ADMIN.LEVEL_LABEL' | translate }}</label>
-        <select class="form-control" [(ngModel)]="editRankingLevelId" name="editLevel">
-          <option value="">{{ 'ADMIN.SELECT_LEVEL_OPTION' | translate }}</option>
-          @for (lvl of levels(); track lvl.id) {
-            <option [value]="lvl.id">{{ lvl.name }}</option>
-          }
-        </select>
+        <p-select
+          [options]="levels()"
+          optionLabel="name"
+          optionValue="id"
+          [(ngModel)]="editRankingLevelId"
+          name="editLevel"
+          [placeholder]="'ADMIN.SELECT_LEVEL_OPTION' | translate"
+          styleClass="w-full">
+        </p-select>
       </div>
       <div class="form-group">
         <label class="form-label">{{ 'ADMIN.CATEGORY_LABEL' | translate }}</label>
-        <select class="form-control" [(ngModel)]="editRankingCategoryId" name="editCategory">
-          <option value="">{{ 'ADMIN.SELECT_CATEGORY_OPTION' | translate }}</option>
-          @for (cat of categories(); track cat.id) {
-            <option [value]="cat.id">{{ cat.name }}</option>
-          }
-        </select>
+        <p-select
+          [options]="categories()"
+          optionLabel="name"
+          optionValue="id"
+          [(ngModel)]="editRankingCategoryId"
+          name="editCategory"
+          [placeholder]="'ADMIN.SELECT_CATEGORY_OPTION' | translate"
+          styleClass="w-full">
+        </p-select>
       </div>
     </div>
 

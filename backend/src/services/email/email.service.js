@@ -55,6 +55,9 @@ async function getTransporter() {
  * @param {object} options - { to, subject, html, text }
  */
 async function send({ to, subject, html, text }) {
+  if (config.env === 'test') {
+    return { messageId: 'test-email-id', to, subject };
+  }
   try {
     const transporter = await getTransporter();
     const info = await transporter.sendMail({
@@ -138,11 +141,31 @@ async function sendResultNotificationEmail({
   setsTeamTwo,
   pointsTeamOne,
   pointsTeamTwo,
+  set1TeamOne,
+  set1TeamTwo,
+  set2TeamOne,
+  set2TeamTwo,
+  set3TeamOne,
+  set3TeamTwo,
+  gamesTeamOne,
+  gamesTeamTwo,
   submittedByEmail,
   confirmLink,
   disputeLink,
 }) {
   const winner = setsTeamOne > setsTeamTwo ? teamOneName : teamTwoName;
+  const partials = [];
+  if (set1TeamOne !== null && set1TeamOne !== undefined && set1TeamTwo !== null && set1TeamTwo !== undefined) {
+    partials.push(`${set1TeamOne}-${set1TeamTwo}`);
+  }
+  if (set2TeamOne !== null && set2TeamOne !== undefined && set2TeamTwo !== null && set2TeamTwo !== undefined) {
+    partials.push(`${set2TeamOne}-${set2TeamTwo}`);
+  }
+  if (set3TeamOne !== null && set3TeamOne !== undefined && set3TeamTwo !== null && set3TeamTwo !== undefined) {
+    partials.push(`${set3TeamOne}-${set3TeamTwo}`);
+  }
+  const partialsStr = partials.length > 0 ? `Parciales: ${partials.join(', ')}` : '';
+
   await send({
     to,
     subject: `Resultado pendiente de confirmación — ${rankingName}`,
@@ -159,6 +182,7 @@ async function sendResultNotificationEmail({
         <div style="background: #f8f9fa; border-radius: 8px; padding: 20px; margin: 20px 0; text-align: center;">
           <h3 style="margin: 0 0 16px 0;">${teamOneName} <span style="color: #999;">vs</span> ${teamTwoName}</h3>
           <div style="font-size: 48px; font-weight: bold; color: #1a1a2e; margin: 10px 0;">${setsTeamOne} — ${setsTeamTwo}</div>
+          ${partialsStr ? `<p style="font-size: 16px; color: #0070f3; font-weight: bold; margin: 6px 0;">${partialsStr}</p>` : ''}
           <p style="color: #666; margin: 8px 0;">Fecha del partido: <strong>${matchDate}</strong></p>
           <p style="color: #666; margin: 8px 0;">Registrado por: <strong>${submittedByEmail}</strong></p>
         </div>

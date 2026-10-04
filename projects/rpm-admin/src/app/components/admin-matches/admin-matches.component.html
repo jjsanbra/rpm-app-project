@@ -2,11 +2,14 @@
   <div class="section-actions">
     <div class="ranking-picker">
       <label class="form-label">{{ 'ADMIN.SELECT_RANKING_LABEL' | translate }}</label>
-      <select class="form-control ranking-select" [ngModel]="selectedRankingId()" (ngModelChange)="rankingChange.emit($event)">
-        @for (r of rankings(); track r.id) {
-          <option [value]="r.id">{{ r.name }}</option>
-        }
-      </select>
+      <p-select
+        [options]="rankings()"
+        optionLabel="name"
+        optionValue="id"
+        [ngModel]="selectedRankingId()"
+        (ngModelChange)="rankingChange.emit($event)"
+        styleClass="ranking-p-select">
+      </p-select>
     </div>
 
     <button type="button" pButton severity="success" size="small" (click)="generateMatches.emit()">
@@ -23,6 +26,7 @@
           <th>{{ 'ADMIN.TH_STATUS' | translate }}</th>
           <th>{{ 'ADMIN.TH_MATCH' | translate }}</th>
           <th>{{ 'ADMIN.TH_SETS' | translate }}</th>
+          <th>{{ 'ADMIN.TH_PARTIALS' | translate }}</th>
           <th>{{ 'ADMIN.TH_POINTS' | translate }}</th>
           <th>{{ 'ADMIN.TH_ACTIONS' | translate }}</th>
         </tr>
@@ -38,7 +42,14 @@
           </td>
           <td>
             @if (m.setsTeamOne !== null && m.setsTeamOne !== undefined) {
-              <span>{{ m.setsTeamOne }} - {{ m.setsTeamTwo }}</span>
+              <strong>{{ m.setsTeamOne }} - {{ m.setsTeamTwo }}</strong>
+            } @else {
+              <span class="text-dim">-</span>
+            }
+          </td>
+          <td>
+            @if (formatSetScores(m); as sc) {
+              <span class="badge-parcial">{{ sc }} ({{ m.gamesTeamOne }}-{{ m.gamesTeamTwo }})</span>
             } @else {
               <span class="text-dim">-</span>
             }
@@ -74,7 +85,7 @@
   [(visible)]="showOverrideModal"
   [modal]="true"
   [header]="'ADMIN.MODAL_OVERRIDE_TITLE' | translate"
-  [style]="{ width: '90vw', maxWidth: '500px' }"
+  [style]="{ width: '92vw', maxWidth: '560px' }"
   styleClass="custom-p-dialog">
   
   @if (activeOverrideMatch; as m) {
@@ -83,46 +94,96 @@
     </div>
 
     <form (ngSubmit)="submitOverride()" class="modal-form">
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">{{ m.teamOneName }} (Sets)</label>
-          <input type="number" class="form-control" [(ngModel)]="overrideSetsOne" name="s1" min="0" max="3" required />
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.MATCH_DATE_LABEL' | translate }}</label>
+        <input type="date" class="form-control" [(ngModel)]="overrideMatchDate" name="overrideMatchDate" required />
+      </div>
+
+      <div class="sets-box">
+        <label class="form-label font-bold">{{ 'ADMIN.GAMES_PER_SET_LABEL' | translate }}</label>
+        <div class="set-edit-grid">
+          <div class="set-edit-row">
+            <span>{{ 'ADMIN.SET_1' | translate }}</span>
+            <input type="number" min="0" max="7" class="form-control small-input" [(ngModel)]="overrideSet1TeamOne" name="s1t1" placeholder="0" />
+            <span>-</span>
+            <input type="number" min="0" max="7" class="form-control small-input" [(ngModel)]="overrideSet1TeamTwo" name="s1t2" placeholder="0" />
+          </div>
+          <div class="set-edit-row">
+            <span>{{ 'ADMIN.SET_2' | translate }}</span>
+            <input type="number" min="0" max="7" class="form-control small-input" [(ngModel)]="overrideSet2TeamOne" name="s2t1" placeholder="0" />
+            <span>-</span>
+            <input type="number" min="0" max="7" class="form-control small-input" [(ngModel)]="overrideSet2TeamTwo" name="s2t2" placeholder="0" />
+          </div>
+          @if (isThirdSetNeeded()) {
+            <div class="set-edit-row highlight-s3">
+              <span>{{ 'ADMIN.SET_3_TIEBREAK' | translate }}</span>
+              <input type="number" min="0" max="20" class="form-control small-input" [(ngModel)]="overrideSet3TeamOne" name="s3t1" placeholder="0" />
+              <span>-</span>
+              <input type="number" min="0" max="20" class="form-control small-input" [(ngModel)]="overrideSet3TeamTwo" name="s3t2" placeholder="0" />
+            </div>
+          }
         </div>
-        <div class="form-group">
-          <label class="form-label">{{ m.teamTwoName }} (Sets)</label>
-          <input type="number" class="form-control" [(ngModel)]="overrideSetsTwo" name="s2" min="0" max="3" required />
+      </div>
+
+      <!-- Resumen Calculado Automáticamente (Solo Lectura) -->
+      <div class="calculation-card">
+        <div class="calc-header">
+          <i class="pi pi-bolt"></i>
+          <span>{{ 'ADMIN.AUTO_CALC_TITLE' | translate }}</span>
+        </div>
+        <div class="calc-grid">
+          <div class="calc-item">
+            <span class="label">{{ 'ADMIN.SETS_WON_LABEL' | translate }}</span>
+            <span class="val highlight">{{ calculatedSetsOne() }} - {{ calculatedSetsTwo() }}</span>
+          </div>
+          <div class="calc-item">
+            <span class="label">{{ 'ADMIN.TOTAL_GAMES_LABEL' | translate }}</span>
+            <span class="val">{{ calculatedGamesOne() }} - {{ calculatedGamesTwo() }}</span>
+          </div>
+          <div class="calc-item">
+            <span class="label">{{ 'ADMIN.RANKING_POINTS_LABEL' | translate }}</span>
+            <span class="val pts">{{ previewPointsOne() }} pts - {{ previewPointsTwo() }} pts</span>
+          </div>
         </div>
       </div>
 
       <div class="form-group">
         <label class="form-label">{{ 'ADMIN.STATUS_LABEL' | translate }}</label>
-        <select class="form-control" [(ngModel)]="overrideStatus" name="st">
-          <option value="CONFIRMED">{{ 'STATUS.CONFIRMED' | translate }}</option>
-          <option value="PENDING_CONFIRMATION">{{ 'STATUS.PENDING_CONFIRMATION' | translate }}</option>
-          <option value="PENDING_RESULT">{{ 'STATUS.PENDING_RESULT' | translate }}</option>
-          <option value="DISPUTED">{{ 'STATUS.DISPUTED' | translate }}</option>
-          <option value="CANCELLED">{{ 'STATUS.CANCELLED' | translate }}</option>
-        </select>
+        <p-select
+          [options]="statusOptions"
+          optionValue="value"
+          [(ngModel)]="overrideStatus"
+          name="st"
+          styleClass="w-full">
+          <ng-template #selectedItem let-selectedOption>
+            {{ selectedOption?.labelKey | translate }}
+          </ng-template>
+          <ng-template #item let-option>
+            {{ option.labelKey | translate }}
+          </ng-template>
+        </p-select>
       </div>
 
       <div class="form-group">
         <label class="form-label">{{ 'ADMIN.OVERRIDE_REASON_LABEL' | translate }}</label>
         <textarea
           class="form-control"
+          rows="3"
           [(ngModel)]="overrideReason"
           name="reason"
-          rows="2"
-          [placeholder]="'ADMIN.OVERRIDE_REASON_PLACEHOLDER' | translate"
-          required></textarea>
+          [placeholder]="'ADMIN.OVERRIDE_REASON_PLACEHOLDER' | translate"></textarea>
       </div>
 
       <div class="modal-actions">
         <button type="button" pButton severity="secondary" (click)="showOverrideModal = false">
           <span>{{ 'COMMON.CANCEL' | translate }}</span>
         </button>
-        <button type="submit" pButton severity="warn">
+        <button
+          pButton
+          severity="warn"
+          type="submit">
           <i class="pi pi-check"></i>
-          <span>{{ 'ADMIN.APPLY_CHANGES_BTN' | translate }}</span>
+          <span>{{ 'ADMIN.SAVE_CHANGES_BTN' | translate }}</span>
         </button>
       </div>
     </form>

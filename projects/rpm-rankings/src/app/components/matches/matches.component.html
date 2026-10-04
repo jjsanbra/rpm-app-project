@@ -74,6 +74,16 @@
             </div>
           </div>
 
+          @if (formatSetScores(m); as setScore) {
+            <div class="match-breakdown-pill">
+              <span class="breakdown-label">Sets:</span>
+              <strong class="breakdown-val">{{ setScore }}</strong>
+              @if (m.gamesTeamOne !== null && m.gamesTeamOne !== undefined && m.gamesTeamTwo !== null && m.gamesTeamTwo !== undefined) {
+                <span class="breakdown-games">({{ m.gamesTeamOne }}-{{ m.gamesTeamTwo }} juegos)</span>
+              }
+            </div>
+          }
+
           @if (m.status === 'PENDING_CONFIRMATION') {
             <div class="match-alert-pending">
               <i class="pi pi-info-circle"></i> {{ 'MATCHES.PENDING_ALERT_PREFIX' | translate }} <strong>{{ m.submittedByEmail }}</strong>. {{ 'MATCHES.PENDING_ALERT_SUFFIX' | translate }}

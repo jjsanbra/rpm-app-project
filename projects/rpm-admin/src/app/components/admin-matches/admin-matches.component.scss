@@ -17,14 +17,24 @@
   flex-direction: column;
   gap: 0.35rem;
 
-  .ranking-select {
-    min-width: 280px;
+  .ranking-p-select, .ranking-select {
+    min-width: 320px;
   }
 }
 
 .table-container {
   padding: 1.5rem;
   overflow-x: auto;
+}
+
+.badge-parcial {
+  background: #f1f5f9;
+  color: #334155;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid #e2e8f0;
 }
 
 .match-info-pill {
@@ -50,10 +60,105 @@
   gap: 0.35rem;
 }
 
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+.sets-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 0.75rem;
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.set-edit-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.set-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  span {
+    min-width: 45px;
+  }
+
+  .small-input {
+    width: 60px;
+    text-align: center;
+    font-weight: 700;
+    padding: 0.4rem;
+  }
+
+  &.highlight-s3 {
+    background: #fffbeb;
+    padding: 0.35rem 0.5rem;
+    border-radius: 4px;
+    border: 1px dashed #fde68a;
+    span {
+      color: #b45309;
+    }
+  }
+}
+
+.calculation-card {
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  border-radius: var(--radius-sm);
+  padding: 0.75rem;
+
+  .calc-header {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #15803d;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.5rem;
+  }
+
+  .calc-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+
+    .calc-item {
+      background: #ffffff;
+      padding: 0.45rem;
+      border-radius: 6px;
+      border: 1px solid #bbf7d0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+
+      .label {
+        font-size: 0.65rem;
+        color: #64748b;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+      .val {
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-top: 0.15rem;
+        &.highlight {
+          color: #059669;
+          font-size: 1.1rem;
+        }
+        &.pts {
+          color: #0284c7;
+        }
+      }
+    }
+  }
 }
 
 .form-label {

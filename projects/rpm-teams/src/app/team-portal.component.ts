@@ -2,6 +2,7 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService, MatchService, TeamService, Match, Team } from '@core';
 import { MessageService } from 'primeng/api';
+import { TranslateService } from '@ngx-translate/core';
 
 import { TeamHeaderComponent } from './components/team-header/team-header.component';
 import { TeamMatchesComponent } from './components/team-matches/team-matches.component';
@@ -26,6 +27,7 @@ export class TeamPortalComponent implements OnInit {
   private matchService = inject(MatchService);
   private teamService = inject(TeamService);
   private messageService = inject(MessageService);
+  private translate = inject(TranslateService);
 
   team = signal<Team | null>(null);
   matches = signal<Match[]>([]);
@@ -86,6 +88,12 @@ export class TeamPortalComponent implements OnInit {
     this.submitting.set(true);
     this.matchService.submitResult(data.matchId, {
       matchDate: data.matchDate,
+      set1TeamOne: data.set1TeamOne,
+      set1TeamTwo: data.set1TeamTwo,
+      set2TeamOne: data.set2TeamOne,
+      set2TeamTwo: data.set2TeamTwo,
+      set3TeamOne: data.set3TeamOne,
+      set3TeamTwo: data.set3TeamTwo,
       setsTeamOne: data.setsTeamOne,
       setsTeamTwo: data.setsTeamTwo,
     }).subscribe({
@@ -94,8 +102,8 @@ export class TeamPortalComponent implements OnInit {
         this.closeSubmitModal();
         this.messageService.add({
           severity: 'success',
-          summary: 'Resultado Registrado',
-          detail: 'Pendiente de confirmación del equipo rival.'
+          summary: this.translate.instant('TEAM_PORTAL.RESULT_SUBMITTED_SUCCESS'),
+          detail: this.translate.instant('TEAM_PORTAL.RESULT_SUBMITTED_DETAIL')
         });
         this.loadTeamData();
       },
@@ -103,8 +111,8 @@ export class TeamPortalComponent implements OnInit {
         this.submitting.set(false);
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: err.error?.error || 'Error al registrar el resultado.'
+          summary: this.translate.instant('COMMON.ERROR'),
+          detail: err.error?.error || this.translate.instant('COMMON.ERROR')
         });
       }
     });
@@ -115,16 +123,16 @@ export class TeamPortalComponent implements OnInit {
       next: () => {
         this.messageService.add({
           severity: 'success',
-          summary: 'Resultado Confirmado',
-          detail: 'La clasificación oficial ha sido actualizada.'
+          summary: this.translate.instant('TEAM_PORTAL.RESULT_CONFIRMED_SUCCESS'),
+          detail: this.translate.instant('TEAM_PORTAL.RESULT_CONFIRMED_DETAIL')
         });
         this.loadTeamData();
       },
       error: (err) => {
         this.messageService.add({
           severity: 'error',
-          summary: 'Error al Confirmar',
-          detail: err.error?.error || 'No se pudo confirmar el partido.'
+          summary: this.translate.instant('TEAM_PORTAL.ERROR_CONFIRM_TITLE'),
+          detail: err.error?.error || this.translate.instant('TEAM_PORTAL.ERROR_CONFIRM_DETAIL')
         });
       }
     });
@@ -148,8 +156,8 @@ export class TeamPortalComponent implements OnInit {
         this.closeDisputeModal();
         this.messageService.add({
           severity: 'warn',
-          summary: 'Incidencia Comunicada',
-          detail: 'La administración ha sido notificada para revisar el acta.'
+          summary: this.translate.instant('TEAM_PORTAL.INCIDENT_REPORTED_WARN'),
+          detail: this.translate.instant('TEAM_PORTAL.INCIDENT_REPORTED_DETAIL')
         });
         this.loadTeamData();
       },
@@ -157,8 +165,8 @@ export class TeamPortalComponent implements OnInit {
         this.submitting.set(false);
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: err.error?.error || 'Error al comunicar la incidencia.'
+          summary: this.translate.instant('COMMON.ERROR'),
+          detail: err.error?.error || this.translate.instant('COMMON.ERROR')
         });
       }
     });

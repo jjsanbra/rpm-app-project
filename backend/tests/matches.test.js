@@ -38,7 +38,7 @@ describe('Matches & Scoring Integration Tests', () => {
     expect(res.body.data.length).toBeGreaterThan(0);
   });
 
-  it('debe registrar un resultado válido (2-0) pasando a PENDING_CONFIRMATION', async () => {
+  it('debe registrar un resultado válido por juegos (6-3, 6-4 => 2-0) pasando a PENDING_CONFIRMATION', async () => {
     const db = getDb();
     const team1 = db.prepare("SELECT id FROM teams WHERE name = 'Los Ases'").get();
     
@@ -51,20 +51,28 @@ describe('Matches & Scoring Integration Tests', () => {
     expect(match).toBeDefined();
 
     const isTeamOne = match.teamOneId === team1.id;
-    const setsOne = isTeamOne ? 2 : 0;
-    const setsTwo = isTeamOne ? 0 : 2;
+    const s1_1 = isTeamOne ? 6 : 3;
+    const s1_2 = isTeamOne ? 3 : 6;
+    const s2_1 = isTeamOne ? 6 : 4;
+    const s2_2 = isTeamOne ? 4 : 6;
 
     const res = await request(app)
       .post(`/api/matches/${match.id}/result`)
       .set('Authorization', `Bearer ${team1Token}`)
       .send({
-        setsTeamOne: setsOne,
-        setsTeamTwo: setsTwo,
+        set1TeamOne: s1_1,
+        set1TeamTwo: s1_2,
+        set2TeamOne: s2_1,
+        set2TeamTwo: s2_2,
         matchDate: '2026-09-25',
       });
 
     expect(res.status).toBe(200);
     expect(res.body.data.status).toBe('PENDING_CONFIRMATION');
+    expect(res.body.data.setsTeamOne).toBe(isTeamOne ? 2 : 0);
+    expect(res.body.data.setsTeamTwo).toBe(isTeamOne ? 0 : 2);
+    expect(res.body.data.gamesTeamOne).toBe(isTeamOne ? 12 : 7);
+    expect(res.body.data.gamesTeamTwo).toBe(isTeamOne ? 7 : 12);
     expect(res.body.data.pointsTeamOne).toBe(isTeamOne ? 5 : 1);
     expect(res.body.data.pointsTeamTwo).toBe(isTeamOne ? 1 : 5);
   });
@@ -92,7 +100,7 @@ describe('Matches & Scoring Integration Tests', () => {
     expect(res.body.data.confirmedBy).toBeDefined();
   });
 
-  it('la clasificación oficial debe calcular puntos y estadísticas correctamente', async () => {
+  it('la clasificación oficial debe calcular puntos, sets y diferencia de juegos correctamente', async () => {
     const res = await request(app).get(`/api/classification/${rankingId}/official`);
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body.data)).toBe(true);
@@ -106,6 +114,9 @@ describe('Matches & Scoring Integration Tests', () => {
       expect(row).toHaveProperty('setsWon');
       expect(row).toHaveProperty('setsLost');
       expect(row).toHaveProperty('setsDiff');
+      expect(row).toHaveProperty('gamesWon');
+      expect(row).toHaveProperty('gamesLost');
+      expect(row).toHaveProperty('gamesDiff');
     });
   });
 

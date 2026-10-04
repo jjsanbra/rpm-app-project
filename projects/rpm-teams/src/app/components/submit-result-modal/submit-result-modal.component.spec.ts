@@ -39,16 +39,41 @@ describe('SubmitResultModalComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should compute preview points correctly for 2-0 score', () => {
-    component.setScore(2, 0);
+  it('should validate 2-0 match by games (6-3, 6-4) and calculate sets, games and points', () => {
+    component.set1TeamOne = 6;
+    component.set1TeamTwo = 3;
+    component.set2TeamOne = 6;
+    component.set2TeamTwo = 4;
+
+    expect(component.isThirdSetNeeded()).toBe(false);
+    expect(component.isFormValid()).toBe(true);
+    expect(component.calculatedSetsOne()).toBe(2);
+    expect(component.calculatedSetsTwo()).toBe(0);
+    expect(component.calculatedGamesOne()).toBe(12);
+    expect(component.calculatedGamesTwo()).toBe(7);
     expect(component.previewPointsOne()).toBe(5);
     expect(component.previewPointsTwo()).toBe(1);
   });
 
-  it('should compute preview points correctly for 1-2 score', () => {
-    component.setScore(1, 2);
-    expect(component.previewPointsOne()).toBe(2);
-    expect(component.previewPointsTwo()).toBe(4);
+  it('should require 3rd set when score is 1-1 in sets (6-4, 3-6) and calculate 2-1 properly', () => {
+    component.set1TeamOne = 6;
+    component.set1TeamTwo = 4;
+    component.set2TeamOne = 3;
+    component.set2TeamTwo = 6;
+
+    expect(component.isThirdSetNeeded()).toBe(true);
+    expect(component.isFormValid()).toBe(false);
+
+    component.set3TeamOne = 7;
+    component.set3TeamTwo = 5;
+
+    expect(component.isFormValid()).toBe(true);
+    expect(component.calculatedSetsOne()).toBe(2);
+    expect(component.calculatedSetsTwo()).toBe(1);
+    expect(component.calculatedGamesOne()).toBe(16);
+    expect(component.calculatedGamesTwo()).toBe(15);
+    expect(component.previewPointsOne()).toBe(4);
+    expect(component.previewPointsTwo()).toBe(2);
   });
 
   it('should emit submitResult when submitted', () => {
@@ -56,17 +81,22 @@ describe('SubmitResultModalComponent', () => {
     fixture.componentRef.setInput('visible', true);
     fixture.detectChanges();
 
-    component.setScore(2, 1);
+    component.set1TeamOne = 6;
+    component.set1TeamTwo = 2;
+    component.set2TeamOne = 6;
+    component.set2TeamTwo = 3;
 
-    let emittedData: any;
-    component.submitResult.subscribe((data) => {
-      emittedData = data;
-    });
-
+    spyOn(component.submitResult, 'emit');
     component.onSubmit();
-    expect(emittedData).toBeDefined();
-    expect(emittedData.matchId).toBe('m-1');
-    expect(emittedData.setsTeamOne).toBe(2);
-    expect(emittedData.setsTeamTwo).toBe(1);
+
+    expect(component.submitResult.emit).toHaveBeenCalledWith(jasmine.objectContaining({
+      matchId: 'm-1',
+      set1TeamOne: 6,
+      set1TeamTwo: 2,
+      set2TeamOne: 6,
+      set2TeamTwo: 3,
+      setsTeamOne: 2,
+      setsTeamTwo: 0
+    }));
   });
 });

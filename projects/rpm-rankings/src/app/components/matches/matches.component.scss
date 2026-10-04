@@ -120,6 +120,34 @@
   span { background: var(--bg-surface); padding: 0 0.5rem; }
 }
 
+.match-breakdown-pill {
+  background: #f1f5f9;
+  border: 1px dashed #cbd5e1;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+
+  .breakdown-label {
+    color: #64748b;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .breakdown-val {
+    color: #0f172a;
+    font-weight: 700;
+    font-size: 0.85rem;
+  }
+  .breakdown-games {
+    color: #64748b;
+    font-size: 0.75rem;
+  }
+}
+
 .match-alert-pending, .match-alert-dispute {
   font-size: 0.75rem;
   padding: 0.5rem 0.75rem;

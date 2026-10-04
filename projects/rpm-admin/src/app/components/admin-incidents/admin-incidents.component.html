@@ -69,11 +69,19 @@
     <form (ngSubmit)="submitResolve()" class="modal-form">
       <div class="form-group">
         <label class="form-label">{{ 'ADMIN.FINAL_STATUS_LABEL' | translate }}</label>
-        <select class="form-control" [(ngModel)]="incResolveStatus" name="resolveStatus">
-          <option value="RESOLVED">{{ 'INCIDENT.RESOLVED' | translate }}</option>
-          <option value="REJECTED">{{ 'INCIDENT.REJECTED' | translate }}</option>
-          <option value="IN_REVIEW">{{ 'INCIDENT.IN_REVIEW' | translate }}</option>
-        </select>
+        <p-select
+          [options]="resolutionStatusOptions"
+          optionValue="value"
+          [(ngModel)]="incResolveStatus"
+          name="resolveStatus"
+          styleClass="w-full">
+          <ng-template #selectedItem let-selectedOption>
+            {{ selectedOption?.labelKey | translate }}
+          </ng-template>
+          <ng-template #item let-option>
+            {{ option.labelKey | translate }}
+          </ng-template>
+        </p-select>
       </div>
 
       <div class="form-group">

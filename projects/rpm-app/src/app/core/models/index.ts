@@ -76,6 +76,14 @@ export interface Match {
   resultSubmittedBy?: string | null;
   submittedByEmail?: string | null;
   status: MatchStatus;
+  set1TeamOne?: number | null;
+  set1TeamTwo?: number | null;
+  set2TeamOne?: number | null;
+  set2TeamTwo?: number | null;
+  set3TeamOne?: number | null;
+  set3TeamTwo?: number | null;
+  gamesTeamOne?: number | null;
+  gamesTeamTwo?: number | null;
   setsTeamOne?: number | null;
   setsTeamTwo?: number | null;
   pointsTeamOne?: number | null;
@@ -90,6 +98,18 @@ export interface Match {
   updatedAt: string;
 }
 
+export interface SubmitResultPayload {
+  matchDate: string;
+  set1TeamOne?: number;
+  set1TeamTwo?: number;
+  set2TeamOne?: number;
+  set2TeamTwo?: number;
+  set3TeamOne?: number | null;
+  set3TeamTwo?: number | null;
+  setsTeamOne?: number;
+  setsTeamTwo?: number;
+}
+
 export interface ClassificationRow {
   position: number;
   teamId: string;
@@ -102,6 +122,9 @@ export interface ClassificationRow {
   setsWon: number;
   setsLost: number;
   setsDiff: number;
+  gamesWon: number;
+  gamesLost: number;
+  gamesDiff: number;
   pointsFor: number;
   pointsAgainst: number;
   pointsDiff: number;

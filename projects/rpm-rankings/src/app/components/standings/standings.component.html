@@ -40,6 +40,7 @@
           <th class="text-center" style="width: 80px;">{{ 'STANDINGS.PG' | translate }}</th>
           <th class="text-center" style="width: 80px;">{{ 'STANDINGS.PP' | translate }}</th>
           <th class="text-center">{{ 'STANDINGS.SETS_DIF' | translate }}</th>
+          <th class="text-center">{{ 'STANDINGS.GAMES_DIF' | translate }}</th>
           <th class="text-center">{{ 'STANDINGS.POINTS_DIF' | translate }}</th>
           <th class="text-right" style="width: 120px;">{{ 'STANDINGS.TOTAL_PTS' | translate }}</th>
         </tr>
@@ -65,6 +66,12 @@
             </span>
           </td>
           <td class="text-center">
+            {{ row.gamesWon }}/{{ row.gamesLost }}
+            <span class="diff-tag" [class.pos]="row.gamesDiff > 0" [class.neg]="row.gamesDiff < 0">
+              ({{ row.gamesDiff > 0 ? '+' : '' }}{{ row.gamesDiff }})
+            </span>
+          </td>
+          <td class="text-center">
             {{ row.pointsFor }}/{{ row.pointsAgainst }}
             <span class="diff-tag" [class.pos]="row.pointsDiff > 0" [class.neg]="row.pointsDiff < 0">
               ({{ row.pointsDiff > 0 ? '+' : '' }}{{ row.pointsDiff }})
@@ -77,7 +84,7 @@
       </ng-template>
       <ng-template #emptymessage>
         <tr>
-          <td colspan="8" class="text-center p-4 text-muted">
+          <td colspan="9" class="text-center p-4 text-muted">
             <i class="pi pi-info-circle"></i> {{ 'STANDINGS.NO_DATA' | translate }}
           </td>
         </tr>

@@ -55,6 +55,16 @@
             </div>
           </div>
 
+          @if (formatSetScores(m); as setScore) {
+            <div class="games-breakdown-pill">
+              <span class="pill-label">Parciales:</span>
+              <strong class="pill-score">{{ setScore }}</strong>
+              @if (m.gamesTeamOne !== null && m.gamesTeamOne !== undefined && m.gamesTeamTwo !== null && m.gamesTeamTwo !== undefined) {
+                <span class="pill-games">({{ m.gamesTeamOne }}-{{ m.gamesTeamTwo }} juegos)</span>
+              }
+            </div>
+          }
+
           <!-- Acciones PrimeNG Buttons -->
           <div class="card-actions">
             @if (m.status === 'PENDING_RESULT') {

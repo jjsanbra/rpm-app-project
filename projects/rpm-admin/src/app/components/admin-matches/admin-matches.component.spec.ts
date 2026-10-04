@@ -64,13 +64,18 @@ describe('AdminMatchesComponent', () => {
     expect(compiled.textContent).toContain('Equipo 2');
   });
 
-  it('should emit rankingChange when selection changes', () => {
-    let emitted = '';
-    component.rankingChange.subscribe((id) => {
-      emitted = id;
-    });
+  it('should calculate sets and games automatically from game scores', () => {
+    component.overrideSet1TeamOne = 6;
+    component.overrideSet1TeamTwo = 4;
+    component.overrideSet2TeamOne = 6;
+    component.overrideSet2TeamTwo = 2;
 
-    component.rankingChange.emit('r-1');
-    expect(emitted).toBe('r-1');
+    expect(component.isThirdSetNeeded()).toBe(false);
+    expect(component.calculatedSetsOne()).toBe(2);
+    expect(component.calculatedSetsTwo()).toBe(0);
+    expect(component.calculatedGamesOne()).toBe(12);
+    expect(component.calculatedGamesTwo()).toBe(6);
+    expect(component.previewPointsOne()).toBe(5);
+    expect(component.previewPointsTwo()).toBe(1);
   });
 });

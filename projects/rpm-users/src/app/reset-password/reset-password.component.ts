@@ -2,7 +2,7 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { AuthService } from '@core';
 
 // PrimeNG Modules
@@ -32,6 +32,7 @@ import { MessageModule } from 'primeng/message';
 export class ResetPasswordComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private authService = inject(AuthService);
+  private translate = inject(TranslateService);
 
   token = '';
   password = '';
@@ -43,17 +44,17 @@ export class ResetPasswordComponent implements OnInit {
   ngOnInit(): void {
     this.token = this.route.snapshot.queryParams['token'] || '';
     if (!this.token) {
-      this.errorMessage.set('Token de restablecimiento no proporcionado.');
+      this.errorMessage.set(this.translate.instant('AUTH.MISSING_RESET_TOKEN'));
     }
   }
 
   onSubmit(): void {
     if (this.password !== this.confirmPassword) {
-      this.errorMessage.set('Las contraseñas no coinciden.');
+      this.errorMessage.set(this.translate.instant('AUTH.PASSWORDS_DONT_MATCH'));
       return;
     }
     if (this.password.length < 8) {
-      this.errorMessage.set('La contraseña debe tener al menos 8 caracteres.');
+      this.errorMessage.set(this.translate.instant('AUTH.PASSWORD_MIN_LENGTH'));
       return;
     }
 
@@ -63,11 +64,11 @@ export class ResetPasswordComponent implements OnInit {
     this.authService.resetPassword({ token: this.token, password: this.password }).subscribe({
       next: () => {
         this.loading.set(false);
-        this.successMessage.set('Contraseña restablecida correctamente.');
+        this.successMessage.set(this.translate.instant('AUTH.RESET_SUCCESS'));
       },
       error: (err) => {
         this.loading.set(false);
-        this.errorMessage.set(err.error?.error || 'Token inválido o expirado.');
+        this.errorMessage.set(err.error?.error || this.translate.instant('AUTH.INVALID_TOKEN'));
       }
     });
   }

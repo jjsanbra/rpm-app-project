@@ -46,4 +46,15 @@ export class MatchesComponent {
       default: return status;
     }
   }
+
+  formatSetScores(m: Match): string | null {
+    if (m.set1TeamOne === null || m.set1TeamOne === undefined || m.set1TeamTwo === null || m.set1TeamTwo === undefined) {
+      return null;
+    }
+    const sets = [`${m.set1TeamOne}-${m.set1TeamTwo}`, `${m.set2TeamOne}-${m.set2TeamTwo}`];
+    if (m.set3TeamOne !== null && m.set3TeamOne !== undefined && m.set3TeamTwo !== null && m.set3TeamTwo !== undefined) {
+      sets.push(`${m.set3TeamOne}-${m.set3TeamTwo}`);
+    }
+    return sets.join(', ');
+  }
 }

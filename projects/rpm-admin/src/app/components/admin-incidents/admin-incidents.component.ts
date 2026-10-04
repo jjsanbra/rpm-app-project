@@ -8,6 +8,7 @@ import { TableModule } from 'primeng/table';
 import { ButtonDirective } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { TagModule } from 'primeng/tag';
+import { SelectModule } from 'primeng/select';
 
 export interface ResolveIncidentPayload {
   incidentId: string;
@@ -26,6 +27,7 @@ export interface ResolveIncidentPayload {
     ButtonDirective,
     DialogModule,
     TagModule,
+    SelectModule,
     TranslatePipe
   ],
   templateUrl: './admin-incidents.component.html',
@@ -35,6 +37,12 @@ export class AdminIncidentsComponent {
   incidents = input<Incident[]>([]);
 
   resolveIncident = output<ResolveIncidentPayload>();
+
+  resolutionStatusOptions = [
+    { labelKey: 'INCIDENT.RESOLVED', value: 'RESOLVED' },
+    { labelKey: 'INCIDENT.REJECTED', value: 'REJECTED' },
+    { labelKey: 'INCIDENT.IN_REVIEW', value: 'IN_REVIEW' }
+  ];
 
   // Modal state
   showResolveModal = false;

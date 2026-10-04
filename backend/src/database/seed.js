@@ -179,7 +179,11 @@ async function runSeed() {
     const pts0 = calculatePoints(2, 0);
     db.prepare(`
       UPDATE matches SET
-        matchDate = '2026-09-10', setsTeamOne = 2, setsTeamTwo = 0,
+        matchDate = '2026-09-10',
+        set1TeamOne = 6, set1TeamTwo = 3,
+        set2TeamOne = 6, set2TeamTwo = 4,
+        gamesTeamOne = 12, gamesTeamTwo = 7,
+        setsTeamOne = 2, setsTeamTwo = 0,
         pointsTeamOne = ?, pointsTeamTwo = ?,
         resultSubmittedBy = ?, resultSubmittedAt = ?,
         status = 'CONFIRMED', confirmedBy = ?, confirmedAt = ?, updatedAt = ?
@@ -189,7 +193,12 @@ async function runSeed() {
     const pts1 = calculatePoints(2, 1);
     db.prepare(`
       UPDATE matches SET
-        matchDate = '2026-09-15', setsTeamOne = 2, setsTeamTwo = 1,
+        matchDate = '2026-09-15',
+        set1TeamOne = 6, set1TeamTwo = 4,
+        set2TeamOne = 3, set2TeamTwo = 6,
+        set3TeamOne = 7, set3TeamTwo = 5,
+        gamesTeamOne = 16, gamesTeamTwo = 15,
+        setsTeamOne = 2, setsTeamTwo = 1,
         pointsTeamOne = ?, pointsTeamTwo = ?,
         resultSubmittedBy = ?, resultSubmittedAt = ?,
         status = 'CONFIRMED', confirmedBy = ?, confirmedAt = ?, updatedAt = ?
@@ -199,7 +208,12 @@ async function runSeed() {
     const pts3 = calculatePoints(1, 2);
     db.prepare(`
       UPDATE matches SET
-        matchDate = '2026-09-20', setsTeamOne = 1, setsTeamTwo = 2,
+        matchDate = '2026-09-20',
+        set1TeamOne = 4, set1TeamTwo = 6,
+        set2TeamOne = 6, set2TeamTwo = 3,
+        set3TeamOne = 2, set3TeamTwo = 6,
+        gamesTeamOne = 12, gamesTeamTwo = 15,
+        setsTeamOne = 1, setsTeamTwo = 2,
         pointsTeamOne = ?, pointsTeamTwo = ?,
         resultSubmittedBy = ?, resultSubmittedAt = ?,
         status = 'PENDING_CONFIRMATION', updatedAt = ?
@@ -209,7 +223,11 @@ async function runSeed() {
     const pts5 = calculatePoints(2, 0);
     db.prepare(`
       UPDATE matches SET
-        matchDate = '2026-09-22', setsTeamOne = 2, setsTeamTwo = 0,
+        matchDate = '2026-09-22',
+        set1TeamOne = 6, set1TeamTwo = 2,
+        set2TeamOne = 6, set2TeamTwo = 4,
+        gamesTeamOne = 12, gamesTeamTwo = 6,
+        setsTeamOne = 2, setsTeamTwo = 0,
         pointsTeamOne = ?, pointsTeamTwo = ?,
         resultSubmittedBy = ?, resultSubmittedAt = ?,
         status = 'DISPUTED', disputedBy = ?, disputedAt = ?, updatedAt = ?
@@ -248,7 +266,11 @@ async function runSeed() {
     const pts = calculatePoints(2, 0);
     db.prepare(`
       UPDATE matches SET
-        matchDate = '2026-10-05', setsTeamOne = 2, setsTeamTwo = 0,
+        matchDate = '2026-10-05',
+        set1TeamOne = 6, set1TeamTwo = 2,
+        set2TeamOne = 6, set2TeamTwo = 3,
+        gamesTeamOne = 12, gamesTeamTwo = 5,
+        setsTeamOne = 2, setsTeamTwo = 0,
         pointsTeamOne = ?, pointsTeamTwo = ?,
         resultSubmittedBy = ?, resultSubmittedAt = ?,
         status = 'CONFIRMED', confirmedBy = ?, confirmedAt = ?, updatedAt = ?
@@ -258,7 +280,12 @@ async function runSeed() {
     const ptsB = calculatePoints(2, 1);
     db.prepare(`
       UPDATE matches SET
-        matchDate = '2026-10-08', setsTeamOne = 2, setsTeamTwo = 1,
+        matchDate = '2026-10-08',
+        set1TeamOne = 7, set1TeamTwo = 5,
+        set2TeamOne = 3, set2TeamTwo = 6,
+        set3TeamOne = 6, set3TeamTwo = 4,
+        gamesTeamOne = 16, gamesTeamTwo = 15,
+        setsTeamOne = 2, setsTeamTwo = 1,
         pointsTeamOne = ?, pointsTeamTwo = ?,
         resultSubmittedBy = ?, resultSubmittedAt = ?,
         status = 'CONFIRMED', confirmedBy = ?, confirmedAt = ?, updatedAt = ?
@@ -304,12 +331,31 @@ async function runSeed() {
     const pts = calculatePoints(2, 0);
     db.prepare(`
       UPDATE matches SET
-        matchDate = '2026-11-05', setsTeamOne = 2, setsTeamTwo = 0,
+        matchDate = '2026-11-05',
+        set1TeamOne = 7, set1TeamTwo = 6,
+        set2TeamOne = 6, set2TeamTwo = 4,
+        gamesTeamOne = 13, gamesTeamTwo = 10,
+        setsTeamOne = 2, setsTeamTwo = 0,
         pointsTeamOne = ?, pointsTeamTwo = ?,
         resultSubmittedBy = ?, resultSubmittedAt = ?,
         status = 'CONFIRMED', confirmedBy = ?, confirmedAt = ?, updatedAt = ?
       WHERE id = ?
     `).run(pts.pointsTeamOne, pts.pointsTeamTwo, r4.teams[0].userId, now, r4.teams[1].userId, now, now, r4.matches[0].id);
+
+    const pts2 = calculatePoints(2, 1);
+    db.prepare(`
+      UPDATE matches SET
+        matchDate = '2026-11-12',
+        set1TeamOne = 6, set1TeamTwo = 3,
+        set2TeamOne = 4, set2TeamTwo = 6,
+        set3TeamOne = 7, set3TeamTwo = 5,
+        gamesTeamOne = 17, gamesTeamTwo = 14,
+        setsTeamOne = 2, setsTeamTwo = 1,
+        pointsTeamOne = ?, pointsTeamTwo = ?,
+        resultSubmittedBy = ?, resultSubmittedAt = ?,
+        status = 'CONFIRMED', confirmedBy = ?, confirmedAt = ?, updatedAt = ?
+      WHERE id = ?
+    `).run(pts2.pointsTeamOne, pts2.pointsTeamTwo, r4.teams[0].userId, now, r4.teams[3].userId, now, now, r4.matches[2].id);
   }
 
   // ─── RANKING 5: Circuito Senior +45 Invierno (Veteranos) ───────────────────

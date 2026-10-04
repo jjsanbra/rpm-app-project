@@ -439,22 +439,26 @@ Al registrar resultado se solicitará:
 
 Por ejemplo:
 
-2-0
-2-1
-1-2
-0-2
+Entrada por juegos en cada set (reglamentario de pádel: 6-0..6-4, 7-5, 7-6 o súper tie-break en 3º set):
+- Set 1: 6-3
+- Set 2: 4-6
+- Set 3 (Desempate si 1-1): 7-5
 
-Validar que el resultado de sets sea coherente.
+El sistema (frontend y backend) calcula automáticamente:
+- Sets ganados: 2-1 (Solo lectura en UI)
+- Juegos totales y diferencia de juegos
+- Puntos correspondientes (4 pts al ganador, 2 pts al perdedor)
 
-No permitir resultados imposibles.
+Validar que el resultado de sets y parciales de juegos sea coherente y reglamentario.
+No permitir resultados imposibles ni sets empatados.
 
 Una vez enviado:
 
 1. Validar permisos.
 2. Validar fecha.
-3. Validar resultado.
-4. Calcular automáticamente los puntos.
-5. Guardar resultado.
+3. Validar tanteo de juegos por set.
+4. Calcular automáticamente sets ganados, juegos totales y puntos.
+5. Guardar resultado completo y parciales.
 6. Guardar quién lo registró.
 7. Guardar cuándo se registró.
 8. Cambiar estado a PENDING_CONFIRMATION.
@@ -466,12 +470,12 @@ Una vez enviado:
 
 REGLAS DEFINITIVAS:
 
-Victoria en 2 sets:
+Victoria en 2 sets (2-0 / 0-2):
 
 - Ganador: 5 puntos
-- Perdedor: 1 punto
+- Perdedor: 1 punto (por disputar el partido)
 
-Victoria en 3 sets:
+Victoria en 3 sets (2-1 / 1-2):
 
 - Ganador: 4 puntos
 - Perdedor: 2 puntos
@@ -485,13 +489,11 @@ Tabla:
 | 2-1       | 4       | 2        |
 | 1-2       | 4       | 2        |
 
-Los puntos:
-- Se calculan exclusivamente en backend.
-- Nunca son editables manualmente por TEAM_USER.
-- No se reciben como valor confiable desde frontend.
-- Se recalculan si el administrador modifica el resultado.
-
-Preparar la arquitectura para que en el futuro se puedan añadir desempates configurables, pero NO inventar reglas de desempate que no hayan sido especificadas.
+Los puntos y sets:
+- Se calculan a partir de los juegos por set introducidos.
+- Se calculan exclusivamente en backend (con visualización en tiempo real en frontend).
+- Nunca son editables manualmente como valores arbitrarios por TEAM_USER.
+- Se recalculan si el administrador modifica el acta (el motivo de modificación de acta es opcional pero queda auditado).
 
 ==================================================
 14. CONFIRMACIÓN DE RESULTADOS
@@ -501,18 +503,19 @@ Flujo obligatorio:
 
 ### Paso 1
 
-Equipo A registra:
+Equipo A registra tanteo de juegos:
 
 Equipo A vs Equipo B
 
 Ejemplo:
 - Fecha: 15/09
-- Resultado: 2-1
+- Parciales: 6-4, 3-6, 7-5
+- Sets calculados: 2-1
 
 Backend calcula:
 
-Equipo A: 4 puntos
-Equipo B: 2 puntos
+Equipo A: 4 puntos (16 juegos)
+Equipo B: 2 puntos (15 juegos)
 
 Estado:
 
@@ -528,7 +531,7 @@ El email debe indicar:
 - Equipo que registró el resultado.
 - Equipos participantes.
 - Fecha del partido.
-- Resultado.
+- Resultado (sets y parciales de juegos).
 - Puntos calculados.
 - Quién registró el resultado.
 - Botón "Confirmar resultado".
@@ -558,8 +561,8 @@ Resultado:
 El administrador revisa la incidencia.
 
 Puede:
-- Modificar resultado.
-- Modificar fecha si corresponde y sigue cumpliendo las reglas.
+- Modificar resultado / acta (parciales de juegos, sets, fecha, estado).
+- Motivo opcional de resolución arbitral auditada.
 - Confirmar.
 - Resolver incidencia.
 - Dejar constancia de la resolución.
@@ -615,20 +618,22 @@ Mostrar como mínimo:
 - Posición
 - Equipo
 - Jugadores
-- Partidos jugados
-- Victorias
-- Derrotas
-- Sets ganados
-- Sets perdidos
-- Diferencia de sets
-- Diferencia de puntos
-- Puntos
+- Partidos jugados (PJ)
+- Victorias (PG)
+- Derrotas (PP)
+- Sets ganados / Sets perdidos
+- Diferencia de sets (SDIF)
+- Juegos ganados / Juegos perdidos
+- Diferencia de juegos (JDIF)
+- Diferencia de puntos (PDIF)
+- Puntos totales (PTS)
 
-La clasificación se ordenará principalmente por:
+La clasificación se ordenará jerárquicamente por:
 
-1. Puntos
-
-La arquitectura debe permitir usar como criterios de desempate las diferencias de sets y puntos.
+1. Puntos totales
+2. Diferencia de sets
+3. Diferencia de juegos
+4. Diferencia de puntos
 
 La clasificación debe actualizarse automáticamente cuando un resultado pase a estado CONFIRMED.
 
@@ -1639,3 +1644,10 @@ La aplicación debe quedar preparada para ejecutar localmente en entorno de desa
 - Spanish as default language (`defaultLanguage: 'es'`)
 - **PrimeNG** with Aura theme for UI components
 - Translation files in `src/assets/i18n/es.json`
+
+### API Integration
+
+- Services auto-generated with **Orval** from `backend/rpm-api.yaml`
+- Run `npm run api:generate` after API spec changes
+- Generated services in `projects/rpm-app/src/app/core/services/` (auth.ts, ranking.ts, etc.)
+- All API calls intercepted by `authInterceptor` for JWT token attachment

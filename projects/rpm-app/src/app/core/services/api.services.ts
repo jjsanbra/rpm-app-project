@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Ranking, Team, Match, ClassificationRow, Incident, AuditLog, AuxiliaryItem } from '../models';
+import { Ranking, Team, Match, ClassificationRow, Incident, AuditLog, AuxiliaryItem, SubmitResultPayload } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class RankingService {
@@ -80,7 +80,7 @@ export class MatchService {
     return this.http.get<{ data: Match }>(`${this.apiUrl}/${id}`);
   }
 
-  submitResult(id: string, data: { matchDate: string; setsTeamOne: number; setsTeamTwo: number }): Observable<{ data: Match; message: string }> {
+  submitResult(id: string, data: SubmitResultPayload): Observable<{ data: Match; message: string }> {
     return this.http.post<{ data: Match; message: string }>(`${this.apiUrl}/${id}/result`, data);
   }
 

@@ -69,13 +69,23 @@ function updateResult(id, data) {
   const db = getDb();
   db.prepare(`
     UPDATE matches SET
-      matchDate = ?, setsTeamOne = ?, setsTeamTwo = ?,
+      matchDate = ?,
+      set1TeamOne = ?, set1TeamTwo = ?,
+      set2TeamOne = ?, set2TeamTwo = ?,
+      set3TeamOne = ?, set3TeamTwo = ?,
+      gamesTeamOne = ?, gamesTeamTwo = ?,
+      setsTeamOne = ?, setsTeamTwo = ?,
       pointsTeamOne = ?, pointsTeamTwo = ?,
       resultSubmittedBy = ?, resultSubmittedAt = ?,
       status = 'PENDING_CONFIRMATION', updatedAt = ?
     WHERE id = ?
   `).run(
-    data.matchDate, data.setsTeamOne, data.setsTeamTwo,
+    data.matchDate,
+    data.set1TeamOne ?? null, data.set1TeamTwo ?? null,
+    data.set2TeamOne ?? null, data.set2TeamTwo ?? null,
+    data.set3TeamOne ?? null, data.set3TeamTwo ?? null,
+    data.gamesTeamOne ?? null, data.gamesTeamTwo ?? null,
+    data.setsTeamOne, data.setsTeamTwo,
     data.pointsTeamOne, data.pointsTeamTwo,
     data.resultSubmittedBy, data.resultSubmittedAt,
     new Date().toISOString(), id
@@ -101,7 +111,16 @@ function dispute(id, userId, disputedAt) {
 
 function adminUpdate(id, data) {
   const db = getDb();
-  const allowed = ['matchDate', 'setsTeamOne', 'setsTeamTwo', 'pointsTeamOne', 'pointsTeamTwo', 'status'];
+  const allowed = [
+    'matchDate',
+    'set1TeamOne', 'set1TeamTwo',
+    'set2TeamOne', 'set2TeamTwo',
+    'set3TeamOne', 'set3TeamTwo',
+    'gamesTeamOne', 'gamesTeamTwo',
+    'setsTeamOne', 'setsTeamTwo',
+    'pointsTeamOne', 'pointsTeamTwo',
+    'status'
+  ];
   const fields = [];
   const values = [];
 

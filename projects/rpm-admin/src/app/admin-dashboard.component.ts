@@ -1,6 +1,7 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MessageService } from 'primeng/api';
+import { TranslateService } from '@ngx-translate/core';
 import {
   RankingService,
   TeamService,
@@ -48,6 +49,7 @@ export class AdminDashboardComponent implements OnInit {
   private auditService = inject(AuditService);
   private auxService = inject(AuxiliaryService);
   private messageService = inject(MessageService);
+  private translate = inject(TranslateService);
 
   activeTab = signal<AdminTab>('rankings');
 
@@ -169,10 +171,18 @@ export class AdminDashboardComponent implements OnInit {
       active: true,
     }).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Ranking Creado', detail: 'El ranking ha sido creado correctamente.' });
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('ADMIN.RANKING_CREATED_SUCCESS'),
+          detail: this.translate.instant('ADMIN.RANKING_CREATED_DETAIL')
+        });
         this.loadRankings();
       },
-      error: (err) => this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Error al crear el ranking.' })
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
     });
   }
 
@@ -187,17 +197,31 @@ export class AdminDashboardComponent implements OnInit {
       categoryId: payload.categoryId || null as any,
     }).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Ranking Actualizado', detail: 'Categoría, nivel, sede y datos del ranking actualizados con éxito.' });
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('ADMIN.RANKING_UPDATED_SUCCESS'),
+          detail: this.translate.instant('ADMIN.RANKING_UPDATED_DETAIL')
+        });
         this.loadRankings();
       },
-      error: (err) => this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Error al actualizar el ranking.' })
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
     });
   }
 
   toggleRankingActive(r: Ranking): void {
     this.rankingService.toggleActive(r.id, !r.active).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'info', summary: 'Estado Actualizado', detail: `Ranking ${!r.active ? 'activado' : 'desactivado'}.` });
+        this.messageService.add({
+          severity: 'info',
+          summary: this.translate.instant('ADMIN.STATUS_UPDATED_INFO'),
+          detail: !r.active
+            ? this.translate.instant('ADMIN.RANKING_ACTIVATED')
+            : this.translate.instant('ADMIN.RANKING_DEACTIVATED')
+        });
         this.loadRankings();
       }
     });
@@ -222,10 +246,18 @@ export class AdminDashboardComponent implements OnInit {
       emails: payload.emails,
     }).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Equipo Registrado', detail: 'Email de bienvenida enviado con token de acceso.' });
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('ADMIN.TEAM_REGISTERED_SUCCESS'),
+          detail: this.translate.instant('ADMIN.TEAM_REGISTERED_DETAIL')
+        });
         this.loadTeams();
       },
-      error: (err) => this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Error al crear el equipo.' })
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
     });
   }
 
@@ -241,27 +273,53 @@ export class AdminDashboardComponent implements OnInit {
       emails: payload.emails,
     }).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Equipo Actualizado', detail: 'Datos del equipo y usuarios actualizados con éxito.' });
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('ADMIN.TEAM_UPDATED_SUCCESS'),
+          detail: this.translate.instant('ADMIN.TEAM_UPDATED_DETAIL')
+        });
         this.loadTeams();
       },
-      error: (err) => this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Error al actualizar el equipo.' })
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
     });
   }
 
   toggleTeamActive(t: Team): void {
     this.teamService.toggleActive(t.id, !t.active).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'info', summary: 'Estado Actualizado', detail: `Equipo ${!t.active ? 'activado' : 'desactivado'}.` });
+        this.messageService.add({
+          severity: 'info',
+          summary: this.translate.instant('ADMIN.STATUS_UPDATED_INFO'),
+          detail: !t.active
+            ? this.translate.instant('ADMIN.TEAM_ACTIVATED')
+            : this.translate.instant('ADMIN.TEAM_DEACTIVATED')
+        });
         this.loadTeams();
       },
-      error: (err) => this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Error al cambiar estado del equipo.' })
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
     });
   }
 
   resendTeamWelcome(t: Team): void {
     this.teamService.resendWelcome(t.id).subscribe({
-      next: () => this.messageService.add({ severity: 'success', summary: 'Email Enviado', detail: `Email de acceso reenviado a ${t.name}.` }),
-      error: (err) => this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Error al reenviar email.' })
+      next: () => this.messageService.add({
+        severity: 'success',
+        summary: this.translate.instant('ADMIN.EMAIL_SENT_SUCCESS'),
+        detail: `${t.name}: ${this.translate.instant('ADMIN.EMAIL_SENT_SUCCESS')}`
+      }),
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
     });
   }
 
@@ -276,21 +334,39 @@ export class AdminDashboardComponent implements OnInit {
     if (!rankingId) return;
     const teamIds = this.teams().map(t => t.id);
     if (teamIds.length < 4) {
-      this.messageService.add({ severity: 'warn', summary: 'Equipos Insuficientes', detail: 'Se necesitan al menos 4 equipos para generar partidos.' });
+      this.messageService.add({
+        severity: 'warn',
+        summary: this.translate.instant('ADMIN.INSUFFICIENT_TEAMS_WARN'),
+        detail: this.translate.instant('ADMIN.INSUFFICIENT_TEAMS_DETAIL')
+      });
       return;
     }
 
     this.matchService.generateMatches(rankingId, teamIds).subscribe({
       next: (res) => {
-        this.messageService.add({ severity: 'success', summary: 'Partidos Generados', detail: res.data.message || 'Calendario round-robin generado con éxito.' });
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('ADMIN.MATCHES_GENERATED_SUCCESS'),
+          detail: res.data.message || this.translate.instant('ADMIN.MATCHES_GENERATED_SUCCESS')
+        });
         this.loadMatchesForSelectedRanking();
       },
-      error: (err) => this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Error al generar partidos.' })
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
     });
   }
 
   handleAdminOverride(payload: AdminOverridePayload): void {
     this.matchService.adminOverride(payload.matchId, {
+      set1TeamOne: payload.set1TeamOne,
+      set1TeamTwo: payload.set1TeamTwo,
+      set2TeamOne: payload.set2TeamOne,
+      set2TeamTwo: payload.set2TeamTwo,
+      set3TeamOne: payload.set3TeamOne,
+      set3TeamTwo: payload.set3TeamTwo,
       setsTeamOne: payload.setsTeamOne,
       setsTeamTwo: payload.setsTeamTwo,
       status: payload.status,
@@ -298,10 +374,18 @@ export class AdminDashboardComponent implements OnInit {
       reason: payload.reason,
     }).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Partido Modificado', detail: 'Puntos y clasificación recalculados.' });
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('ADMIN.MATCH_MODIFIED_SUCCESS'),
+          detail: this.translate.instant('ADMIN.MATCH_MODIFIED_DETAIL')
+        });
         this.loadMatchesForSelectedRanking();
       },
-      error: (err) => this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Error al modificar el partido.' })
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
     });
   }
 
@@ -312,10 +396,18 @@ export class AdminDashboardComponent implements OnInit {
       resolution: payload.resolution,
     }).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Incidencia Resuelta', detail: 'La disputa ha sido cerrada.' });
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('ADMIN.INCIDENT_RESOLVED_SUCCESS'),
+          detail: this.translate.instant('ADMIN.INCIDENT_RESOLVED_DETAIL')
+        });
         this.loadIncidents();
       },
-      error: (err) => this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Error al resolver la incidencia.' })
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
     });
   }
 
@@ -323,17 +415,29 @@ export class AdminDashboardComponent implements OnInit {
   handleCreateAuxItem(payload: { name: string; description: string }): void {
     this.auxService.createItem(this.auxType(), payload).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'success', summary: 'Registro Creado', detail: `Elemento añadido a ${this.auxType()}.` });
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('ADMIN.AUX_CREATED_SUCCESS'),
+          detail: this.translate.instant('ADMIN.AUX_CREATED_SUCCESS')
+        });
         this.loadAuxItems();
       },
-      error: (err) => this.messageService.add({ severity: 'error', summary: 'Error', detail: err.error?.error || 'Error al crear elemento.' })
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
     });
   }
 
   handleDeleteAuxItem(id: string): void {
     this.auxService.deleteItem(this.auxType(), id).subscribe({
       next: () => {
-        this.messageService.add({ severity: 'info', summary: 'Eliminado', detail: 'Elemento eliminado con éxito.' });
+        this.messageService.add({
+          severity: 'info',
+          summary: this.translate.instant('ADMIN.AUX_DELETED_INFO'),
+          detail: this.translate.instant('ADMIN.AUX_DELETED_DETAIL')
+        });
         this.loadAuxItems();
       }
     });
