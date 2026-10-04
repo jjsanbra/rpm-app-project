@@ -187,12 +187,12 @@ export class LiveMatchService {
     return this.http.get<{ data: LiveMatchSession | null }>(`${this.apiUrl}/${matchId}/live`);
   }
 
-  requestLive(matchId: string): Observable<{ data: LiveMatchSession }> {
-    return this.http.post<{ data: LiveMatchSession }>(`${this.apiUrl}/${matchId}/live/request`, {});
+  requestLive(matchId: string, gameMode?: 'GOLDEN_POINT' | 'ADVANTAGE'): Observable<{ data: LiveMatchSession }> {
+    return this.http.post<{ data: LiveMatchSession }>(`${this.apiUrl}/${matchId}/live/request`, { gameMode });
   }
 
-  acceptLive(matchId: string): Observable<{ data: LiveMatchSession }> {
-    return this.http.post<{ data: LiveMatchSession }>(`${this.apiUrl}/${matchId}/live/accept`, {});
+  acceptLive(matchId: string, gameMode?: 'GOLDEN_POINT' | 'ADVANTAGE'): Observable<{ data: LiveMatchSession }> {
+    return this.http.post<{ data: LiveMatchSession }>(`${this.apiUrl}/${matchId}/live/accept`, { gameMode });
   }
 
   scorePoint(matchId: string, team: 1 | 2): Observable<{ data: LiveMatchSession }> {

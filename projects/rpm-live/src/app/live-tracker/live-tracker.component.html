@@ -13,6 +13,10 @@
           <i class="pi pi-trophy"></i>
           {{ session()?.rankingName || match()?.rankingName || ('LIVE.RANKING_MATCH' | translate) }}
         </span>
+        <span class="mode-pill" [class.advantage]="isAdvantageMode()">
+          <i class="pi" [ngClass]="isAdvantageMode() ? 'pi-sliders-h' : 'pi-star-fill'"></i>
+          {{ (isAdvantageMode() ? 'LIVE.MODE_ADVANTAGE' : 'LIVE.MODE_GOLDEN_POINT') | translate }}
+        </span>
         <span class="date-text" *ngIf="match()?.matchDate">
           <i class="pi pi-calendar"></i>
           {{ match()?.matchDate }}
@@ -54,6 +58,40 @@
         <div class="team-chip">{{ match()?.teamTwoName || 'Equipo 2' }}</div>
       </div>
 
+      <!-- Mode Selector (Punto de Oro vs Ventajas) -->
+      <div class="game-mode-selector-wrapper" *ngIf="isParticipant()">
+        <span class="selector-title">{{ 'LIVE.SELECT_GAME_MODE_TITLE' | translate }}</span>
+        <div class="mode-options-grid">
+          <button 
+            type="button" 
+            class="mode-card-btn" 
+            [class.active]="selectedGameMode() === 'GOLDEN_POINT'" 
+            (click)="setGameMode('GOLDEN_POINT')">
+            <div class="mode-icon-box golden">
+              <i class="pi pi-star-fill"></i>
+            </div>
+            <div class="mode-text">
+              <strong>{{ 'LIVE.MODE_GOLDEN_POINT' | translate }}</strong>
+              <small>{{ 'LIVE.MODE_GOLDEN_POINT_DESC' | translate }}</small>
+            </div>
+          </button>
+
+          <button 
+            type="button" 
+            class="mode-card-btn" 
+            [class.active]="selectedGameMode() === 'ADVANTAGE'" 
+            (click)="setGameMode('ADVANTAGE')">
+            <div class="mode-icon-box advantage">
+              <i class="pi pi-sliders-h"></i>
+            </div>
+            <div class="mode-text">
+              <strong>{{ 'LIVE.MODE_ADVANTAGE' | translate }}</strong>
+              <small>{{ 'LIVE.MODE_ADVANTAGE_DESC' | translate }}</small>
+            </div>
+          </button>
+        </div>
+      </div>
+
       <div class="setup-actions" *ngIf="isParticipant()">
         <button class="btn btn-primary btn-lg" (click)="onRequestLive()" [disabled]="actionLoading()">
           <i class="pi pi-play" *ngIf="!actionLoading()"></i>
@@ -72,6 +110,12 @@
         <i class="pi pi-clock pulse-live"></i>
       </div>
       <h2>{{ 'LIVE.INVITATION_PENDING_TITLE' | translate }}</h2>
+
+      <!-- Mode preview -->
+      <div class="requested-mode-pill">
+        <i class="pi" [ngClass]="isAdvantageMode() ? 'pi-sliders-h' : 'pi-star-fill'"></i>
+        <span>{{ (isAdvantageMode() ? 'LIVE.MODE_ADVANTAGE_SELECTED' : 'LIVE.MODE_GOLDEN_POINT_SELECTED') | translate }}</span>
+      </div>
 
       <!-- If user is the rival (Team Two or non-requesting team) or admin -> CAN ACCEPT -->
       <div *ngIf="(isTeamTwo() || (isTeamOne() && session()?.requestedBy !== currentUser()?.id) || isAdmin())" class="accept-box">
@@ -100,11 +144,19 @@
     <!-- Case 3: Session is IN_PROGRESS or COMPLETED or CONFIRMED -> MAIN COURTSIDE SCOREBOARD -->
     <div class="scoreboard-wrapper" *ngIf="session() && (session()?.status === 'IN_PROGRESS' || session()?.status === 'COMPLETED' || session()?.status === 'CONFIRMED')">
       
-      <!-- Match Banner Alert (Golden point, side switch, etc.) -->
+      <!-- Match Banner Alert (Golden point, Advantage, Deuce, side switch, etc.) -->
       <div class="match-alerts">
         <div class="alert-pill golden-point" *ngIf="isGoldenPoint()">
           <i class="pi pi-star-fill"></i>
           <span>{{ 'LIVE.GOLDEN_POINT_ALERT' | translate }}</span>
+        </div>
+        <div class="alert-pill deuce" *ngIf="isDeuce()">
+          <i class="pi pi-arrows-h"></i>
+          <span>{{ 'LIVE.DEUCE_ALERT' | translate }}</span>
+        </div>
+        <div class="alert-pill advantage" *ngIf="isAdvantageMode() && (session()?.pointsTeamOne === 'AD' || session()?.pointsTeamTwo === 'AD')">
+          <i class="pi pi-bolt"></i>
+          <span>{{ 'LIVE.ADVANTAGE_ALERT' | translate }}</span>
         </div>
         <div class="alert-pill tiebreak" *ngIf="session()?.isTiebreak">
           <i class="pi pi-bolt"></i>

@@ -265,6 +265,8 @@ function _createSchema() {
       setsTeamTwo         INTEGER NOT NULL DEFAULT 0,
       gamesTeamOne        INTEGER NOT NULL DEFAULT 0,
       gamesTeamTwo        INTEGER NOT NULL DEFAULT 0,
+      gameMode            TEXT NOT NULL DEFAULT 'GOLDEN_POINT'
+                            CHECK(gameMode IN ('GOLDEN_POINT', 'ADVANTAGE')),
       confirmedByTeamOne  INTEGER NOT NULL DEFAULT 0,
       confirmedByTeamTwo  INTEGER NOT NULL DEFAULT 0,
       historyJson         TEXT,

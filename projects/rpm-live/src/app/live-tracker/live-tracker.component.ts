@@ -57,6 +57,8 @@ export class LiveTrackerComponent implements OnInit, OnDestroy {
     return this.isParticipant() && s?.status === 'IN_PROGRESS';
   });
 
+  selectedGameMode = signal<'GOLDEN_POINT' | 'ADVANTAGE'>('GOLDEN_POINT');
+
   canSign = computed(() => {
     const s = this.session();
     const user = this.currentUser();
@@ -69,9 +71,18 @@ export class LiveTrackerComponent implements OnInit, OnDestroy {
     return false;
   });
 
+  isAdvantageMode = computed(() => {
+    return (this.session()?.gameMode || this.selectedGameMode()) === 'ADVANTAGE';
+  });
+
+  isDeuce = computed(() => {
+    const s = this.session();
+    return this.isAdvantageMode() && !s?.isTiebreak && s?.pointsTeamOne === '40' && s?.pointsTeamTwo === '40';
+  });
+
   isGoldenPoint = computed(() => {
     const s = this.session();
-    return !!s && !s.isTiebreak && s.pointsTeamOne === '40' && s.pointsTeamTwo === '40';
+    return !this.isAdvantageMode() && !s?.isTiebreak && s?.pointsTeamOne === '40' && s?.pointsTeamTwo === '40';
   });
 
   totalGames = computed(() => {
@@ -83,6 +94,10 @@ export class LiveTrackerComponent implements OnInit, OnDestroy {
   isSideSwitch = computed(() => {
     return this.totalGames() % 2 === 1;
   });
+
+  setGameMode(mode: 'GOLDEN_POINT' | 'ADVANTAGE'): void {
+    this.selectedGameMode.set(mode);
+  }
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -114,6 +129,9 @@ export class LiveTrackerComponent implements OnInit, OnDestroy {
     this.liveMatchService.getLiveSession(id).subscribe({
       next: (res) => {
         this.session.set(res.data);
+        if (res.data?.gameMode) {
+          this.selectedGameMode.set(res.data.gameMode);
+        }
         this.loading.set(false);
       },
       error: (err) => {
@@ -127,6 +145,9 @@ export class LiveTrackerComponent implements OnInit, OnDestroy {
     this.sseSub = this.liveMatchService.listenMatchStream(id).subscribe({
       next: (sessionUpdate) => {
         this.session.set(sessionUpdate);
+        if (sessionUpdate?.gameMode) {
+          this.selectedGameMode.set(sessionUpdate.gameMode);
+        }
       },
       error: (err) => {
         console.warn('Live match SSE stream error:', err);
@@ -136,7 +157,7 @@ export class LiveTrackerComponent implements OnInit, OnDestroy {
 
   onRequestLive(): void {
     this.actionLoading.set(true);
-    this.liveMatchService.requestLive(this.matchId()).subscribe({
+    this.liveMatchService.requestLive(this.matchId(), this.selectedGameMode()).subscribe({
       next: (res) => {
         this.session.set(res.data);
         this.actionLoading.set(false);
@@ -159,7 +180,7 @@ export class LiveTrackerComponent implements OnInit, OnDestroy {
 
   onAcceptLive(): void {
     this.actionLoading.set(true);
-    this.liveMatchService.acceptLive(this.matchId()).subscribe({
+    this.liveMatchService.acceptLive(this.matchId(), this.selectedGameMode()).subscribe({
       next: (res) => {
         this.session.set(res.data);
         this.actionLoading.set(false);

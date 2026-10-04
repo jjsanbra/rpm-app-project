@@ -196,6 +196,7 @@ export interface LiveMatchSession {
   setsTeamTwo: number;
   gamesTeamOne: number;
   gamesTeamTwo: number;
+  gameMode?: 'GOLDEN_POINT' | 'ADVANTAGE';
   servingTeam: 1 | 2;
   isTiebreak: number; // 0 or 1
   tiebreakPointsTeamOne: number;

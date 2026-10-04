@@ -98,7 +98,7 @@ function getActiveLiveMatches() {
   `).all();
 }
 
-function requestLiveMatch(matchId, user) {
+function requestLiveMatch(matchId, user, gameMode = 'GOLDEN_POINT') {
   const db = getDb();
   const match = matchModel.findById(matchId);
   if (!match) {
@@ -119,32 +119,34 @@ function requestLiveMatch(matchId, user) {
     throw err;
   }
 
+  const validMode = gameMode === 'ADVANTAGE' ? 'ADVANTAGE' : 'GOLDEN_POINT';
   const now = new Date().toISOString();
   let existing = db.prepare(`SELECT * FROM live_matches WHERE matchId = ?`).get(matchId);
 
   if (!existing) {
     db.prepare(`
       INSERT INTO live_matches (
-        matchId, status, requestedBy, requestedAt, servingTeam, pointsTeamOne, pointsTeamTwo,
+        matchId, status, requestedBy, requestedAt, gameMode, servingTeam, pointsTeamOne, pointsTeamTwo,
         isTiebreak, set1TeamOne, set1TeamTwo, set2TeamOne, set2TeamTwo, set3TeamOne, set3TeamTwo,
         currentSet, setsTeamOne, setsTeamTwo, gamesTeamOne, gamesTeamTwo,
         confirmedByTeamOne, confirmedByTeamTwo, historyJson, createdAt, updatedAt
       ) VALUES (
-        ?, 'REQUESTED', ?, ?, 1, '0', '0',
+        ?, 'REQUESTED', ?, ?, ?, 1, '0', '0',
         0, 0, 0, 0, 0, NULL, NULL,
         1, 0, 0, 0, 0,
         0, 0, '[]', ?, ?
       )
-    `).run(matchId, user.id, now, now, now);
+    `).run(matchId, user.id, now, validMode, now, now);
   } else {
     db.prepare(`
       UPDATE live_matches SET
         status = 'REQUESTED',
         requestedBy = ?,
         requestedAt = ?,
+        gameMode = ?,
         updatedAt = ?
       WHERE matchId = ?
-    `).run(user.id, now, now, matchId);
+    `).run(user.id, now, validMode, now, matchId);
   }
 
   const session = getLiveSession(matchId);
@@ -152,7 +154,7 @@ function requestLiveMatch(matchId, user) {
   return session;
 }
 
-function acceptLiveMatch(matchId, user) {
+function acceptLiveMatch(matchId, user, gameMode) {
   const db = getDb();
   const match = matchModel.findById(matchId);
   if (!match) {
@@ -168,14 +170,27 @@ function acceptLiveMatch(matchId, user) {
   }
 
   const now = new Date().toISOString();
-  db.prepare(`
-    UPDATE live_matches SET
-      status = 'IN_PROGRESS',
-      acceptedBy = ?,
-      acceptedAt = ?,
-      updatedAt = ?
-    WHERE matchId = ?
-  `).run(user.id, now, now, matchId);
+  if (gameMode) {
+    const validMode = gameMode === 'ADVANTAGE' ? 'ADVANTAGE' : 'GOLDEN_POINT';
+    db.prepare(`
+      UPDATE live_matches SET
+        status = 'IN_PROGRESS',
+        acceptedBy = ?,
+        acceptedAt = ?,
+        gameMode = ?,
+        updatedAt = ?
+      WHERE matchId = ?
+    `).run(user.id, now, validMode, now, matchId);
+  } else {
+    db.prepare(`
+      UPDATE live_matches SET
+        status = 'IN_PROGRESS',
+        acceptedBy = ?,
+        acceptedAt = ?,
+        updatedAt = ?
+      WHERE matchId = ?
+    `).run(user.id, now, now, matchId);
+  }
 
   const session = getLiveSession(matchId);
   broadcastLiveState(matchId, session);
@@ -218,6 +233,7 @@ function scorePoint(matchId, teamScored, user) {
     setsTeamTwo: session.setsTeamTwo,
     gamesTeamOne: session.gamesTeamOne,
     gamesTeamTwo: session.gamesTeamTwo,
+    gameMode: session.gameMode,
     status: session.status,
   };
   history.push(snapshot);
@@ -238,6 +254,7 @@ function scorePoint(matchId, teamScored, user) {
   let isTiebreak = session.isTiebreak;
   let serving = session.servingTeam;
   let status = session.status;
+  const mode = session.gameMode || 'GOLDEN_POINT';
 
   if (isTiebreak) {
     // Tie-break mode (integer score 0, 1, 2, 3...)
@@ -288,26 +305,64 @@ function scorePoint(matchId, teamScored, user) {
       p2 = String(n2);
     }
   } else {
-    // Normal game mode with Punto de Oro (Golden Point at 40-40)
+    // Normal game mode (Advantage or Punto de Oro)
     let gameWon = false;
     let winnerOfGame = 0;
 
-    if (teamScored === 1) {
-      if (p1 === '0') p1 = '15';
-      else if (p1 === '15') p1 = '30';
-      else if (p1 === '30') p1 = '40';
-      else if (p1 === '40') {
-        // Point from 40 (or 40-40 Punto de oro) wins the game
-        gameWon = true;
-        winnerOfGame = 1;
+    if (mode === 'ADVANTAGE') {
+      if (teamScored === 1) {
+        if (p1 === '0') p1 = '15';
+        else if (p1 === '15') p1 = '30';
+        else if (p1 === '30') p1 = '40';
+        else if (p1 === '40') {
+          if (p2 === '40') {
+            p1 = 'AD';
+          } else if (p2 === 'AD') {
+            p2 = '40'; // Vuelta a Iguales (Deuce)
+          } else {
+            gameWon = true;
+            winnerOfGame = 1;
+          }
+        } else if (p1 === 'AD') {
+          gameWon = true;
+          winnerOfGame = 1;
+        }
+      } else {
+        if (p2 === '0') p2 = '15';
+        else if (p2 === '15') p2 = '30';
+        else if (p2 === '30') p2 = '40';
+        else if (p2 === '40') {
+          if (p1 === '40') {
+            p2 = 'AD';
+          } else if (p1 === 'AD') {
+            p1 = '40'; // Vuelta a Iguales (Deuce)
+          } else {
+            gameWon = true;
+            winnerOfGame = 2;
+          }
+        } else if (p2 === 'AD') {
+          gameWon = true;
+          winnerOfGame = 2;
+        }
       }
     } else {
-      if (p2 === '0') p2 = '15';
-      else if (p2 === '15') p2 = '30';
-      else if (p2 === '30') p2 = '40';
-      else if (p2 === '40') {
-        gameWon = true;
-        winnerOfGame = 2;
+      // Golden Point (Punto de Oro)
+      if (teamScored === 1) {
+        if (p1 === '0') p1 = '15';
+        else if (p1 === '15') p1 = '30';
+        else if (p1 === '30') p1 = '40';
+        else if (p1 === '40') {
+          gameWon = true;
+          winnerOfGame = 1;
+        }
+      } else {
+        if (p2 === '0') p2 = '15';
+        else if (p2 === '15') p2 = '30';
+        else if (p2 === '30') p2 = '40';
+        else if (p2 === '40') {
+          gameWon = true;
+          winnerOfGame = 2;
+        }
       }
     }
 
@@ -424,6 +479,7 @@ function undoPoint(matchId, user) {
       setsTeamTwo = ?,
       gamesTeamOne = ?,
       gamesTeamTwo = ?,
+      gameMode = ?,
       status = ?,
       historyJson = ?,
       updatedAt = ?
@@ -444,6 +500,7 @@ function undoPoint(matchId, user) {
     lastSnapshot.setsTeamTwo,
     lastSnapshot.gamesTeamOne,
     lastSnapshot.gamesTeamTwo,
+    lastSnapshot.gameMode || session.gameMode || 'GOLDEN_POINT',
     lastSnapshot.status,
     JSON.stringify(history),
     now,

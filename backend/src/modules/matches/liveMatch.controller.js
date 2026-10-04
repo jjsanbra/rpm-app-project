@@ -25,7 +25,8 @@ async function getActiveLiveMatches(req, res, next) {
 
 async function requestLiveMatch(req, res, next) {
   try {
-    const session = liveService.requestLiveMatch(req.params.id, req.user);
+    const gameMode = req.body?.gameMode === 'ADVANTAGE' ? 'ADVANTAGE' : 'GOLDEN_POINT';
+    const session = liveService.requestLiveMatch(req.params.id, req.user, gameMode);
     res.json({ success: true, data: session });
   } catch (err) {
     next(err);
@@ -34,7 +35,8 @@ async function requestLiveMatch(req, res, next) {
 
 async function acceptLiveMatch(req, res, next) {
   try {
-    const session = liveService.acceptLiveMatch(req.params.id, req.user);
+    const gameMode = req.body?.gameMode === 'ADVANTAGE' ? 'ADVANTAGE' : (req.body?.gameMode === 'GOLDEN_POINT' ? 'GOLDEN_POINT' : undefined);
+    const session = liveService.acceptLiveMatch(req.params.id, req.user, gameMode);
     res.json({ success: true, data: session });
   } catch (err) {
     next(err);

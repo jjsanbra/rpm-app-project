@@ -175,29 +175,32 @@ describe('Matches & Scoring Integration Tests', () => {
       rivalToken = rivalRes.body.data.token;
     });
 
-    it('un equipo debe poder solicitar iniciar un partido en vivo', async () => {
+    it('un equipo debe poder solicitar iniciar un partido en vivo con modo VENTAJAS', async () => {
       const res = await request(app)
         .post(`/api/matches/${liveMatch.id}/live/request`)
-        .set('Authorization', `Bearer ${teamOneToken}`);
+        .set('Authorization', `Bearer ${teamOneToken}`)
+        .send({ gameMode: 'ADVANTAGE' });
 
       expect(res.status).toBe(200);
       expect(res.body.data.status).toBe('REQUESTED');
+      expect(res.body.data.gameMode).toBe('ADVANTAGE');
     });
 
-    it('el equipo rival debe poder aceptar el partido en vivo', async () => {
+    it('el equipo rival debe poder aceptar el partido en vivo conservando el modo ADVANTAGE', async () => {
       const res = await request(app)
         .post(`/api/matches/${liveMatch.id}/live/accept`)
         .set('Authorization', `Bearer ${rivalToken}`);
 
       expect(res.status).toBe(200);
       expect(res.body.data.status).toBe('IN_PROGRESS');
+      expect(res.body.data.gameMode).toBe('ADVANTAGE');
     });
 
-    it('se deben poder anotar puntos en tiempo real (0 -> 15 -> 30 -> 40 -> Juego)', async () => {
+    it('se deben poder anotar puntos en tiempo real (0 -> 15 -> 30 -> 40)', async () => {
       // Punto 1: 15-0
       let res = await request(app)
         .post(`/api/matches/${liveMatch.id}/live/point`)
-        .set('Authorization', `Bearer ${team1Token}`)
+        .set('Authorization', `Bearer ${teamOneToken}`)
         .send({ team: 1 });
       expect(res.status).toBe(200);
       expect(res.body.data.pointsTeamOne).toBe('15');
@@ -206,7 +209,7 @@ describe('Matches & Scoring Integration Tests', () => {
       // Punto 2: 30-0
       res = await request(app)
         .post(`/api/matches/${liveMatch.id}/live/point`)
-        .set('Authorization', `Bearer ${team1Token}`)
+        .set('Authorization', `Bearer ${teamOneToken}`)
         .send({ team: 1 });
       expect(res.body.data.pointsTeamOne).toBe('30');
 
@@ -216,6 +219,41 @@ describe('Matches & Scoring Integration Tests', () => {
         .set('Authorization', `Bearer ${teamOneToken}`);
       expect(undoRes.status).toBe(200);
       expect(undoRes.body.data.pointsTeamOne).toBe('15');
+    });
+
+    it('debe manejar correctamente las ventajas en modo ADVANTAGE (40-40 -> AD -> 40-40 -> AD -> Juego)', async () => {
+      // Llevar marcador a 40-40:
+      // T1 ya tiene 15. T1 suma a 30 y 40:
+      await request(app).post(`/api/matches/${liveMatch.id}/live/point`).set('Authorization', `Bearer ${teamOneToken}`).send({ team: 1 });
+      await request(app).post(`/api/matches/${liveMatch.id}/live/point`).set('Authorization', `Bearer ${teamOneToken}`).send({ team: 1 });
+      // T2 suma 15, 30, 40:
+      await request(app).post(`/api/matches/${liveMatch.id}/live/point`).set('Authorization', `Bearer ${teamOneToken}`).send({ team: 2 });
+      await request(app).post(`/api/matches/${liveMatch.id}/live/point`).set('Authorization', `Bearer ${teamOneToken}`).send({ team: 2 });
+      let deuceRes = await request(app).post(`/api/matches/${liveMatch.id}/live/point`).set('Authorization', `Bearer ${teamOneToken}`).send({ team: 2 });
+      
+      expect(deuceRes.body.data.pointsTeamOne).toBe('40');
+      expect(deuceRes.body.data.pointsTeamTwo).toBe('40');
+
+      // T1 anota -> Ventaja T1 (AD - 40)
+      let ad1Res = await request(app).post(`/api/matches/${liveMatch.id}/live/point`).set('Authorization', `Bearer ${teamOneToken}`).send({ team: 1 });
+      expect(ad1Res.body.data.pointsTeamOne).toBe('AD');
+      expect(ad1Res.body.data.pointsTeamTwo).toBe('40');
+
+      // T2 anota -> Vuelve a Iguales (40 - 40)
+      let backDeuceRes = await request(app).post(`/api/matches/${liveMatch.id}/live/point`).set('Authorization', `Bearer ${teamOneToken}`).send({ team: 2 });
+      expect(backDeuceRes.body.data.pointsTeamOne).toBe('40');
+      expect(backDeuceRes.body.data.pointsTeamTwo).toBe('40');
+
+      // T2 anota -> Ventaja T2 (40 - AD)
+      let ad2Res = await request(app).post(`/api/matches/${liveMatch.id}/live/point`).set('Authorization', `Bearer ${teamOneToken}`).send({ team: 2 });
+      expect(ad2Res.body.data.pointsTeamOne).toBe('40');
+      expect(ad2Res.body.data.pointsTeamTwo).toBe('AD');
+
+      // T2 anota desde AD -> Gana el juego (set1TeamTwo pasa a 1, marcador a 0-0)
+      let winGameRes = await request(app).post(`/api/matches/${liveMatch.id}/live/point`).set('Authorization', `Bearer ${teamOneToken}`).send({ team: 2 });
+      expect(winGameRes.body.data.set1TeamTwo).toBe(1);
+      expect(winGameRes.body.data.pointsTeamOne).toBe('0');
+      expect(winGameRes.body.data.pointsTeamTwo).toBe('0');
     });
 
     it('ambos capitanes deben poder firmar y confirmar el acta', async () => {
