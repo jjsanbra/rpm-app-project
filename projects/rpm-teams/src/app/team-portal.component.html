@@ -93,34 +93,40 @@
             <!-- Acciones PrimeNG Buttons -->
             <div class="card-actions">
               @if (m.status === 'PENDING_RESULT') {
-                <p-button
-                  [label]="'TEAM_PORTAL.SUBMIT_RESULT_BTN' | translate"
-                  icon="pi pi-pencil"
+                <button
+                  type="button"
+                  pButton
                   severity="success"
                   size="small"
                   styleClass="w-full"
-                  (onClick)="openSubmitModal(m)">
-                </p-button>
+                  (click)="openSubmitModal(m)">
+                  <i class="pi pi-pencil"></i>
+                  <span>{{ 'TEAM_PORTAL.SUBMIT_RESULT_BTN' | translate }}</span>
+                </button>
               }
 
               @if (m.status === 'PENDING_CONFIRMATION') {
                 @if (canIConfirm(m)) {
                   <div class="confirm-actions">
-                    <p-button
-                      [label]="'TEAM_PORTAL.CONFIRM_RESULT_BTN' | translate"
-                      icon="pi pi-check"
+                    <button
+                      type="button"
+                      pButton
                       severity="success"
                       size="small"
                       styleClass="flex-1"
-                      (onClick)="confirmMatch(m)">
-                    </p-button>
-                    <p-button
-                      [label]="'TEAM_PORTAL.INCIDENT_BTN' | translate"
-                      icon="pi pi-flag"
+                      (click)="confirmMatch(m)">
+                      <i class="pi pi-check"></i>
+                      <span>{{ 'TEAM_PORTAL.CONFIRM_RESULT_BTN' | translate }}</span>
+                    </button>
+                    <button
+                      type="button"
+                      pButton
                       severity="danger"
                       size="small"
-                      (onClick)="openDisputeModal(m)">
-                    </p-button>
+                      (click)="openDisputeModal(m)">
+                      <i class="pi pi-flag"></i>
+                      <span>{{ 'TEAM_PORTAL.INCIDENT_BTN' | translate }}</span>
+                    </button>
                   </div>
                   <p class="small-hint">{{ 'TEAM_PORTAL.CONFIRM_HINT' | translate }}</p>
                 } @else {
@@ -221,15 +227,18 @@
         </div>
 
         <div class="modal-actions">
-          <p-button [label]="'COMMON.CANCEL' | translate" severity="secondary" (onClick)="closeSubmitModal()"></p-button>
-          <p-button
-            [label]="'TEAM_PORTAL.SUBMIT_MATCH_BTN' | translate"
-            icon="pi pi-check"
+          <button type="button" pButton severity="secondary" (click)="closeSubmitModal()">
+            <span>{{ 'COMMON.CANCEL' | translate }}</span>
+          </button>
+          <button
+            pButton
             severity="success"
             type="submit"
             [loading]="submitting()"
             [disabled]="submitting() || formSetsOne === null">
-          </p-button>
+            <i class="pi pi-check"></i>
+            <span>{{ 'TEAM_PORTAL.SUBMIT_MATCH_BTN' | translate }}</span>
+          </button>
         </div>
       </form>
     }
@@ -262,15 +271,18 @@
       </div>
 
       <div class="modal-actions">
-        <p-button [label]="'COMMON.CANCEL' | translate" severity="secondary" (onClick)="closeDisputeModal()"></p-button>
-        <p-button
-          [label]="'TEAM_PORTAL.NOTIFY_ADMIN_BTN' | translate"
-          icon="pi pi-send"
+        <button type="button" pButton severity="secondary" (click)="closeDisputeModal()">
+          <span>{{ 'COMMON.CANCEL' | translate }}</span>
+        </button>
+        <button
+          pButton
           severity="danger"
           type="submit"
           [loading]="submitting()"
           [disabled]="submitting() || !disputeDescription.trim()">
-        </p-button>
+          <i class="pi pi-send"></i>
+          <span>{{ 'TEAM_PORTAL.NOTIFY_ADMIN_BTN' | translate }}</span>
+        </button>
       </div>
     </form>
   </p-dialog>

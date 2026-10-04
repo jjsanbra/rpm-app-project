@@ -7,7 +7,7 @@ import { RankingService, MatchService, ClassificationService, Ranking, Match, Cl
 
 // PrimeNG Components
 import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
+import { ButtonDirective } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { CardModule } from 'primeng/card';
 import { BadgeModule } from 'primeng/badge';
@@ -21,7 +21,7 @@ import { SelectModule } from 'primeng/select';
     RouterModule,
     FormsModule,
     TableModule,
-    ButtonModule,
+    ButtonDirective,
     TagModule,
     CardModule,
     BadgeModule,

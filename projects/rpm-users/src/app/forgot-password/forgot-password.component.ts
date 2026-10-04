@@ -8,7 +8,7 @@ import { AuthService } from '@core';
 // PrimeNG Modules
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
-import { ButtonModule } from 'primeng/button';
+import { ButtonDirective } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 
 @Component({
@@ -20,7 +20,7 @@ import { MessageModule } from 'primeng/message';
     FormsModule,
     CardModule,
     InputTextModule,
-    ButtonModule,
+    ButtonDirective,
     MessageModule,
     TranslatePipe
   ],
@@ -38,13 +38,15 @@ import { MessageModule } from 'primeng/message';
         @if (submitted()) {
           <div class="success-box">
             <p-message severity="success" styleClass="w-full mb-3">{{ 'AUTH.FORGOT_SUCCESS' | translate }}</p-message>
-            <p-button
-              [label]="'AUTH.BACK_TO_LOGIN' | translate"
-              icon="pi pi-arrow-left"
+            <button
+              type="button"
+              pButton
               severity="secondary"
               routerLink="/auth/login"
               styleClass="w-full mt-2">
-            </p-button>
+              <i class="pi pi-arrow-left"></i>
+              <span>{{ 'AUTH.BACK_TO_LOGIN' | translate }}</span>
+            </button>
           </div>
         } @else {
           @if (errorMessage()) {
@@ -66,15 +68,16 @@ import { MessageModule } from 'primeng/message';
               />
             </div>
 
-            <p-button
+            <button
               type="submit"
-              [label]="'AUTH.FORGOT_SUBMIT' | translate"
-              icon="pi pi-send"
+              pButton
               severity="success"
               styleClass="w-full mt-2"
               [loading]="loading()"
               [disabled]="loading() || !email">
-            </p-button>
+              <i class="pi pi-send"></i>
+              <span>{{ 'AUTH.FORGOT_SUBMIT' | translate }}</span>
+            </button>
 
             <div class="text-center mt-3">
               <a routerLink="/auth/login" class="back-link">

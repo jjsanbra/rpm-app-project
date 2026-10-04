@@ -18,7 +18,7 @@ import {
 
 // PrimeNG Components
 import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
+import { ButtonDirective } from 'primeng/button';
 import { DialogModule } from 'primeng/dialog';
 import { TagModule } from 'primeng/tag';
 import { BadgeModule } from 'primeng/badge';
@@ -38,7 +38,7 @@ type AdminTab = 'rankings' | 'teams' | 'matches' | 'incidents' | 'auxiliary' | '
     CommonModule,
     FormsModule,
     TableModule,
-    ButtonModule,
+    ButtonDirective,
     DialogModule,
     TagModule,
     BadgeModule,

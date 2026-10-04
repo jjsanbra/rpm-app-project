@@ -78,20 +78,24 @@
         <h2 class="section-title">{{ 'STANDINGS.TITLE' | translate }}</h2>
       </div>
       <div class="table-switcher">
-        <p-button
-          [label]="'STANDINGS.OFFICIAL_BTN' | translate"
+        <button
+          type="button"
+          pButton
           [outlined]="viewMode() !== 'official'"
           severity="success"
           size="small"
-          (onClick)="setMode('official')">
-        </p-button>
-        <p-button
-          [label]="'STANDINGS.PROVISIONAL_BTN' | translate"
+          (click)="setMode('official')">
+          <span>{{ 'STANDINGS.OFFICIAL_BTN' | translate }}</span>
+        </button>
+        <button
+          type="button"
+          pButton
           [outlined]="viewMode() !== 'provisional'"
           severity="secondary"
           size="small"
-          (onClick)="setMode('provisional')">
-        </p-button>
+          (click)="setMode('provisional')">
+          <span>{{ 'STANDINGS.PROVISIONAL_BTN' | translate }}</span>
+        </button>
       </div>
     </div>
 
@@ -163,10 +167,18 @@
         <h2 class="section-title">{{ 'MATCHES.TITLE' | translate }}</h2>
       </div>
       <div class="filter-pills">
-        <p-button [label]="'MATCHES.FILTER_ALL' | translate" [outlined]="matchFilter() !== 'ALL'" size="small" severity="secondary" (onClick)="setMatchFilter('ALL')"></p-button>
-        <p-button [label]="'MATCHES.FILTER_CONFIRMED' | translate" [outlined]="matchFilter() !== 'CONFIRMED'" size="small" severity="success" (onClick)="setMatchFilter('CONFIRMED')"></p-button>
-        <p-button [label]="'MATCHES.FILTER_PENDING' | translate" [outlined]="matchFilter() !== 'PENDING_CONFIRMATION'" size="small" severity="warn" (onClick)="setMatchFilter('PENDING_CONFIRMATION')"></p-button>
-        <p-button [label]="'MATCHES.FILTER_DISPUTED' | translate" [outlined]="matchFilter() !== 'DISPUTED'" size="small" severity="danger" (onClick)="setMatchFilter('DISPUTED')"></p-button>
+        <button type="button" pButton [outlined]="matchFilter() !== 'ALL'" size="small" severity="secondary" (click)="setMatchFilter('ALL')">
+          <span>{{ 'MATCHES.FILTER_ALL' | translate }}</span>
+        </button>
+        <button type="button" pButton [outlined]="matchFilter() !== 'CONFIRMED'" size="small" severity="success" (click)="setMatchFilter('CONFIRMED')">
+          <span>{{ 'MATCHES.FILTER_CONFIRMED' | translate }}</span>
+        </button>
+        <button type="button" pButton [outlined]="matchFilter() !== 'PENDING_CONFIRMATION'" size="small" severity="warn" (click)="setMatchFilter('PENDING_CONFIRMATION')">
+          <span>{{ 'MATCHES.FILTER_PENDING' | translate }}</span>
+        </button>
+        <button type="button" pButton [outlined]="matchFilter() !== 'DISPUTED'" size="small" severity="danger" (click)="setMatchFilter('DISPUTED')">
+          <span>{{ 'MATCHES.FILTER_DISPUTED' | translate }}</span>
+        </button>
       </div>
     </div>
 

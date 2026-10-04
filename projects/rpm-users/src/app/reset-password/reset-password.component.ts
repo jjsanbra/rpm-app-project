@@ -9,7 +9,7 @@ import { AuthService } from '@core';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
-import { ButtonModule } from 'primeng/button';
+import { ButtonDirective } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 
 @Component({
@@ -22,7 +22,7 @@ import { MessageModule } from 'primeng/message';
     CardModule,
     InputTextModule,
     PasswordModule,
-    ButtonModule,
+    ButtonDirective,
     MessageModule,
     TranslatePipe
   ],
@@ -40,13 +40,15 @@ import { MessageModule } from 'primeng/message';
         @if (successMessage()) {
           <div class="success-box">
             <p-message severity="success" styleClass="w-full mb-3">{{ successMessage() }}</p-message>
-            <p-button
-              [label]="'AUTH.LOGIN_NOW' | translate"
-              icon="pi pi-sign-in"
+            <button
+              type="button"
+              pButton
               severity="success"
               routerLink="/auth/login"
               styleClass="w-full mt-2">
-            </p-button>
+              <i class="pi pi-sign-in"></i>
+              <span>{{ 'AUTH.LOGIN_NOW' | translate }}</span>
+            </button>
           </div>
         } @else {
           @if (errorMessage()) {
@@ -85,15 +87,16 @@ import { MessageModule } from 'primeng/message';
               </p-password>
             </div>
 
-            <p-button
+            <button
               type="submit"
-              [label]="'AUTH.RESET_SUBMIT' | translate"
-              icon="pi pi-save"
+              pButton
               severity="success"
               styleClass="w-full mt-2"
               [loading]="loading()"
               [disabled]="loading() || !token">
-            </p-button>
+              <i class="pi pi-save"></i>
+              <span>{{ 'AUTH.RESET_SUBMIT' | translate }}</span>
+            </button>
           </form>
         }
       </p-card>

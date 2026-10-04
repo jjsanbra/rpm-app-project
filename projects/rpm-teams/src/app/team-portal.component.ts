@@ -6,7 +6,7 @@ import { AuthService, MatchService, TeamService, Match, Team } from '@core';
 
 // PrimeNG Components
 import { DialogModule } from 'primeng/dialog';
-import { ButtonModule } from 'primeng/button';
+import { ButtonDirective } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { BadgeModule } from 'primeng/badge';
 import { CardModule } from 'primeng/card';
@@ -20,7 +20,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
     CommonModule,
     FormsModule,
     DialogModule,
-    ButtonModule,
+    ButtonDirective,
     TagModule,
     BadgeModule,
     CardModule,

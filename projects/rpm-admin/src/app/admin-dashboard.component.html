@@ -7,56 +7,69 @@
     </div>
 
     <div class="nav-tabs">
-      <p-button
-        [label]="('ADMIN.TAB_RANKINGS' | translate) + ' (' + rankings().length + ')'"
-        icon="pi pi-trophy"
+      <button
+        type="button"
+        pButton
         [outlined]="activeTab() !== 'rankings'"
         severity="success"
         size="small"
-        (onClick)="setTab('rankings')">
-      </p-button>
-      <p-button
-        [label]="('ADMIN.TAB_TEAMS' | translate) + ' (' + teams().length + ')'"
-        icon="pi pi-users"
+        (click)="setTab('rankings')">
+        <i class="pi pi-trophy"></i>
+        <span>{{ 'ADMIN.TAB_RANKINGS' | translate }} ({{ rankings().length }})</span>
+      </button>
+      <button
+        type="button"
+        pButton
         [outlined]="activeTab() !== 'teams'"
         severity="success"
         size="small"
-        (onClick)="setTab('teams')">
-      </p-button>
-      <p-button
-        [label]="('ADMIN.TAB_MATCHES' | translate) + ' (' + matches().length + ')'"
-        icon="pi pi-calendar"
+        (click)="setTab('teams')">
+        <i class="pi pi-users"></i>
+        <span>{{ 'ADMIN.TAB_TEAMS' | translate }} ({{ teams().length }})</span>
+      </button>
+      <button
+        type="button"
+        pButton
         [outlined]="activeTab() !== 'matches'"
         severity="success"
         size="small"
-        (onClick)="setTab('matches')">
-      </p-button>
-      <p-button
-        [label]="'ADMIN.TAB_INCIDENTS' | translate"
-        icon="pi pi-flag"
+        (click)="setTab('matches')">
+        <i class="pi pi-calendar"></i>
+        <span>{{ 'ADMIN.TAB_MATCHES' | translate }} ({{ matches().length }})</span>
+      </button>
+      <button
+        type="button"
+        pButton
         [outlined]="activeTab() !== 'incidents'"
         severity="danger"
         size="small"
-        [badge]="openIncidentsCount() > 0 ? openIncidentsCount().toString() : undefined"
-        badgeSeverity="danger"
-        (onClick)="setTab('incidents')">
-      </p-button>
-      <p-button
-        [label]="'ADMIN.TAB_AUXILIARY' | translate"
-        icon="pi pi-database"
+        (click)="setTab('incidents')">
+        <i class="pi pi-flag"></i>
+        <span>{{ 'ADMIN.TAB_INCIDENTS' | translate }}</span>
+        @if (openIncidentsCount() > 0) {
+          <p-badge [value]="openIncidentsCount().toString()" severity="danger"></p-badge>
+        }
+      </button>
+      <button
+        type="button"
+        pButton
         [outlined]="activeTab() !== 'auxiliary'"
         severity="secondary"
         size="small"
-        (onClick)="setTab('auxiliary')">
-      </p-button>
-      <p-button
-        [label]="'ADMIN.TAB_AUDIT' | translate"
-        icon="pi pi-history"
+        (click)="setTab('auxiliary')">
+        <i class="pi pi-database"></i>
+        <span>{{ 'ADMIN.TAB_AUXILIARY' | translate }}</span>
+      </button>
+      <button
+        type="button"
+        pButton
         [outlined]="activeTab() !== 'audit'"
         severity="secondary"
         size="small"
-        (onClick)="setTab('audit')">
-      </p-button>
+        (click)="setTab('audit')">
+        <i class="pi pi-history"></i>
+        <span>{{ 'ADMIN.TAB_AUDIT' | translate }}</span>
+      </button>
     </div>
   </header>
 
@@ -65,7 +78,10 @@
     <section class="tab-section">
       <div class="section-actions">
         <h2>{{ 'ADMIN.RANKINGS_HEADING' | translate }}</h2>
-        <p-button [label]="'ADMIN.CREATE_RANKING_BTN' | translate" icon="pi pi-plus" severity="success" size="small" (onClick)="openCreateRankingModal()"></p-button>
+        <button type="button" pButton severity="success" size="small" (click)="openCreateRankingModal()">
+          <i class="pi pi-plus"></i>
+          <span>{{ 'ADMIN.CREATE_RANKING_BTN' | translate }}</span>
+        </button>
       </div>
 
       <div class="cards-grid">
@@ -85,28 +101,34 @@
             </div>
 
             <div class="card-foot">
-              <p-button
-                [label]="'COMMON.EDIT' | translate"
-                icon="pi pi-pencil"
+              <button
+                type="button"
+                pButton
                 severity="warn"
                 size="small"
                 [outlined]="true"
-                (onClick)="openEditRankingModal(r)">
-              </p-button>
-              <p-button
-                [label]="(r.active ? 'ADMIN.DEACTIVATE_BTN' : 'ADMIN.ACTIVATE_BTN') | translate"
+                (click)="openEditRankingModal(r)">
+                <i class="pi pi-pencil"></i>
+                <span>{{ 'COMMON.EDIT' | translate }}</span>
+              </button>
+              <button
+                type="button"
+                pButton
                 [severity]="r.active ? 'secondary' : 'success'"
                 size="small"
-                (onClick)="toggleRankingActive(r)">
-              </p-button>
-              <p-button
-                [label]="'ADMIN.MATCHES_BTN' | translate"
-                icon="pi pi-calendar"
+                (click)="toggleRankingActive(r)">
+                <span>{{ (r.active ? 'ADMIN.DEACTIVATE_BTN' : 'ADMIN.ACTIVATE_BTN') | translate }}</span>
+              </button>
+              <button
+                type="button"
+                pButton
                 severity="info"
                 size="small"
                 styleClass="flex-1"
-                (onClick)="selectForMatches(r)">
-              </p-button>
+                (click)="selectForMatches(r)">
+                <i class="pi pi-calendar"></i>
+                <span>{{ 'ADMIN.MATCHES_BTN' | translate }}</span>
+              </button>
             </div>
           </div>
         }
@@ -122,7 +144,10 @@
           <h2>{{ 'ADMIN.TEAMS_HEADING' | translate }}</h2>
           <p class="section-sub">{{ 'ADMIN.TEAMS_SUB' | translate }}</p>
         </div>
-        <p-button [label]="'ADMIN.CREATE_TEAM_BTN' | translate" icon="pi pi-plus" severity="success" size="small" (onClick)="openCreateTeamModal()"></p-button>
+        <button type="button" pButton severity="success" size="small" (click)="openCreateTeamModal()">
+          <i class="pi pi-plus"></i>
+          <span>{{ 'ADMIN.CREATE_TEAM_BTN' | translate }}</span>
+        </button>
       </div>
 
       <div class="glass-panel p-3">
@@ -153,30 +178,39 @@
                 <p-tag [value]="(t.active ? 'STATUS.ACTIVE' : 'STATUS.INACTIVE') | translate" [severity]="t.active ? 'success' : 'danger'"></p-tag>
               </td>
               <td class="text-right flex justify-end gap-2">
-                <p-button
-                  icon="pi pi-pencil"
+                <button
+                  type="button"
+                  pButton
+                  iconOnly
                   severity="warn"
                   size="small"
                   [outlined]="true"
                   [pTooltip]="'ADMIN.TOOLTIP_EDIT_TEAM' | translate"
-                  (onClick)="openEditTeamModal(t)">
-                </p-button>
-                <p-button
-                  [icon]="t.active ? 'pi pi-ban' : 'pi pi-check'"
+                  (click)="openEditTeamModal(t)">
+                  <i class="pi pi-pencil"></i>
+                </button>
+                <button
+                  type="button"
+                  pButton
+                  iconOnly
                   [severity]="t.active ? 'secondary' : 'success'"
                   size="small"
                   [outlined]="true"
                   [pTooltip]="(t.active ? 'ADMIN.TOOLTIP_DEACTIVATE_TEAM' : 'ADMIN.TOOLTIP_ACTIVATE_TEAM') | translate"
-                  (onClick)="toggleTeamActive(t)">
-                </p-button>
-                <p-button
-                  icon="pi pi-envelope"
+                  (click)="toggleTeamActive(t)">
+                  <i [class]="t.active ? 'pi pi-ban' : 'pi pi-check'"></i>
+                </button>
+                <button
+                  type="button"
+                  pButton
+                  iconOnly
                   severity="secondary"
                   size="small"
                   [outlined]="true"
                   [pTooltip]="'ADMIN.TOOLTIP_RESEND_ACCESS' | translate"
-                  (onClick)="resendWelcome(t)">
-                </p-button>
+                  (click)="resendWelcome(t)">
+                  <i class="pi pi-envelope"></i>
+                </button>
               </td>
             </tr>
           </ng-template>
@@ -202,13 +236,15 @@
           </p-select>
         </div>
 
-        <p-button
-          [label]="'ADMIN.GENERATE_ROUND_ROBIN_BTN' | translate"
-          icon="pi pi-refresh"
+        <button
+          type="button"
+          pButton
           severity="success"
           size="small"
-          (onClick)="generateRoundRobin()">
-        </p-button>
+          (click)="generateRoundRobin()">
+          <i class="pi pi-refresh"></i>
+          <span>{{ 'ADMIN.GENERATE_ROUND_ROBIN_BTN' | translate }}</span>
+        </button>
       </div>
 
       <div class="glass-panel p-3">
@@ -243,13 +279,15 @@
                 } @else { - }
               </td>
               <td class="text-right">
-                <p-button
-                  [label]="'ADMIN.MODIFY_RESOLVE_BTN' | translate"
-                  icon="pi pi-pencil"
+                <button
+                  type="button"
+                  pButton
                   severity="warn"
                   size="small"
-                  (onClick)="openAdminOverrideModal(m)">
-                </p-button>
+                  (click)="openAdminOverrideModal(m)">
+                  <i class="pi pi-pencil"></i>
+                  <span>{{ 'ADMIN.MODIFY_RESOLVE_BTN' | translate }}</span>
+                </button>
               </td>
             </tr>
           </ng-template>
@@ -293,13 +331,15 @@
 
               @if (inc.status === 'OPEN') {
                 <div class="inc-foot">
-                  <p-button
-                    [label]="'ADMIN.RESOLVE_INCIDENT_BTN' | translate"
-                    icon="pi pi-check"
+                  <button
+                    type="button"
+                    pButton
                     severity="success"
                     size="small"
-                    (onClick)="openResolveIncidentModal(inc)">
-                  </p-button>
+                    (click)="openResolveIncidentModal(inc)">
+                    <i class="pi pi-check"></i>
+                    <span>{{ 'ADMIN.RESOLVE_INCIDENT_BTN' | translate }}</span>
+                  </button>
                 </div>
               }
             </div>
@@ -316,13 +356,24 @@
         <div>
           <h2>{{ 'ADMIN.AUX_HEADING' | translate }}</h2>
           <div class="aux-switcher">
-            <p-button [label]="'ADMIN.AUX_LEVELS' | translate" [outlined]="auxType() !== 'levels'" size="small" severity="secondary" (onClick)="setAuxType('levels')"></p-button>
-            <p-button [label]="'ADMIN.AUX_CATEGORIES' | translate" [outlined]="auxType() !== 'categories'" size="small" severity="secondary" (onClick)="setAuxType('categories')"></p-button>
-            <p-button [label]="'ADMIN.AUX_LOCATIONS' | translate" [outlined]="auxType() !== 'locations'" size="small" severity="secondary" (onClick)="setAuxType('locations')"></p-button>
-            <p-button [label]="'ADMIN.AUX_SPONSORS' | translate" [outlined]="auxType() !== 'sponsors'" size="small" severity="secondary" (onClick)="setAuxType('sponsors')"></p-button>
+            <button type="button" pButton [outlined]="auxType() !== 'levels'" size="small" severity="secondary" (click)="setAuxType('levels')">
+              <span>{{ 'ADMIN.AUX_LEVELS' | translate }}</span>
+            </button>
+            <button type="button" pButton [outlined]="auxType() !== 'categories'" size="small" severity="secondary" (click)="setAuxType('categories')">
+              <span>{{ 'ADMIN.AUX_CATEGORIES' | translate }}</span>
+            </button>
+            <button type="button" pButton [outlined]="auxType() !== 'locations'" size="small" severity="secondary" (click)="setAuxType('locations')">
+              <span>{{ 'ADMIN.AUX_LOCATIONS' | translate }}</span>
+            </button>
+            <button type="button" pButton [outlined]="auxType() !== 'sponsors'" size="small" severity="secondary" (click)="setAuxType('sponsors')">
+              <span>{{ 'ADMIN.AUX_SPONSORS' | translate }}</span>
+            </button>
           </div>
         </div>
-        <p-button [label]="('ADMIN.ADD_AUX_PREFIX' | translate) + auxType()" icon="pi pi-plus" severity="success" size="small" (onClick)="openCreateAuxModal()"></p-button>
+        <button type="button" pButton severity="success" size="small" (click)="openCreateAuxModal()">
+          <i class="pi pi-plus"></i>
+          <span>{{ ('ADMIN.ADD_AUX_PREFIX' | translate) + auxType() }}</span>
+        </button>
       </div>
 
       <div class="glass-panel p-3">
@@ -339,7 +390,9 @@
               <td><strong>{{ item.name }}</strong></td>
               <td>{{ item.description || '-' }}</td>
               <td class="text-right">
-                <p-button icon="pi pi-trash" severity="danger" size="small" [outlined]="true" (onClick)="deleteAuxItem(item.id)"></p-button>
+                <button type="button" pButton iconOnly severity="danger" size="small" [outlined]="true" (click)="deleteAuxItem(item.id)">
+                  <i class="pi pi-trash"></i>
+                </button>
               </td>
             </tr>
           </ng-template>
@@ -446,8 +499,13 @@
         </div>
       </div>
       <div class="modal-actions">
-        <p-button [label]="'COMMON.CANCEL' | translate" severity="secondary" (onClick)="showCreateRankingModal = false"></p-button>
-        <p-button [label]="'ADMIN.CREATE_RANKING_SUBMIT' | translate" icon="pi pi-check" severity="success" type="submit"></p-button>
+        <button type="button" pButton severity="secondary" (click)="showCreateRankingModal = false">
+          <span>{{ 'COMMON.CANCEL' | translate }}</span>
+        </button>
+        <button type="submit" pButton severity="success">
+          <i class="pi pi-check"></i>
+          <span>{{ 'ADMIN.CREATE_RANKING_SUBMIT' | translate }}</span>
+        </button>
       </div>
     </form>
   </p-dialog>
@@ -518,8 +576,13 @@
         </div>
       </div>
       <div class="modal-actions">
-        <p-button [label]="'COMMON.CANCEL' | translate" severity="secondary" (onClick)="showEditRankingModal = false"></p-button>
-        <p-button [label]="'ADMIN.SAVE_CHANGES' | translate" icon="pi pi-save" severity="success" type="submit"></p-button>
+        <button type="button" pButton severity="secondary" (click)="showEditRankingModal = false">
+          <span>{{ 'COMMON.CANCEL' | translate }}</span>
+        </button>
+        <button type="submit" pButton severity="success">
+          <i class="pi pi-save"></i>
+          <span>{{ 'ADMIN.SAVE_CHANGES' | translate }}</span>
+        </button>
       </div>
     </form>
   </p-dialog>
@@ -576,8 +639,13 @@
       </div>
 
       <div class="modal-actions">
-        <p-button [label]="'COMMON.CANCEL' | translate" severity="secondary" (onClick)="showCreateTeamModal = false"></p-button>
-        <p-button [label]="'ADMIN.CREATE_TEAM_SUBMIT' | translate" icon="pi pi-check" severity="success" type="submit"></p-button>
+        <button type="button" pButton severity="secondary" (click)="showCreateTeamModal = false">
+          <span>{{ 'COMMON.CANCEL' | translate }}</span>
+        </button>
+        <button type="submit" pButton severity="success">
+          <i class="pi pi-check"></i>
+          <span>{{ 'ADMIN.CREATE_TEAM_SUBMIT' | translate }}</span>
+        </button>
       </div>
     </form>
   </p-dialog>
@@ -634,8 +702,13 @@
       </div>
 
       <div class="modal-actions">
-        <p-button [label]="'COMMON.CANCEL' | translate" severity="secondary" (onClick)="showEditTeamModal = false"></p-button>
-        <p-button [label]="'ADMIN.SAVE_CHANGES' | translate" icon="pi pi-save" severity="success" type="submit"></p-button>
+        <button type="button" pButton severity="secondary" (click)="showEditTeamModal = false">
+          <span>{{ 'COMMON.CANCEL' | translate }}</span>
+        </button>
+        <button type="submit" pButton severity="success">
+          <i class="pi pi-save"></i>
+          <span>{{ 'ADMIN.SAVE_CHANGES' | translate }}</span>
+        </button>
       </div>
     </form>
   </p-dialog>
@@ -679,8 +752,13 @@
         </div>
 
         <div class="modal-actions">
-          <p-button [label]="'COMMON.CANCEL' | translate" severity="secondary" (onClick)="showOverrideModal = false"></p-button>
-          <p-button [label]="'ADMIN.APPLY_RECALCULATE_BTN' | translate" icon="pi pi-check" severity="warn" type="submit"></p-button>
+          <button type="button" pButton severity="secondary" (click)="showOverrideModal = false">
+            <span>{{ 'COMMON.CANCEL' | translate }}</span>
+          </button>
+          <button type="submit" pButton severity="warn">
+            <i class="pi pi-check"></i>
+            <span>{{ 'ADMIN.APPLY_RECALCULATE_BTN' | translate }}</span>
+          </button>
         </div>
       </form>
     }
@@ -706,8 +784,13 @@
         <textarea rows="3" class="form-control" [(ngModel)]="incResolution" name="iRes" required [placeholder]="'ADMIN.RESOLUTION_PLACEHOLDER' | translate"></textarea>
       </div>
       <div class="modal-actions">
-        <p-button [label]="'COMMON.CANCEL' | translate" severity="secondary" (onClick)="showResolveIncidentModal = false"></p-button>
-        <p-button [label]="'ADMIN.CLOSE_INCIDENT_BTN' | translate" icon="pi pi-check" severity="success" type="submit"></p-button>
+        <button type="button" pButton severity="secondary" (click)="showResolveIncidentModal = false">
+          <span>{{ 'COMMON.CANCEL' | translate }}</span>
+        </button>
+        <button type="submit" pButton severity="success">
+          <i class="pi pi-check"></i>
+          <span>{{ 'ADMIN.CLOSE_INCIDENT_BTN' | translate }}</span>
+        </button>
       </div>
     </form>
   </p-dialog>
@@ -724,8 +807,13 @@
         <input class="form-control" [(ngModel)]="newAuxDesc" name="aDesc" [placeholder]="'ADMIN.AUX_DESC_LABEL' | translate" />
       </div>
       <div class="modal-actions">
-        <p-button [label]="'COMMON.CANCEL' | translate" severity="secondary" (onClick)="showCreateAuxModal = false"></p-button>
-        <p-button [label]="'COMMON.SAVE' | translate" icon="pi pi-check" severity="success" type="submit"></p-button>
+        <button type="button" pButton severity="secondary" (click)="showCreateAuxModal = false">
+          <span>{{ 'COMMON.CANCEL' | translate }}</span>
+        </button>
+        <button type="submit" pButton severity="success">
+          <i class="pi pi-check"></i>
+          <span>{{ 'COMMON.SAVE' | translate }}</span>
+        </button>
       </div>
     </form>
   </p-dialog>

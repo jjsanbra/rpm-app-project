@@ -9,7 +9,7 @@ import { AuthService } from '@core';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
-import { ButtonModule } from 'primeng/button';
+import { ButtonDirective } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 
 @Component({
@@ -22,7 +22,7 @@ import { MessageModule } from 'primeng/message';
     CardModule,
     InputTextModule,
     PasswordModule,
-    ButtonModule,
+    ButtonDirective,
     MessageModule,
     TranslatePipe
   ],

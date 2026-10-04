@@ -5,13 +5,13 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../../core/services/auth.service';
 
 // PrimeNG
-import { ButtonModule } from 'primeng/button';
+import { ButtonDirective } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule, ButtonModule, TagModule, TranslatePipe],
+  imports: [CommonModule, RouterModule, ButtonDirective, TagModule, TranslatePipe],
   template: `
     <nav class="navbar glass-panel">
       <div class="nav-container">
@@ -63,22 +63,26 @@ import { TagModule } from 'primeng/tag';
                 [severity]="authService.isAdmin() ? 'warn' : 'success'">
               </p-tag>
             </div>
-            <p-button
-              [label]="'NAV.LOGOUT' | translate"
-              icon="pi pi-sign-out"
+            <button
+              type="button"
+              pButton
               severity="secondary"
               [outlined]="true"
               size="small"
-              (onClick)="authService.logout()">
-            </p-button>
+              (click)="authService.logout()">
+              <i class="pi pi-sign-out"></i>
+              <span>{{ 'NAV.LOGOUT' | translate }}</span>
+            </button>
           } @else {
-            <p-button
-              [label]="'NAV.LOGIN' | translate"
-              icon="pi pi-user"
+            <button
+              type="button"
+              pButton
               severity="success"
               size="small"
               routerLink="/auth/login">
-            </p-button>
+              <i class="pi pi-user"></i>
+              <span>{{ 'NAV.LOGIN' | translate }}</span>
+            </button>
           }
         </div>
       </div>
