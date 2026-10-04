@@ -1,0 +1,31 @@
+<header class="portal-header glass-panel-glow">
+  <div class="header-main">
+    <div class="team-badge-large">🎾</div>
+    <div>
+      <span class="portal-subtitle">{{ 'TEAM_PORTAL.SUBTITLE' | translate }}</span>
+      <h1 class="portal-title">{{ team()?.name || fallbackTeamName() || ('TEAM_PORTAL.DEFAULT_TEAM_NAME' | translate) }}</h1>
+      <div class="team-players">
+        <span class="player-tag"><i class="pi pi-user"></i> {{ team()?.player1Name }} {{ team()?.player1Surname }}</span>
+        <span class="player-tag"><i class="pi pi-user"></i> {{ team()?.player2Name }} {{ team()?.player2Surname }}</span>
+        @if (team()?.reserveName) {
+          <span class="player-tag reserve"><i class="pi pi-user-plus"></i> {{ 'TEAM_PORTAL.RESERVE_LABEL' | translate }} {{ team()?.reserveName }} {{ team()?.reserveSurname }}</span>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="header-stats">
+    <div class="stat-box">
+      <span class="stat-val">{{ matchesCount() }}</span>
+      <span class="stat-lbl">{{ 'TEAM_PORTAL.STAT_MATCHES' | translate }}</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-val text-green">{{ confirmedCount() }}</span>
+      <span class="stat-lbl">{{ 'TEAM_PORTAL.STAT_PLAYED' | translate }}</span>
+    </div>
+    <div class="stat-box">
+      <span class="stat-val text-orange">{{ pendingCount() }}</span>
+      <span class="stat-lbl">{{ 'TEAM_PORTAL.STAT_PENDING' | translate }}</span>
+    </div>
+  </div>
+</header>

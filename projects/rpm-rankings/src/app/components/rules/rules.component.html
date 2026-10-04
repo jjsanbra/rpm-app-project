@@ -1,0 +1,56 @@
+<section id="reglamento" class="section container">
+  <div class="section-header">
+    <div>
+      <span class="section-tag">{{ 'RULES.SECTION_TAG' | translate }}</span>
+      <h2 class="section-title">{{ 'RULES.TITLE' | translate }}</h2>
+    </div>
+  </div>
+
+  <div class="scoring-rules-grid">
+    <p-card styleClass="rule-card-p">
+      <p-tag [value]="'RULES.TAG_DIRECT_WIN' | translate" severity="success"></p-tag>
+      <h3 class="rule-heading mt-2">{{ 'RULES.HEADING_2_0' | translate }}</h3>
+      <div class="points-comparison">
+        <div class="winner-points">
+          <span class="pts">5</span>
+          <span class="lbl">{{ 'RULES.PTS_WINNER' | translate }}</span>
+        </div>
+        <div class="loser-points">
+          <span class="pts">1</span>
+          <span class="lbl">{{ 'RULES.PTS_LOSER' | translate }}</span>
+        </div>
+      </div>
+      <p class="rule-text mt-3">
+        {{ 'RULES.TEXT_2_0' | translate }}
+      </p>
+    </p-card>
+
+    <p-card styleClass="rule-card-p">
+      <p-tag [value]="'RULES.TAG_TIGHT_WIN' | translate" severity="info"></p-tag>
+      <h3 class="rule-heading mt-2">{{ 'RULES.HEADING_2_1' | translate }}</h3>
+      <div class="points-comparison">
+        <div class="winner-points blue">
+          <span class="pts">4</span>
+          <span class="lbl">{{ 'RULES.PTS_WINNER' | translate }}</span>
+        </div>
+        <div class="loser-points blue">
+          <span class="pts">2</span>
+          <span class="lbl">{{ 'RULES.PTS_LOSER' | translate }}</span>
+        </div>
+      </div>
+      <p class="rule-text mt-3">
+        {{ 'RULES.TEXT_2_1' | translate }}
+      </p>
+    </p-card>
+
+    <p-card styleClass="rule-card-p">
+      <p-tag [value]="'RULES.TAG_VALIDATION' | translate" severity="warn"></p-tag>
+      <h3 class="rule-heading mt-2">{{ 'RULES.HEADING_FLOW' | translate }}</h3>
+      <ul class="rule-list mt-3">
+        <li><i class="pi pi-check text-green"></i> <strong>{{ 'RULES.RULE_REAL_DATE_TITLE' | translate }}</strong> {{ 'RULES.RULE_REAL_DATE_DESC' | translate }}</li>
+        <li><i class="pi pi-check text-green"></i> <strong>{{ 'RULES.RULE_CONFIRM_TITLE' | translate }}</strong> {{ 'RULES.RULE_CONFIRM_DESC' | translate }}</li>
+        <li><i class="pi pi-check text-green"></i> <strong>{{ 'RULES.RULE_TIEBREAK_TITLE' | translate }}</strong> {{ 'RULES.RULE_TIEBREAK_DESC' | translate }}</li>
+      </ul>
+    </p-card>
+  </div>
+</section>

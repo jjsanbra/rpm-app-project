@@ -1,0 +1,89 @@
+<p-dialog
+  [visible]="visible()"
+  (visibleChange)="visibleChange.emit($event)"
+  [modal]="true"
+  [header]="'TEAM_PORTAL.MODAL_SUBMIT_TITLE' | translate"
+  [style]="{ width: '90vw', maxWidth: '520px' }"
+  styleClass="custom-p-dialog">
+  
+  @if (match(); as m) {
+    <div class="match-summary-pill">
+      <strong>{{ m.teamOneName }}</strong> vs <strong>{{ m.teamTwoName }}</strong>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" class="modal-form">
+      <div class="form-group">
+        <label class="form-label" for="matchDate">{{ 'TEAM_PORTAL.MATCH_DATE_LABEL' | translate }}</label>
+        <input
+          id="matchDate"
+          type="date"
+          class="form-control"
+          [(ngModel)]="formMatchDate"
+          name="matchDate"
+          required
+        />
+      </div>
+
+      <div class="sets-selector-group">
+        <label class="form-label">{{ 'TEAM_PORTAL.SETS_RESULT_LABEL' | translate }}</label>
+        <div class="sets-options">
+          <button
+            type="button"
+            class="set-option-btn"
+            [class.selected]="formSetsOne === 2 && formSetsTwo === 0"
+            (click)="setScore(2, 0)">
+            <strong>2 - 0</strong>
+            <span>{{ m.teamOneName }} {{ 'TEAM_PORTAL.TEAM_WINS' | translate }} (5/1 {{ 'MATCHES.PTS_SUFFIX' | translate }})</span>
+          </button>
+          <button
+            type="button"
+            class="set-option-btn"
+            [class.selected]="formSetsOne === 2 && formSetsTwo === 1"
+            (click)="setScore(2, 1)">
+            <strong>2 - 1</strong>
+            <span>{{ m.teamOneName }} {{ 'TEAM_PORTAL.TEAM_WINS' | translate }} (4/2 {{ 'MATCHES.PTS_SUFFIX' | translate }})</span>
+          </button>
+          <button
+            type="button"
+            class="set-option-btn"
+            [class.selected]="formSetsOne === 1 && formSetsTwo === 2"
+            (click)="setScore(1, 2)">
+            <strong>1 - 2</strong>
+            <span>{{ m.teamTwoName }} {{ 'TEAM_PORTAL.TEAM_WINS' | translate }} (2/4 {{ 'MATCHES.PTS_SUFFIX' | translate }})</span>
+          </button>
+          <button
+            type="button"
+            class="set-option-btn"
+            [class.selected]="formSetsOne === 0 && formSetsTwo === 2"
+            (click)="setScore(0, 2)">
+            <strong>0 - 2</strong>
+            <span>{{ m.teamTwoName }} {{ 'TEAM_PORTAL.TEAM_WINS' | translate }} (1/5 {{ 'MATCHES.PTS_SUFFIX' | translate }})</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="points-preview">
+        <span class="preview-title">{{ 'TEAM_PORTAL.POINTS_PREVIEW_TITLE' | translate }}</span>
+        <div class="preview-cols">
+          <div>{{ m.teamOneName }}: <strong>{{ previewPointsOne() }} {{ 'MATCHES.PTS_SUFFIX' | translate }}</strong></div>
+          <div>{{ m.teamTwoName }}: <strong>{{ previewPointsTwo() }} {{ 'MATCHES.PTS_SUFFIX' | translate }}</strong></div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" pButton severity="secondary" (click)="onClose()">
+          <span>{{ 'COMMON.CANCEL' | translate }}</span>
+        </button>
+        <button
+          pButton
+          severity="success"
+          type="submit"
+          [loading]="submitting()"
+          [disabled]="submitting() || formSetsOne === null">
+          <i class="pi pi-check"></i>
+          <span>{{ 'TEAM_PORTAL.SUBMIT_MATCH_BTN' | translate }}</span>
+        </button>
+      </div>
+    </form>
+  }
+</p-dialog>

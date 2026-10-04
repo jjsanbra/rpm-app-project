@@ -1,0 +1,130 @@
+<section class="tab-section">
+  <div class="section-actions">
+    <div class="ranking-picker">
+      <label class="form-label">{{ 'ADMIN.SELECT_RANKING_LABEL' | translate }}</label>
+      <select class="form-control ranking-select" [ngModel]="selectedRankingId()" (ngModelChange)="rankingChange.emit($event)">
+        @for (r of rankings(); track r.id) {
+          <option [value]="r.id">{{ r.name }}</option>
+        }
+      </select>
+    </div>
+
+    <button type="button" pButton severity="success" size="small" (click)="generateMatches.emit()">
+      <i class="pi pi-bolt"></i>
+      <span>{{ 'ADMIN.GENERATE_MATCHES_BTN' | translate }}</span>
+    </button>
+  </div>
+
+  <div class="table-container glass-panel">
+    <p-table [value]="matches()" [tableStyle]="{ 'min-width': '50rem' }" responsiveLayout="scroll">
+      <ng-template #header>
+        <tr>
+          <th>{{ 'ADMIN.TH_DATE' | translate }}</th>
+          <th>{{ 'ADMIN.TH_STATUS' | translate }}</th>
+          <th>{{ 'ADMIN.TH_MATCH' | translate }}</th>
+          <th>{{ 'ADMIN.TH_SETS' | translate }}</th>
+          <th>{{ 'ADMIN.TH_POINTS' | translate }}</th>
+          <th>{{ 'ADMIN.TH_ACTIONS' | translate }}</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-m>
+        <tr>
+          <td>{{ m.matchDate ? (m.matchDate | date) : ('ADMIN.NOT_SCHEDULED' | translate) }}</td>
+          <td>
+            <p-tag [value]="formatStatus(m.status) | translate" [severity]="getTagSeverity(m.status)"></p-tag>
+          </td>
+          <td>
+            <strong>{{ m.teamOneName }}</strong> vs <strong>{{ m.teamTwoName }}</strong>
+          </td>
+          <td>
+            @if (m.setsTeamOne !== null && m.setsTeamOne !== undefined) {
+              <span>{{ m.setsTeamOne }} - {{ m.setsTeamTwo }}</span>
+            } @else {
+              <span class="text-dim">-</span>
+            }
+          </td>
+          <td>
+            @if (m.pointsTeamOne !== null && m.pointsTeamOne !== undefined) {
+              <span>{{ m.pointsTeamOne }} pts / {{ m.pointsTeamTwo }} pts</span>
+            } @else {
+              <span class="text-dim">-</span>
+            }
+          </td>
+          <td>
+            <button
+              type="button"
+              pButton
+              severity="warn"
+              size="small"
+              [outlined]="true"
+              (click)="openOverrideModal(m)"
+              [pTooltip]="'ADMIN.OVERRIDE_MATCH_TOOLTIP' | translate">
+              <i class="pi pi-pencil"></i>
+              <span>{{ 'ADMIN.ACTA_BTN' | translate }}</span>
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</section>
+
+<!-- MODAL MODIFICAR ACTA / OVERRIDE MATCH -->
+<p-dialog
+  [(visible)]="showOverrideModal"
+  [modal]="true"
+  [header]="'ADMIN.MODAL_OVERRIDE_TITLE' | translate"
+  [style]="{ width: '90vw', maxWidth: '500px' }"
+  styleClass="custom-p-dialog">
+  
+  @if (activeOverrideMatch; as m) {
+    <div class="match-info-pill">
+      <strong>{{ m.teamOneName }}</strong> vs <strong>{{ m.teamTwoName }}</strong>
+    </div>
+
+    <form (ngSubmit)="submitOverride()" class="modal-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">{{ m.teamOneName }} (Sets)</label>
+          <input type="number" class="form-control" [(ngModel)]="overrideSetsOne" name="s1" min="0" max="3" required />
+        </div>
+        <div class="form-group">
+          <label class="form-label">{{ m.teamTwoName }} (Sets)</label>
+          <input type="number" class="form-control" [(ngModel)]="overrideSetsTwo" name="s2" min="0" max="3" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.STATUS_LABEL' | translate }}</label>
+        <select class="form-control" [(ngModel)]="overrideStatus" name="st">
+          <option value="CONFIRMED">{{ 'STATUS.CONFIRMED' | translate }}</option>
+          <option value="PENDING_CONFIRMATION">{{ 'STATUS.PENDING_CONFIRMATION' | translate }}</option>
+          <option value="PENDING_RESULT">{{ 'STATUS.PENDING_RESULT' | translate }}</option>
+          <option value="DISPUTED">{{ 'STATUS.DISPUTED' | translate }}</option>
+          <option value="CANCELLED">{{ 'STATUS.CANCELLED' | translate }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.OVERRIDE_REASON_LABEL' | translate }}</label>
+        <textarea
+          class="form-control"
+          [(ngModel)]="overrideReason"
+          name="reason"
+          rows="2"
+          [placeholder]="'ADMIN.OVERRIDE_REASON_PLACEHOLDER' | translate"
+          required></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" pButton severity="secondary" (click)="showOverrideModal = false">
+          <span>{{ 'COMMON.CANCEL' | translate }}</span>
+        </button>
+        <button type="submit" pButton severity="warn">
+          <i class="pi pi-check"></i>
+          <span>{{ 'ADMIN.APPLY_CHANGES_BTN' | translate }}</span>
+        </button>
+      </div>
+    </form>
+  }
+</p-dialog>
