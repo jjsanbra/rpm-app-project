@@ -1,289 +1,39 @@
 <div class="team-portal container">
-  <!-- ─── HEADER DE EQUIPO ─────────────────────────────────────────── -->
-  <header class="portal-header glass-panel-glow">
-    <div class="header-main">
-      <div class="team-badge-large">🎾</div>
-      <div>
-        <span class="portal-subtitle">{{ 'TEAM_PORTAL.SUBTITLE' | translate }}</span>
-        <h1 class="portal-title">{{ team()?.name || authService.currentUser()?.teamName || ('TEAM_PORTAL.DEFAULT_TEAM_NAME' | translate) }}</h1>
-        <div class="team-players">
-          <span class="player-tag"><i class="pi pi-user"></i> {{ team()?.player1Name }} {{ team()?.player1Surname }}</span>
-          <span class="player-tag"><i class="pi pi-user"></i> {{ team()?.player2Name }} {{ team()?.player2Surname }}</span>
-          @if (team()?.reserveName) {
-            <span class="player-tag reserve"><i class="pi pi-user-plus"></i> {{ 'TEAM_PORTAL.RESERVE_LABEL' | translate }} {{ team()?.reserveName }} {{ team()?.reserveSurname }}</span>
-          }
-        </div>
-      </div>
-    </div>
+  <!-- Header de Equipo -->
+  <rpm-team-header
+    [team]="team()"
+    [fallbackTeamName]="authService.currentUser()?.teamName || ''"
+    [matchesCount]="matches().length"
+    [confirmedCount]="countConfirmed()"
+    [pendingCount]="countPending()">
+  </rpm-team-header>
 
-    <div class="header-stats">
-      <div class="stat-box">
-        <span class="stat-val">{{ matches().length }}</span>
-        <span class="stat-lbl">{{ 'TEAM_PORTAL.STAT_MATCHES' | translate }}</span>
-      </div>
-      <div class="stat-box">
-        <span class="stat-val text-green">{{ countConfirmed() }}</span>
-        <span class="stat-lbl">{{ 'TEAM_PORTAL.STAT_PLAYED' | translate }}</span>
-      </div>
-      <div class="stat-box">
-        <span class="stat-val text-orange">{{ countPending() }}</span>
-        <span class="stat-lbl">{{ 'TEAM_PORTAL.STAT_PENDING' | translate }}</span>
-      </div>
-    </div>
-  </header>
+  <!-- Listado de Partidos -->
+  <rpm-team-matches
+    [matches]="matches()"
+    [loading]="loading()"
+    [currentTeamId]="authService.currentUser()?.teamId"
+    [currentUserId]="authService.currentUser()?.id"
+    (submitResult)="openSubmitModal($event)"
+    (confirmResult)="confirmMatch($event)"
+    (openDispute)="openDisputeModal($event)">
+  </rpm-team-matches>
 
-  <!-- ─── LISTADO DE PARTIDOS DEL EQUIPO ───────────────────────────── -->
-  <section class="matches-section">
-    <div class="section-top">
-      <div>
-        <span class="section-tag">{{ 'TEAM_PORTAL.SECTION_TAG' | translate }}</span>
-        <h2 class="section-title">{{ 'TEAM_PORTAL.SECTION_TITLE' | translate }}</h2>
-      </div>
-      <span class="help-text">
-        <i class="pi pi-info-circle"></i> {{ 'TEAM_PORTAL.HELP_TEXT' | translate }}
-      </span>
-    </div>
+  <!-- Modal Registrar Resultado -->
+  <rpm-submit-result-modal
+    [visible]="showSubmitModal()"
+    [match]="activeSubmitMatch()"
+    [submitting]="submitting()"
+    (visibleChange)="showSubmitModal.set($event)"
+    (submitResult)="handleSubmitResult($event)">
+  </rpm-submit-result-modal>
 
-    @if (loading()) {
-      <div class="loading-box glass-panel">
-        <i class="pi pi-spin pi-spinner"></i> {{ 'TEAM_PORTAL.LOADING' | translate }}
-      </div>
-    } @else if (matches().length === 0) {
-      <div class="empty-box glass-panel">
-        <i class="pi pi-calendar-times"></i> {{ 'TEAM_PORTAL.EMPTY' | translate }}
-      </div>
-    } @else {
-      <div class="team-matches-grid">
-        @for (m of matches(); track m.id) {
-          <div class="portal-match-card glass-panel" [class.confirmed]="m.status === 'CONFIRMED'" [class.disputed]="m.status === 'DISPUTED'" [class.pending-conf]="m.status === 'PENDING_CONFIRMATION'">
-            <div class="card-top">
-              <p-tag [value]="formatStatus(m.status) | translate" [severity]="getTagSeverity(m.status)"></p-tag>
-              @if (m.matchDate) {
-                <span class="m-date"><i class="pi pi-calendar"></i> {{ m.matchDate | date }}</span>
-              }
-            </div>
-
-            <!-- Enfrentamiento -->
-            <div class="versus-layout">
-              <div class="team-side" [class.my-team]="isMyTeam(m.teamOneId)">
-                <span class="name">{{ m.teamOneName }} @if (isMyTeam(m.teamOneId)) { <strong class="you-tag">{{ 'TEAM_PORTAL.YOU' | translate }}</strong> }</span>
-                <span class="sub">{{ m.t1p1Name }} / {{ m.t1p2Name }}</span>
-                @if (m.setsTeamOne !== null && m.setsTeamOne !== undefined) {
-                  <div class="score-pill">
-                    <span class="sets">{{ m.setsTeamOne }} {{ 'TEAM_PORTAL.SETS_LABEL' | translate }}</span>
-                    <p-badge [value]="m.pointsTeamOne + ' ' + ('MATCHES.PTS_SUFFIX' | translate)" severity="secondary"></p-badge>
-                  </div>
-                }
-              </div>
-
-              <div class="vs-circle">{{ 'MATCHES.VS' | translate }}</div>
-
-              <div class="team-side" [class.my-team]="isMyTeam(m.teamTwoId)">
-                <span class="name">{{ m.teamTwoName }} @if (isMyTeam(m.teamTwoId)) { <strong class="you-tag">{{ 'TEAM_PORTAL.YOU' | translate }}</strong> }</span>
-                <span class="sub">{{ m.t2p1Name }} / {{ m.t2p2Name }}</span>
-                @if (m.setsTeamTwo !== null && m.setsTeamTwo !== undefined) {
-                  <div class="score-pill">
-                    <span class="sets">{{ m.setsTeamTwo }} {{ 'TEAM_PORTAL.SETS_LABEL' | translate }}</span>
-                    <p-badge [value]="m.pointsTeamTwo + ' ' + ('MATCHES.PTS_SUFFIX' | translate)" severity="secondary"></p-badge>
-                  </div>
-                }
-              </div>
-            </div>
-
-            <!-- Acciones PrimeNG Buttons -->
-            <div class="card-actions">
-              @if (m.status === 'PENDING_RESULT') {
-                <button
-                  type="button"
-                  pButton
-                  severity="success"
-                  size="small"
-                  styleClass="w-full"
-                  (click)="openSubmitModal(m)">
-                  <i class="pi pi-pencil"></i>
-                  <span>{{ 'TEAM_PORTAL.SUBMIT_RESULT_BTN' | translate }}</span>
-                </button>
-              }
-
-              @if (m.status === 'PENDING_CONFIRMATION') {
-                @if (canIConfirm(m)) {
-                  <div class="confirm-actions">
-                    <button
-                      type="button"
-                      pButton
-                      severity="success"
-                      size="small"
-                      styleClass="flex-1"
-                      (click)="confirmMatch(m)">
-                      <i class="pi pi-check"></i>
-                      <span>{{ 'TEAM_PORTAL.CONFIRM_RESULT_BTN' | translate }}</span>
-                    </button>
-                    <button
-                      type="button"
-                      pButton
-                      severity="danger"
-                      size="small"
-                      (click)="openDisputeModal(m)">
-                      <i class="pi pi-flag"></i>
-                      <span>{{ 'TEAM_PORTAL.INCIDENT_BTN' | translate }}</span>
-                    </button>
-                  </div>
-                  <p class="small-hint">{{ 'TEAM_PORTAL.CONFIRM_HINT' | translate }}</p>
-                } @else {
-                  <div class="waiting-box">
-                    <i class="pi pi-clock"></i> {{ 'TEAM_PORTAL.WAITING_RIVAL_BOX' | translate }}
-                  </div>
-                }
-              }
-
-              @if (m.status === 'CONFIRMED') {
-                <div class="confirmed-box">
-                  <i class="pi pi-check-circle text-green"></i> {{ 'TEAM_PORTAL.CONFIRMED_BOX' | translate }}
-                </div>
-              }
-
-              @if (m.status === 'DISPUTED') {
-                <div class="disputed-box">
-                  <i class="pi pi-exclamation-triangle text-red"></i> {{ 'TEAM_PORTAL.DISPUTED_BOX' | translate }}
-                </div>
-              }
-            </div>
-          </div>
-        }
-      </div>
-    }
-  </section>
-
-  <!-- ─── MODAL PRIMENG: REGISTRAR RESULTADO ────────────────────────── -->
-  <p-dialog
-    [(visible)]="showSubmitModal"
-    [modal]="true"
-    [header]="'TEAM_PORTAL.MODAL_SUBMIT_TITLE' | translate"
-    [style]="{ width: '90vw', maxWidth: '520px' }"
-    styleClass="custom-p-dialog">
-    
-    @if (activeSubmitMatch(); as m) {
-      <div class="match-summary-pill">
-        <strong>{{ m.teamOneName }}</strong> vs <strong>{{ m.teamTwoName }}</strong>
-      </div>
-
-      <form (ngSubmit)="submitResult()" class="modal-form">
-        <div class="form-group">
-          <label class="form-label" for="matchDate">{{ 'TEAM_PORTAL.MATCH_DATE_LABEL' | translate }}</label>
-          <input
-            id="matchDate"
-            type="date"
-            class="form-control"
-            [(ngModel)]="formMatchDate"
-            name="matchDate"
-            required
-          />
-        </div>
-
-        <div class="sets-selector-group">
-          <label class="form-label">{{ 'TEAM_PORTAL.SETS_RESULT_LABEL' | translate }}</label>
-          <div class="sets-options">
-            <button
-              type="button"
-              class="set-option-btn"
-              [class.selected]="formSetsOne === 2 && formSetsTwo === 0"
-              (click)="setScore(2, 0)">
-              <strong>2 - 0</strong>
-              <span>{{ m.teamOneName }} {{ 'TEAM_PORTAL.TEAM_WINS' | translate }} (5/1 {{ 'MATCHES.PTS_SUFFIX' | translate }})</span>
-            </button>
-            <button
-              type="button"
-              class="set-option-btn"
-              [class.selected]="formSetsOne === 2 && formSetsTwo === 1"
-              (click)="setScore(2, 1)">
-              <strong>2 - 1</strong>
-              <span>{{ m.teamOneName }} {{ 'TEAM_PORTAL.TEAM_WINS' | translate }} (4/2 {{ 'MATCHES.PTS_SUFFIX' | translate }})</span>
-            </button>
-            <button
-              type="button"
-              class="set-option-btn"
-              [class.selected]="formSetsOne === 1 && formSetsTwo === 2"
-              (click)="setScore(1, 2)">
-              <strong>1 - 2</strong>
-              <span>{{ m.teamTwoName }} {{ 'TEAM_PORTAL.TEAM_WINS' | translate }} (2/4 {{ 'MATCHES.PTS_SUFFIX' | translate }})</span>
-            </button>
-            <button
-              type="button"
-              class="set-option-btn"
-              [class.selected]="formSetsOne === 0 && formSetsTwo === 2"
-              (click)="setScore(0, 2)">
-              <strong>0 - 2</strong>
-              <span>{{ m.teamTwoName }} {{ 'TEAM_PORTAL.TEAM_WINS' | translate }} (1/5 {{ 'MATCHES.PTS_SUFFIX' | translate }})</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="points-preview">
-          <span class="preview-title">{{ 'TEAM_PORTAL.POINTS_PREVIEW_TITLE' | translate }}</span>
-          <div class="preview-cols">
-            <div>{{ m.teamOneName }}: <strong>{{ previewPointsOne() }} {{ 'MATCHES.PTS_SUFFIX' | translate }}</strong></div>
-            <div>{{ m.teamTwoName }}: <strong>{{ previewPointsTwo() }} {{ 'MATCHES.PTS_SUFFIX' | translate }}</strong></div>
-          </div>
-        </div>
-
-        <div class="modal-actions">
-          <button type="button" pButton severity="secondary" (click)="closeSubmitModal()">
-            <span>{{ 'COMMON.CANCEL' | translate }}</span>
-          </button>
-          <button
-            pButton
-            severity="success"
-            type="submit"
-            [loading]="submitting()"
-            [disabled]="submitting() || formSetsOne === null">
-            <i class="pi pi-check"></i>
-            <span>{{ 'TEAM_PORTAL.SUBMIT_MATCH_BTN' | translate }}</span>
-          </button>
-        </div>
-      </form>
-    }
-  </p-dialog>
-
-  <!-- ─── MODAL PRIMENG: COMUNICAR INCIDENCIA ──────────────────────── -->
-  <p-dialog
-    [(visible)]="showDisputeModal"
-    [modal]="true"
-    [header]="'TEAM_PORTAL.MODAL_DISPUTE_TITLE' | translate"
-    [style]="{ width: '90vw', maxWidth: '500px' }"
-    styleClass="custom-p-dialog">
-
-    <p class="modal-sub">
-      {{ 'TEAM_PORTAL.DISPUTE_SUB' | translate }}
-    </p>
-
-    <form (ngSubmit)="submitDispute()" class="modal-form">
-      <div class="form-group">
-        <label class="form-label" for="incidentDesc">{{ 'TEAM_PORTAL.INCIDENT_DESC_LABEL' | translate }}</label>
-        <textarea
-          id="incidentDesc"
-          class="form-control"
-          rows="4"
-          [placeholder]="'TEAM_PORTAL.INCIDENT_DESC_PLACEHOLDER' | translate"
-          [(ngModel)]="disputeDescription"
-          name="incidentDesc"
-          required
-        ></textarea>
-      </div>
-
-      <div class="modal-actions">
-        <button type="button" pButton severity="secondary" (click)="closeDisputeModal()">
-          <span>{{ 'COMMON.CANCEL' | translate }}</span>
-        </button>
-        <button
-          pButton
-          severity="danger"
-          type="submit"
-          [loading]="submitting()"
-          [disabled]="submitting() || !disputeDescription.trim()">
-          <i class="pi pi-send"></i>
-          <span>{{ 'TEAM_PORTAL.NOTIFY_ADMIN_BTN' | translate }}</span>
-        </button>
-      </div>
-    </form>
-  </p-dialog>
+  <!-- Modal Comunicar Incidencia -->
+  <rpm-dispute-modal
+    [visible]="showDisputeModal()"
+    [match]="activeDisputeMatch()"
+    [submitting]="submitting()"
+    (visibleChange)="showDisputeModal.set($event)"
+    (submitDispute)="handleSubmitDispute($event)">
+  </rpm-dispute-modal>
 </div>

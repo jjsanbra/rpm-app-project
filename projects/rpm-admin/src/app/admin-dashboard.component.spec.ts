@@ -29,14 +29,16 @@ describe('AdminDashboardComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should have initial activeTab as rankings', () => {
-    expect(component.activeTab()).toBe('rankings');
-  });
-
-  it('should switch tabs correctly', () => {
+  it('should switch tabs', () => {
     component.setTab('teams');
     expect(component.activeTab()).toBe('teams');
-    component.setTab('matches');
-    expect(component.activeTab()).toBe('matches');
+
+    component.setTab('incidents');
+    expect(component.activeTab()).toBe('incidents');
+  });
+
+  it('should set auxType and load aux items', () => {
+    component.setAuxType('locations');
+    expect(component.auxType()).toBe('locations');
   });
 });

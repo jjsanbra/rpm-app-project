@@ -1,31 +1,22 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService, MatchService, TeamService, Match, Team } from '@core';
+import { MessageService } from 'primeng/api';
 
-// PrimeNG Components
-import { DialogModule } from 'primeng/dialog';
-import { ButtonDirective } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
-import { BadgeModule } from 'primeng/badge';
-import { CardModule } from 'primeng/card';
-import { InputTextModule } from 'primeng/inputtext';
-import { MessageService, ConfirmationService } from 'primeng/api';
+import { TeamHeaderComponent } from './components/team-header/team-header.component';
+import { TeamMatchesComponent } from './components/team-matches/team-matches.component';
+import { SubmitResultModalComponent, SubmitResultData } from './components/submit-result-modal/submit-result-modal.component';
+import { DisputeModalComponent, DisputeData } from './components/dispute-modal/dispute-modal.component';
 
 @Component({
   selector: 'app-team-portal',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
-    DialogModule,
-    ButtonDirective,
-    TagModule,
-    BadgeModule,
-    CardModule,
-    InputTextModule,
-    TranslatePipe
+    TeamHeaderComponent,
+    TeamMatchesComponent,
+    SubmitResultModalComponent,
+    DisputeModalComponent
   ],
   templateUrl: './team-portal.component.html',
   styleUrl: './team-portal.component.scss'
@@ -42,16 +33,12 @@ export class TeamPortalComponent implements OnInit {
   submitting = signal<boolean>(false);
 
   // Submit modal state
-  showSubmitModal = false;
+  showSubmitModal = signal<boolean>(false);
   activeSubmitMatch = signal<Match | null>(null);
-  formMatchDate = new Date().toISOString().split('T')[0];
-  formSetsOne: number | null = null;
-  formSetsTwo: number | null = null;
 
   // Dispute modal state
-  showDisputeModal = false;
+  showDisputeModal = signal<boolean>(false);
   activeDisputeMatch = signal<Match | null>(null);
-  disputeDescription = '';
 
   ngOnInit(): void {
     this.loadTeamData();
@@ -77,18 +64,6 @@ export class TeamPortalComponent implements OnInit {
     });
   }
 
-  isMyTeam(teamId: string): boolean {
-    return this.authService.currentUser()?.teamId === teamId;
-  }
-
-  canIConfirm(m: Match): boolean {
-    const user = this.authService.currentUser();
-    if (!user?.teamId) return false;
-    const isParticipant = m.teamOneId === user.teamId || m.teamTwoId === user.teamId;
-    const isSubmitter = m.resultSubmittedBy === user.id;
-    return isParticipant && !isSubmitter;
-  }
-
   countConfirmed(): number {
     return this.matches().filter(m => m.status === 'CONFIRMED').length;
   }
@@ -99,49 +74,20 @@ export class TeamPortalComponent implements OnInit {
 
   openSubmitModal(m: Match): void {
     this.activeSubmitMatch.set(m);
-    this.formMatchDate = new Date().toISOString().split('T')[0];
-    this.formSetsOne = null;
-    this.formSetsTwo = null;
-    this.showSubmitModal = true;
+    this.showSubmitModal.set(true);
   }
 
   closeSubmitModal(): void {
-    this.showSubmitModal = false;
+    this.showSubmitModal.set(false);
     this.activeSubmitMatch.set(null);
   }
 
-  setScore(s1: number, s2: number): void {
-    this.formSetsOne = s1;
-    this.formSetsTwo = s2;
-  }
-
-  previewPointsOne(): number {
-    if (this.formSetsOne === null || this.formSetsTwo === null) return 0;
-    if (this.formSetsOne === 2 && this.formSetsTwo === 0) return 5;
-    if (this.formSetsOne === 2 && this.formSetsTwo === 1) return 4;
-    if (this.formSetsOne === 1 && this.formSetsTwo === 2) return 2;
-    if (this.formSetsOne === 0 && this.formSetsTwo === 2) return 1;
-    return 0;
-  }
-
-  previewPointsTwo(): number {
-    if (this.formSetsOne === null || this.formSetsTwo === null) return 0;
-    if (this.formSetsTwo === 2 && this.formSetsOne === 0) return 5;
-    if (this.formSetsTwo === 2 && this.formSetsOne === 1) return 4;
-    if (this.formSetsTwo === 1 && this.formSetsOne === 2) return 2;
-    if (this.formSetsTwo === 0 && this.formSetsOne === 2) return 1;
-    return 0;
-  }
-
-  submitResult(): void {
-    const m = this.activeSubmitMatch();
-    if (!m || this.formSetsOne === null || this.formSetsTwo === null) return;
-
+  handleSubmitResult(data: SubmitResultData): void {
     this.submitting.set(true);
-    this.matchService.submitResult(m.id, {
-      matchDate: this.formMatchDate,
-      setsTeamOne: this.formSetsOne,
-      setsTeamTwo: this.formSetsTwo,
+    this.matchService.submitResult(data.matchId, {
+      matchDate: data.matchDate,
+      setsTeamOne: data.setsTeamOne,
+      setsTeamTwo: data.setsTeamTwo,
     }).subscribe({
       next: () => {
         this.submitting.set(false);
@@ -186,21 +132,17 @@ export class TeamPortalComponent implements OnInit {
 
   openDisputeModal(m: Match): void {
     this.activeDisputeMatch.set(m);
-    this.disputeDescription = '';
-    this.showDisputeModal = true;
+    this.showDisputeModal.set(true);
   }
 
   closeDisputeModal(): void {
-    this.showDisputeModal = false;
+    this.showDisputeModal.set(false);
     this.activeDisputeMatch.set(null);
   }
 
-  submitDispute(): void {
-    const m = this.activeDisputeMatch();
-    if (!m || !this.disputeDescription.trim()) return;
-
+  handleSubmitDispute(data: DisputeData): void {
     this.submitting.set(true);
-    this.matchService.disputeResult(m.id, this.disputeDescription).subscribe({
+    this.matchService.disputeResult(data.matchId, data.description).subscribe({
       next: () => {
         this.submitting.set(false);
         this.closeDisputeModal();
@@ -220,24 +162,5 @@ export class TeamPortalComponent implements OnInit {
         });
       }
     });
-  }
-
-  getTagSeverity(status: string): 'success' | 'warn' | 'danger' | 'info' | 'secondary' {
-    switch (status) {
-      case 'CONFIRMED': return 'success';
-      case 'PENDING_CONFIRMATION': return 'warn';
-      case 'DISPUTED': return 'danger';
-      default: return 'secondary';
-    }
-  }
-
-  formatStatus(status: string): string {
-    switch (status) {
-      case 'CONFIRMED': return 'STATUS.CONFIRMED';
-      case 'PENDING_CONFIRMATION': return 'STATUS.PENDING_CONFIRMATION';
-      case 'DISPUTED': return 'STATUS.DISPUTED';
-      case 'PENDING_RESULT': return 'STATUS.PENDING_RESULT';
-      default: return status;
-    }
   }
 }
