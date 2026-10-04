@@ -186,6 +186,15 @@ describe('Matches & Scoring Integration Tests', () => {
       expect(res.body.data.gameMode).toBe('ADVANTAGE');
     });
 
+    it('el equipo solicitante NO debe poder auto-aprobar su propia solicitud', async () => {
+      const res = await request(app)
+        .post(`/api/matches/${liveMatch.id}/live/accept`)
+        .set('Authorization', `Bearer ${teamOneToken}`);
+
+      expect(res.status).toBe(400);
+      expect(res.body.error.message).toContain('No puedes aceptar');
+    });
+
     it('el equipo rival debe poder aceptar el partido en vivo conservando el modo ADVANTAGE', async () => {
       const res = await request(app)
         .post(`/api/matches/${liveMatch.id}/live/accept`)

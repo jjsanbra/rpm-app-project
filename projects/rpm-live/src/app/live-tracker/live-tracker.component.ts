@@ -52,6 +52,38 @@ export class LiveTrackerComponent implements OnInit, OnDestroy {
 
   isSpectator = computed(() => !this.isParticipant());
 
+  isRequester = computed(() => {
+    const s = this.session();
+    const user = this.currentUser();
+    if (!s || !user) return false;
+    if (s.requestedBy && s.requestedBy === user.id) return true;
+    if (s.requestedByTeamId && user.teamId && s.requestedByTeamId === user.teamId) return true;
+    return false;
+  });
+
+  canAccept = computed(() => {
+    const s = this.session();
+    const user = this.currentUser();
+    if (!s || !user || s.status !== 'REQUESTED') return false;
+
+    // The user/team who requested cannot accept
+    if (this.isRequester()) return false;
+
+    // The rival team can accept
+    if (this.isTeamOne() || this.isTeamTwo()) return true;
+
+    // Admin can accept if not the requester
+    if (this.isAdmin()) return true;
+
+    return false;
+  });
+
+  isWaitingForRival = computed(() => {
+    const s = this.session();
+    if (!s || s.status !== 'REQUESTED') return false;
+    return this.isRequester();
+  });
+
   canScore = computed(() => {
     const s = this.session();
     return this.isParticipant() && s?.status === 'IN_PROGRESS';

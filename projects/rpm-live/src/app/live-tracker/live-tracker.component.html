@@ -117,10 +117,10 @@
         <span>{{ (isAdvantageMode() ? 'LIVE.MODE_ADVANTAGE_SELECTED' : 'LIVE.MODE_GOLDEN_POINT_SELECTED') | translate }}</span>
       </div>
 
-      <!-- If user is the rival (Team Two or non-requesting team) or admin -> CAN ACCEPT -->
-      <div *ngIf="(isTeamTwo() || (isTeamOne() && session()?.requestedBy !== currentUser()?.id) || isAdmin())" class="accept-box">
+      <!-- If user can accept (Rival team or admin) -> CAN ACCEPT -->
+      <div *ngIf="canAccept()" class="accept-box">
         <p class="setup-desc">
-          <strong>{{ session()?.requestedByEmail || ('LIVE.RIVAL' | translate) }}</strong>
+          <strong>{{ session()?.requestedByTeamName || session()?.requestedByName || session()?.requestedByEmail || ('LIVE.RIVAL' | translate) }}</strong>
           {{ 'LIVE.RIVAL_INVITED_MESSAGE' | translate }}
         </p>
         <button class="btn btn-primary btn-lg" (click)="onAcceptLive()" [disabled]="actionLoading()">
@@ -130,14 +130,19 @@
         </button>
       </div>
 
-      <!-- If user requested -> WAITING FOR RIVAL -->
-      <div *ngIf="!(isTeamTwo() || (isTeamOne() && session()?.requestedBy !== currentUser()?.id) || isAdmin())" class="waiting-box">
+      <!-- If user/team requested -> WAITING FOR RIVAL -->
+      <div *ngIf="isWaitingForRival()" class="waiting-box">
         <p class="setup-desc">{{ 'LIVE.WAITING_FOR_RIVAL_DESC' | translate }}</p>
         <div class="waiting-indicator">
           <span class="dot"></span>
           <span class="dot"></span>
           <span class="dot"></span>
         </div>
+      </div>
+
+      <!-- If spectator -> WAITING FOR MATCH START -->
+      <div *ngIf="!canAccept() && !isWaitingForRival()" class="spectator-msg">
+        <p>{{ 'LIVE.WAITING_MATCH_START' | translate }}</p>
       </div>
     </div>
 

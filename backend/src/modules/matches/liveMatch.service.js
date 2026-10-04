@@ -69,12 +69,16 @@ function getLiveSession(matchId) {
     SELECT lm.*, 
            m.teamOneId, m.teamTwoId,
            t1.name as teamOneName, t2.name as teamTwoName,
-           r.name as rankingName, r.id as rankingId
+           r.name as rankingName, r.id as rankingId,
+           u.email as requestedByEmail, u.teamId as requestedByTeamId,
+           req_t.name as requestedByTeamName
     FROM live_matches lm
     JOIN matches m ON lm.matchId = m.id
     JOIN teams t1 ON m.teamOneId = t1.id
     JOIN teams t2 ON m.teamTwoId = t2.id
     JOIN rankings r ON m.rankingId = r.id
+    LEFT JOIN users u ON lm.requestedBy = u.id
+    LEFT JOIN teams req_t ON u.teamId = req_t.id
     WHERE lm.matchId = ?
   `).get(matchId);
 
@@ -87,12 +91,16 @@ function getActiveLiveMatches() {
     SELECT lm.*,
            m.teamOneId, m.teamTwoId,
            t1.name as teamOneName, t2.name as teamTwoName,
-           r.name as rankingName, r.id as rankingId
+           r.name as rankingName, r.id as rankingId,
+           u.email as requestedByEmail, u.teamId as requestedByTeamId,
+           req_t.name as requestedByTeamName
     FROM live_matches lm
     JOIN matches m ON lm.matchId = m.id
     JOIN teams t1 ON m.teamOneId = t1.id
     JOIN teams t2 ON m.teamTwoId = t2.id
     JOIN rankings r ON m.rankingId = r.id
+    LEFT JOIN users u ON lm.requestedBy = u.id
+    LEFT JOIN teams req_t ON u.teamId = req_t.id
     WHERE lm.status IN ('REQUESTED', 'IN_PROGRESS', 'COMPLETED')
     ORDER BY lm.updatedAt DESC
   `).all();
@@ -163,10 +171,32 @@ function acceptLiveMatch(matchId, user, gameMode) {
     throw err;
   }
 
+  const existing = db.prepare('SELECT * FROM live_matches WHERE matchId = ?').get(matchId);
+  if (!existing || existing.status !== 'REQUESTED') {
+    const err = new Error('No hay una solicitud activa pendiente de aceptación para este partido.');
+    err.status = 400;
+    throw err;
+  }
+
   if (user.role !== 'ADMIN' && user.teamId !== match.teamOneId && user.teamId !== match.teamTwoId) {
     const err = new Error('No tienes permisos para unirte a este partido.');
     err.status = 403;
     throw err;
+  }
+
+  // Validate that the user who initiated the request cannot accept it (the rival must accept)
+  if (user.role !== 'ADMIN') {
+    if (user.id === existing.requestedBy) {
+      const err = new Error('No puedes aceptar tu propia solicitud. Debe aceptarla el equipo rival.');
+      err.status = 400;
+      throw err;
+    }
+    const requester = db.prepare('SELECT teamId FROM users WHERE id = ?').get(existing.requestedBy);
+    if (requester && requester.teamId && requester.teamId === user.teamId) {
+      const err = new Error('No puedes aceptar una solicitud iniciada por tu propio equipo. Debe aceptarla el equipo rival.');
+      err.status = 400;
+      throw err;
+    }
   }
 
   const now = new Date().toISOString();

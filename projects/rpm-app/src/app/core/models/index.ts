@@ -181,7 +181,10 @@ export interface LiveMatchSession {
   teamTwoId: string;
   teamTwoName?: string;
   requestedBy: string;
+  requestedByName?: string;
   requestedByEmail?: string;
+  requestedByTeamId?: string;
+  requestedByTeamName?: string;
   status: LiveMatchStatus;
   currentSet: number;
   pointsTeamOne: string;
