@@ -49,6 +49,7 @@
     "@angular/build": "^22.2.1",
     "@angular/cli": "^22.2.1",
     "@angular/compiler-cli": "^22.2.0",
+    "@types/jasmine": "^7.0.0",
     "concurrently": "^9.1.2",
     "typescript": "~6.0.2"
   }

@@ -1,0 +1,74 @@
+<nav class="navbar glass-panel">
+  <div class="nav-container">
+    <!-- Brand Logo -->
+    <a routerLink="/" class="brand">
+      <span class="logo-icon">🎾</span>
+      <div class="brand-text">
+        <span class="brand-title">{{ 'APP.TITLE_MAIN' | translate }} <span class="highlight">{{ 'APP.TITLE_HIGHLIGHT' | translate }}</span></span>
+        <span class="brand-sub">{{ 'APP.SUBTITLE' | translate }}</span>
+      </div>
+    </a>
+
+    <!-- Desktop Links -->
+    <div class="nav-links">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">
+        <i class="pi pi-home"></i> {{ 'NAV.HOME' | translate }}
+      </a>
+      <a routerLink="/" fragment="clasificacion" class="nav-link">
+        <i class="pi pi-chart-bar"></i> {{ 'NAV.STANDINGS' | translate }}
+      </a>
+      <a routerLink="/" fragment="partidos" class="nav-link">
+        <i class="pi pi-calendar"></i> {{ 'NAV.MATCHES' | translate }}
+      </a>
+      <a routerLink="/" fragment="reglamento" class="nav-link">
+        <i class="pi pi-book"></i> {{ 'NAV.RULES' | translate }}
+      </a>
+
+      @if (authService.isAuthenticated()) {
+        @if (authService.isTeamUser()) {
+          <a routerLink="/team" routerLinkActive="active" class="nav-link team-link">
+            <i class="pi pi-users"></i> {{ 'NAV.MY_TEAM' | translate }}
+          </a>
+        }
+        @if (authService.isAdmin()) {
+          <a routerLink="/admin" routerLinkActive="active" class="nav-link admin-link">
+            <i class="pi pi-cog"></i> {{ 'NAV.ADMIN_PANEL' | translate }}
+          </a>
+        }
+      }
+    </div>
+
+    <!-- User / Auth Actions -->
+    <div class="nav-actions">
+      @if (authService.isAuthenticated()) {
+        <div class="user-badge">
+          <span class="user-email">{{ authService.currentUser()?.email }}</span>
+          <p-tag
+            [value]="authService.isAdmin() ? ('NAV.ROLE_ADMIN' | translate) : (authService.currentUser()?.teamName || ('NAV.ROLE_TEAM' | translate))"
+            [severity]="authService.isAdmin() ? 'warn' : 'success'">
+          </p-tag>
+        </div>
+        <button
+          type="button"
+          pButton
+          severity="secondary"
+          [outlined]="true"
+          size="small"
+          (click)="authService.logout()">
+          <i class="pi pi-sign-out"></i>
+          <span>{{ 'NAV.LOGOUT' | translate }}</span>
+        </button>
+      } @else {
+        <button
+          type="button"
+          pButton
+          severity="success"
+          size="small"
+          routerLink="/auth/login">
+          <i class="pi pi-user"></i>
+          <span>{{ 'NAV.LOGIN' | translate }}</span>
+        </button>
+      }
+    </div>
+  </div>
+</nav>
