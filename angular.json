@@ -51,6 +51,11 @@
               {
                 "glob": "**/*",
                 "input": "projects/rpm-app/public"
+              },
+              {
+                "glob": "**/*",
+                "input": "projects/rpm-app/src/assets",
+                "output": "assets"
               }
             ],
             "styles": [
