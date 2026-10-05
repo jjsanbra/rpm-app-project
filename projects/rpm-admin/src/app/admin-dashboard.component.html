@@ -80,6 +80,7 @@
     <rpm-admin-organizers
       [organizers]="organizers()"
       (createOrganizer)="handleCreateOrganizer($event)"
+      (updateOrganizer)="handleUpdateOrganizer($event)"
       (deleteOrganizer)="handleDeleteOrganizer($event)">
     </rpm-admin-organizers>
   }

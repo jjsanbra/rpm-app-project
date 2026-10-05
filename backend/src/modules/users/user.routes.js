@@ -82,6 +82,52 @@ router.post('/organizers', authenticate, authorize('ADMIN'), [
 /**
  * @swagger
  * /api/users/organizers/{id}:
+ *   put:
+ *     summary: Actualizar datos de un usuario ORGANIZER (solo ADMIN)
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 minLength: 6
+ *               active:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: Organizador actualizado exitosamente
+ *       400:
+ *         description: Datos inválidos
+ *       404:
+ *         description: Organizador no encontrado
+ *       409:
+ *         description: El email ya existe
+ */
+router.put('/organizers/:id', authenticate, authorize('ADMIN'), [
+  body('email').optional().isEmail().withMessage('Email inválido.'),
+  body('password').optional().isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres.'),
+  body('active').optional().isBoolean().withMessage('Active debe ser booleano.'),
+], validateRequest, ctrl.updateOrganizer);
+
+/**
+ * @swagger
+ * /api/users/organizers/{id}:
  *   delete:
  *     summary: Eliminar un usuario ORGANIZER (solo ADMIN)
  *     tags: [Users]

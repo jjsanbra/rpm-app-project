@@ -24,6 +24,13 @@ async function createOrganizer(req, res, next) {
   } catch (err) { next(err); }
 }
 
+async function updateOrganizer(req, res, next) {
+  try {
+    const organizer = await userService.updateOrganizer(req.params.id, req.body, req.user.id);
+    res.json({ data: organizer });
+  } catch (err) { next(err); }
+}
+
 async function toggleActive(req, res, next) {
   try {
     const user = await userService.toggleActive(req.params.id, req.body.active, req.user.id);
@@ -38,4 +45,4 @@ async function deleteOrganizer(req, res, next) {
   } catch (err) { next(err); }
 }
 
-module.exports = { getAll, getById, getOrganizers, createOrganizer, toggleActive, deleteOrganizer };
+module.exports = { getAll, getById, getOrganizers, createOrganizer, updateOrganizer, toggleActive, deleteOrganizer };

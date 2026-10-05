@@ -39,7 +39,7 @@ app.use(helmet({
 
 // ─── CORS ────────────────────────────────────────────────────────────────────
 app.use(cors({
-  origin: config.cors.origins,
+  origin: config.env === 'development' ? true : config.cors.origins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],

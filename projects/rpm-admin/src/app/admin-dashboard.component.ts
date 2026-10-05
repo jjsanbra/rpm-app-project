@@ -27,7 +27,7 @@ import { AdminMatchesComponent, AdminOverridePayload } from './components/admin-
 import { AdminIncidentsComponent, ResolveIncidentPayload } from './components/admin-incidents/admin-incidents.component';
 import { AdminAuxiliaryComponent, AuxCatalogType } from './components/admin-auxiliary/admin-auxiliary.component';
 import { AdminAuditComponent } from './components/admin-audit/admin-audit.component';
-import { AdminOrganizersComponent, CreateOrganizerPayload } from './components/admin-organizers/admin-organizers.component';
+import { AdminOrganizersComponent, CreateOrganizerPayload, UpdateOrganizerPayload } from './components/admin-organizers/admin-organizers.component';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -107,6 +107,28 @@ export class AdminDashboardComponent implements OnInit {
           severity: 'success',
           summary: this.translate.instant('ADMIN.ORGANIZER_CREATED_SUCCESS'),
           detail: this.translate.instant('ADMIN.ORGANIZER_CREATED_DETAIL')
+        });
+        this.loadOrganizers();
+      },
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
+    });
+  }
+
+  handleUpdateOrganizer(payload: UpdateOrganizerPayload): void {
+    this.userService.updateOrganizer(payload.id, {
+      email: payload.email,
+      password: payload.password,
+      active: payload.active
+    }).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('ADMIN.ORGANIZER_UPDATED_SUCCESS'),
+          detail: this.translate.instant('ADMIN.ORGANIZER_UPDATED_DETAIL')
         });
         this.loadOrganizers();
       },

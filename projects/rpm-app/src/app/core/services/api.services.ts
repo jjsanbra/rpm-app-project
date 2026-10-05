@@ -46,6 +46,10 @@ export class UserService {
     return this.http.post<{ data: User; message: string }>(`${this.apiUrl}/organizers`, data);
   }
 
+  updateOrganizer(id: string, data: { email?: string; password?: string; active?: boolean }): Observable<{ data: User }> {
+    return this.http.put<{ data: User }>(`${this.apiUrl}/organizers/${id}`, data);
+  }
+
   deleteOrganizer(id: string): Observable<{ message: string }> {
     return this.http.delete<{ message: string }>(`${this.apiUrl}/organizers/${id}`);
   }

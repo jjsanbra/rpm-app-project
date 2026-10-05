@@ -142,7 +142,7 @@ describe('Rankings Module Integration Tests', () => {
     expect(res.status).toBe(200);
   });
 
-  it('debe permitir a un ADMIN gestionar la lista de organizadores', async () => {
+  it('debe permitir a un ADMIN gestionar (listar, crear, editar, eliminar) la lista de organizadores', async () => {
     // Listar
     const listRes = await request(app)
       .get('/api/users/organizers')
@@ -157,6 +157,15 @@ describe('Rankings Module Integration Tests', () => {
       .send({ email: 'nuevo.org@padelranking.dev', password: 'OrgPassword123!' });
     expect(createRes.status).toBe(201);
     expect(createRes.body.data.email).toBe('nuevo.org@padelranking.dev');
+
+    // Editar (cambio de email y estado)
+    const updateRes = await request(app)
+      .put(`/api/users/organizers/${createRes.body.data.id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ email: 'nuevo.org.editado@padelranking.dev', active: false });
+    expect(updateRes.status).toBe(200);
+    expect(updateRes.body.data.email).toBe('nuevo.org.editado@padelranking.dev');
+    expect(Boolean(updateRes.body.data.active)).toBe(false);
 
     // Eliminar
     const delRes = await request(app)

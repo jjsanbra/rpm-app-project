@@ -43,6 +43,16 @@
               <button
                 type="button"
                 pButton
+                severity="warn"
+                size="small"
+                [outlined]="true"
+                (click)="openEditModal(org)"
+                [pTooltip]="'COMMON.EDIT' | translate">
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button
+                type="button"
+                pButton
                 severity="danger"
                 size="small"
                 [outlined]="true"
@@ -92,6 +102,43 @@
       </button>
       <button type="submit" pButton severity="info" size="small" [disabled]="!newEmail.trim()">
         {{ 'COMMON.CREATE' | translate }}
+      </button>
+    </div>
+  </form>
+</p-dialog>
+
+<!-- MODAL EDITAR ORGANIZADOR -->
+<p-dialog [(visible)]="showEditModal" [modal]="true" [header]="'ADMIN.MODAL_EDIT_ORGANIZER_TITLE' | translate"
+  [style]="{ width: '90vw', maxWidth: '480px' }" styleClass="custom-p-dialog">
+
+  <form (ngSubmit)="submitEdit()" class="modal-form">
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.ORGANIZER_EMAIL_LABEL' | translate }}</label>
+      <input type="email" class="form-control" [(ngModel)]="editEmail" name="editEmail" required />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.ORGANIZER_NEW_PASSWORD_LABEL' | translate }}</label>
+      <input type="password" class="form-control" [(ngModel)]="editPassword" name="editPassword"
+        placeholder="{{ 'ADMIN.ORGANIZER_NEW_PASSWORD_PLACEHOLDER' | translate }}" />
+      <small class="form-hint">{{ 'ADMIN.ORGANIZER_NEW_PASSWORD_HINT' | translate }}</small>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.STATUS_LABEL' | translate }}</label>
+      <div class="flex items-center gap-2">
+        <input type="checkbox" id="editActiveCheck" [(ngModel)]="editActive" name="editActive" />
+        <label for="editActiveCheck" class="text-sm cursor-pointer">{{ (editActive ? 'STATUS.ACTIVE' :
+          'STATUS.INACTIVE') | translate }}</label>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" pButton severity="secondary" size="small" (click)="showEditModal = false">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button type="submit" pButton severity="info" size="small" [disabled]="!editEmail.trim()">
+        {{ 'COMMON.SAVE' | translate }}
       </button>
     </div>
   </form>
