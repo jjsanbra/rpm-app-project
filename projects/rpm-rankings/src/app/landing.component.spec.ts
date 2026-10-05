@@ -3,6 +3,7 @@ import { LandingComponent } from './landing.component';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideTranslateService } from '@ngx-translate/core';
+import { MessageService } from 'primeng/api';
 
 describe('LandingComponent', () => {
   let component: LandingComponent;
@@ -14,7 +15,8 @@ describe('LandingComponent', () => {
       providers: [
         provideHttpClient(),
         provideHttpClientTesting(),
-        provideTranslateService()
+        provideTranslateService(),
+        MessageService
       ]
     }).compileComponents();
 

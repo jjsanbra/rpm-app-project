@@ -1,6 +1,8 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RankingService, MatchService, ClassificationService, Ranking, Match, ClassificationRow } from '@core';
+import { MessageService } from 'primeng/api';
+import { TranslateService } from '@ngx-translate/core';
+import { RankingService, MatchService, ClassificationService, Ranking, Match, ClassificationRow, extractErrorMessage } from '@core';
 
 import { HeroComponent } from './components/hero/hero.component';
 import { RankingInfoComponent } from './components/ranking-info/ranking-info.component';
@@ -26,6 +28,8 @@ export class LandingComponent implements OnInit {
   private rankingService = inject(RankingService);
   private matchService = inject(MatchService);
   private classificationService = inject(ClassificationService);
+  private messageService = inject(MessageService);
+  private translate = inject(TranslateService);
 
   rankings = signal<Ranking[]>([]);
   selectedRanking = signal<Ranking | null>(null);
@@ -47,6 +51,13 @@ export class LandingComponent implements OnInit {
           this.selectedRanking.set(res.data[0]);
           this.loadRankingData(res.data[0].id);
         }
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translate.instant('COMMON.ERROR'),
+          detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
+        });
       }
     });
   }
@@ -75,7 +86,14 @@ export class LandingComponent implements OnInit {
         this.classification.set(res.data);
         this.loadingClassification.set(false);
       },
-      error: () => this.loadingClassification.set(false)
+      error: (err) => {
+        this.loadingClassification.set(false);
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translate.instant('COMMON.ERROR'),
+          detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
+        });
+      }
     });
   }
 

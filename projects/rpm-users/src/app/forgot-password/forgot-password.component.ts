@@ -2,8 +2,9 @@ import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TranslatePipe } from '@ngx-translate/core';
-import { AuthService } from '@core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { MessageService } from 'primeng/api';
+import { AuthService, extractErrorMessage } from '@core';
 
 // PrimeNG Modules
 import { CardModule } from 'primeng/card';
@@ -29,26 +30,36 @@ import { MessageModule } from 'primeng/message';
 })
 export class ForgotPasswordComponent {
   private authService = inject(AuthService);
+  private translate = inject(TranslateService);
+  private messageService = inject(MessageService);
 
   email = '';
   loading = signal<boolean>(false);
   submitted = signal<boolean>(false);
-  errorMessage = signal<string | null>(null);
 
   onSubmit(): void {
     if (!this.email) return;
 
     this.loading.set(true);
-    this.errorMessage.set(null);
 
     this.authService.forgotPassword(this.email).subscribe({
       next: () => {
         this.loading.set(false);
         this.submitted.set(true);
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('COMMON.SUCCESS'),
+          detail: this.translate.instant('AUTH.FORGOT_SUCCESS')
+        });
       },
-      error: () => {
+      error: (err) => {
         this.loading.set(false);
         this.submitted.set(true);
+        this.messageService.add({
+          severity: 'info',
+          summary: this.translate.instant('COMMON.INFO'),
+          detail: this.translate.instant('AUTH.FORGOT_SUCCESS')
+        });
       }
     });
   }

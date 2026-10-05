@@ -1,58 +1,97 @@
 .portal-header {
-  padding: 2rem;
-  border-radius: var(--radius-lg);
+  padding: 1.75rem 2rem;
+  border-radius: var(--radius-lg, 20px);
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   gap: 1.5rem;
   margin-bottom: 2rem;
+
+  @media (max-width: 640px) {
+    padding: 1.25rem 1rem;
+    gap: 1.15rem;
+    margin-bottom: 1.25rem;
+  }
 }
 
 .header-main {
   display: flex;
   align-items: center;
   gap: 1.25rem;
+  min-width: 0;
+
+  @media (max-width: 640px) {
+    gap: 0.85rem;
+    width: 100%;
+  }
 }
 
 .team-badge-large {
   font-size: 3rem;
   filter: drop-shadow(0 0 15px rgba(0, 230, 118, 0.4));
+  flex-shrink: 0;
+
+  @media (max-width: 640px) {
+    font-size: 2.25rem;
+  }
 }
 
 .portal-subtitle {
   font-size: 0.75rem;
   font-weight: 700;
-  color: var(--accent-cyan);
+  color: var(--accent-cyan, #0891b2);
   text-transform: uppercase;
   letter-spacing: 0.1em;
+
+  @media (max-width: 640px) {
+    font-size: 0.7rem;
+  }
 }
 
 .portal-title {
   font-size: 2rem;
   line-height: 1.1;
   margin: 0.2rem 0 0.5rem;
+  color: var(--text-main, #0f172a);
+  font-family: var(--font-heading);
+  font-weight: 800;
+
+  @media (max-width: 640px) {
+    font-size: 1.5rem;
+    margin: 0.15rem 0 0.35rem;
+  }
 }
 
 .team-players {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+
+  @media (max-width: 640px) {
+    gap: 0.35rem;
+  }
 }
 
 .player-tag {
   font-size: 0.8rem;
   background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color, #e2e8f0);
   padding: 0.25rem 0.6rem;
-  border-radius: var(--radius-sm);
-  color: var(--text-main);
+  border-radius: var(--radius-sm, 8px);
+  color: var(--text-main, #0f172a);
   display: flex;
   align-items: center;
   gap: 0.35rem;
+  font-weight: 500;
+
+  @media (max-width: 640px) {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.45rem;
+  }
 
   &.reserve {
-    color: var(--accent-orange);
+    color: var(--accent-orange, #ea580c);
     background: rgba(249, 115, 22, 0.1);
     border-color: rgba(249, 115, 22, 0.25);
   }
@@ -60,39 +99,64 @@
 
 .header-stats {
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
+
+  @media (max-width: 640px) {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    width: 100%;
+    gap: 0.5rem;
+  }
 }
 
 .stat-box {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  border: 1px solid var(--border-color, #e2e8f0);
   padding: 0.75rem 1.25rem;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-sm, 8px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  min-width: 85px;
+
+  @media (max-width: 640px) {
+    min-width: 0;
+    padding: 0.65rem 0.25rem;
+  }
 
   .stat-val {
     font-family: var(--font-heading);
     font-size: 1.8rem;
     font-weight: 900;
     line-height: 1;
-    color: var(--text-main);
+    color: var(--text-main, #0f172a);
+
+    @media (max-width: 640px) {
+      font-size: 1.45rem;
+    }
   }
 
   .stat-lbl {
     font-size: 0.7rem;
-    color: var(--text-dim);
+    color: var(--text-dim, #64748b);
     font-weight: 700;
     text-transform: uppercase;
-    margin-top: 0.25rem;
+    margin-top: 0.35rem;
+    letter-spacing: 0.03em;
+    text-align: center;
+
+    @media (max-width: 640px) {
+      font-size: 0.62rem;
+      margin-top: 0.25rem;
+    }
   }
 }
 
 .text-green {
-  color: var(--primary) !important;
+  color: var(--primary, #059669) !important;
 }
 
 .text-orange {
-  color: var(--accent-orange) !important;
+  color: var(--accent-orange, #ea580c) !important;
 }

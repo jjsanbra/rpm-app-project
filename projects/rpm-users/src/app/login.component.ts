@@ -3,14 +3,14 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { AuthService } from '@core';
+import { MessageService } from 'primeng/api';
+import { AuthService, extractErrorMessage } from '@core';
 
 // PrimeNG Modules
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ButtonDirective } from 'primeng/button';
-import { MessageModule } from 'primeng/message';
 
 @Component({
   selector: 'app-login',
@@ -23,7 +23,6 @@ import { MessageModule } from 'primeng/message';
     InputTextModule,
     PasswordModule,
     ButtonDirective,
-    MessageModule,
     TranslatePipe
   ],
   templateUrl: './login.component.html',
@@ -33,11 +32,11 @@ export class LoginComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
   private translate = inject(TranslateService);
+  private messageService = inject(MessageService);
 
   email = '';
   password = '';
   loading = signal<boolean>(false);
-  errorMessage = signal<string | null>(null);
 
   // Solo activo para entorno local / desarrollo
   isLocal = isDevMode() || (typeof window !== 'undefined' && (
@@ -50,7 +49,6 @@ export class LoginComponent {
     if (!this.email || !this.password) return;
 
     this.loading.set(true);
-    this.errorMessage.set(null);
 
     this.authService.login({ email: this.email, password: this.password }).subscribe({
       next: (res) => {
@@ -63,11 +61,11 @@ export class LoginComponent {
       },
       error: (err) => {
         this.loading.set(false);
-        const errorDetail = err.error?.error?.message || 
-          (typeof err.error?.error === 'string' ? err.error.error : null) || 
-          err.error?.message || 
-          this.translate.instant('AUTH.INVALID_CREDENTIALS');
-        this.errorMessage.set(errorDetail);
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translate.instant('COMMON.ERROR'),
+          detail: extractErrorMessage(err, this.translate.instant('AUTH.INVALID_CREDENTIALS'))
+        });
       }
     });
   }

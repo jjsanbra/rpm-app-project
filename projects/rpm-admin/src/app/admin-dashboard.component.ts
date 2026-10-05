@@ -23,7 +23,8 @@ import {
   Incident,
   AuditLog,
   AuxiliaryItem,
-  User
+  User,
+  extractErrorMessage
 } from '@core';
 
 import { AdminHeaderComponent, AdminTab } from './components/admin-header/admin-header.component';
@@ -146,7 +147,7 @@ export class AdminDashboardComponent implements OnInit {
       error: (err) => this.messageService.add({
         severity: 'error',
         summary: this.translate.instant('COMMON.ERROR'),
-        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+        detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
       })
     });
   }
@@ -171,7 +172,7 @@ export class AdminDashboardComponent implements OnInit {
       error: (err) => this.messageService.add({
         severity: 'error',
         summary: this.translate.instant('COMMON.ERROR'),
-        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+        detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
       })
     });
   }
@@ -190,7 +191,7 @@ export class AdminDashboardComponent implements OnInit {
       error: (err) => this.messageService.add({
         severity: 'error',
         summary: this.translate.instant('COMMON.ERROR'),
-        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+        detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
       })
     });
   }
@@ -209,7 +210,7 @@ export class AdminDashboardComponent implements OnInit {
       error: (err) => this.messageService.add({
         severity: 'error',
         summary: this.translate.instant('COMMON.ERROR'),
-        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+        detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
       })
     });
   }
@@ -315,7 +316,7 @@ export class AdminDashboardComponent implements OnInit {
       error: (err) => this.messageService.add({
         severity: 'error',
         summary: this.translate.instant('COMMON.ERROR'),
-        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+        detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
       })
     });
   }
@@ -341,7 +342,7 @@ export class AdminDashboardComponent implements OnInit {
       error: (err) => this.messageService.add({
         severity: 'error',
         summary: this.translate.instant('COMMON.ERROR'),
-        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+        detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
       })
     });
   }
@@ -416,7 +417,7 @@ export class AdminDashboardComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: this.translate.instant('COMMON.ERROR'),
-          detail: err.error?.error || err.error?.error?.message || this.translate.instant('COMMON.ERROR')
+          detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
         });
       }
     });
@@ -443,7 +444,7 @@ export class AdminDashboardComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: this.translate.instant('COMMON.ERROR'),
-          detail: err.error?.error || err.error?.error?.message || this.translate.instant('COMMON.ERROR')
+          detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
         });
       }
     });
@@ -474,7 +475,7 @@ export class AdminDashboardComponent implements OnInit {
       error: (err) => this.messageService.add({
         severity: 'error',
         summary: this.translate.instant('COMMON.ERROR'),
-        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+        detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
       })
     });
   }
@@ -503,7 +504,7 @@ export class AdminDashboardComponent implements OnInit {
       error: (err) => this.messageService.add({
         severity: 'error',
         summary: this.translate.instant('COMMON.ERROR'),
-        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+        detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
       })
     });
   }
@@ -523,7 +524,7 @@ export class AdminDashboardComponent implements OnInit {
       error: (err) => this.messageService.add({
         severity: 'error',
         summary: this.translate.instant('COMMON.ERROR'),
-        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+        detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
       })
     });
   }
@@ -538,7 +539,7 @@ export class AdminDashboardComponent implements OnInit {
       error: (err) => this.messageService.add({
         severity: 'error',
         summary: this.translate.instant('COMMON.ERROR'),
-        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+        detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
       })
     });
   }
@@ -591,7 +592,7 @@ export class AdminDashboardComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: this.translate.instant('COMMON.ERROR'),
-          detail: err.error?.error || err.error?.error?.message || this.translate.instant('COMMON.ERROR')
+          detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
         });
       }
     });
@@ -623,7 +624,7 @@ export class AdminDashboardComponent implements OnInit {
       error: (err) => this.messageService.add({
         severity: 'error',
         summary: this.translate.instant('COMMON.ERROR'),
-        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+        detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
       })
     });
   }
@@ -653,7 +654,7 @@ export class AdminDashboardComponent implements OnInit {
       error: (err) => this.messageService.add({
         severity: 'error',
         summary: this.translate.instant('COMMON.ERROR'),
-        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+        detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
       })
     });
   }
@@ -675,7 +676,7 @@ export class AdminDashboardComponent implements OnInit {
       error: (err) => this.messageService.add({
         severity: 'error',
         summary: this.translate.instant('COMMON.ERROR'),
-        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+        detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
       })
     });
   }
@@ -694,7 +695,7 @@ export class AdminDashboardComponent implements OnInit {
       error: (err) => this.messageService.add({
         severity: 'error',
         summary: this.translate.instant('COMMON.ERROR'),
-        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+        detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
       })
     });
   }
@@ -712,7 +713,7 @@ export class AdminDashboardComponent implements OnInit {
       error: (err) => this.messageService.add({
         severity: 'error',
         summary: this.translate.instant('COMMON.ERROR'),
-        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+        detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
       })
     });
   }
