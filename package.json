@@ -10,8 +10,8 @@
     "start:app": "concurrently -n \"API,APP\" -c \"cyan.bold,green.bold\" \"npm run dev:backend\" \"ng serve rpm-app\"",
     "dev:backend": "cd backend && npm run dev",
     "test:backend": "cd backend && npm test",
-    "build": "ng build rpm-admin && ng build rpm-rankings && ng build rpm-teams && ng build rpm-users && ng build rpm-live && ng build rpm-app",
-    "build:all": "ng build rpm-admin && ng build rpm-rankings && ng build rpm-teams && ng build rpm-users && ng build rpm-live && ng build rpm-app",
+    "build": "npx ng build rpm-admin && npx ng build rpm-rankings && npx ng build rpm-teams && npx ng build rpm-users && npx ng build rpm-live && npx ng build rpm-app",
+    "build:all": "npx ng build rpm-admin && npx ng build rpm-rankings && npx ng build rpm-teams && npx ng build rpm-users && npx ng build rpm-live && npx ng build rpm-app",
     "build:prod": "npm run build:all",
     "start:prod": "cd backend && NODE_ENV=production node src/server.js",
     "test": "ng test"
@@ -26,10 +26,14 @@
     "primeng"
   ],
   "dependencies": {
+    "@angular-architects/native-federation": "^22.2.2",
     "@angular/animations": "^22.2.1",
+    "@angular/build": "^22.2.1",
     "@angular/cdk": "^22.2.0",
+    "@angular/cli": "^22.2.1",
     "@angular/common": "^22.2.0",
     "@angular/compiler": "^22.2.0",
+    "@angular/compiler-cli": "^22.2.0",
     "@angular/core": "^22.2.0",
     "@angular/forms": "^22.2.0",
     "@angular/platform-browser": "^22.2.0",
@@ -45,15 +49,11 @@
     "primeng": "^22.1.2",
     "rxjs": "~7.8.0",
     "tslib": "^2.8.1",
+    "typescript": "~6.0.2",
     "zone.js": "~0.16.0"
   },
   "devDependencies": {
-    "@angular-architects/native-federation": "^22.2.2",
-    "@angular/build": "^22.2.1",
-    "@angular/cli": "^22.2.1",
-    "@angular/compiler-cli": "^22.2.0",
     "@types/jasmine": "^7.0.0",
-    "concurrently": "^9.1.2",
-    "typescript": "~6.0.2"
+    "concurrently": "^9.1.2"
   }
 }
