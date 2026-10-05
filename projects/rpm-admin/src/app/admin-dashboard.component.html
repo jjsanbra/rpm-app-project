@@ -22,6 +22,7 @@
       (updateRanking)="handleUpdateRanking($event)"
       (toggleActive)="toggleRankingActive($event)"
       (selectForMatches)="selectRankingForMatches($event)"
+      (manageTeams)="openManageTeams($event)"
       (deleteRanking)="handleDeleteRanking($event)">
     </rpm-admin-rankings>
   }
@@ -85,4 +86,254 @@
       (deleteOrganizer)="handleDeleteOrganizer($event)">
     </rpm-admin-organizers>
   }
+
+  <!-- Modal Generar Calendario -->
+  <p-dialog
+    [(visible)]="showGenerateModal"
+    [modal]="true"
+    [header]="'ADMIN.MODAL_GENERATE_MATCHES_TITLE' | translate"
+    [style]="{ width: '90vw', maxWidth: '580px' }"
+    [draggable]="false"
+    [resizable]="false"
+    [closable]="true">
+    
+    <div class="generate-modal-content">
+      <div class="generate-header-info">
+        <div class="ranking-pill">
+          <i class="pi pi-trophy text-primary"></i>
+          <strong>{{ generateRankingName() }}</strong>
+        </div>
+        <p class="modal-subtext">
+          {{ 'ADMIN.GENERATE_MATCHES_SUBTITLE' | translate }}
+        </p>
+      </div>
+
+      <!-- Equipos inscritos -->
+      <div class="modal-section">
+        <label class="section-label">
+          <i class="pi pi-users"></i>
+          {{ 'ADMIN.ENROLLED_TEAMS_LABEL' | translate }} ({{ generateEnrolledTeams().length }})
+        </label>
+        <div class="enrolled-teams-chips">
+          @for (team of generateEnrolledTeams(); track team.id) {
+            <span class="team-chip">
+              <i class="pi pi-shield"></i>
+              {{ team.name }}
+            </span>
+          }
+        </div>
+      </div>
+
+      <!-- Pregunta de Vueltas -->
+      <div class="modal-section">
+        <label for="generate-rounds-select" class="section-label">
+          <i class="pi pi-sync"></i>
+          {{ 'ADMIN.ROUNDS_QUESTION' | translate }}
+        </label>
+        <p-select
+          id="generate-rounds-select"
+          [(ngModel)]="generateRounds"
+          [options]="roundsOptions"
+          optionValue="value"
+          styleClass="w-full"
+          appendTo="body">
+          <ng-template #selectedItem let-selectedOption>
+            <span>{{ selectedOption?.labelKey | translate }}</span>
+          </ng-template>
+          <ng-template #item let-option>
+            <span>{{ option.labelKey | translate }}</span>
+          </ng-template>
+        </p-select>
+      </div>
+
+      <!-- Resumen de Partidos Calculados -->
+      <div class="matches-calculation-card">
+        <div class="calc-icon-wrapper">
+          <i class="pi pi-calendar-plus"></i>
+        </div>
+        <div class="calc-details">
+          <div class="calc-title">{{ 'ADMIN.TOTAL_MATCHES_CALCULATED' | translate }}</div>
+          <div class="calc-formula">
+            {{ generateEnrolledTeams().length }} equipos &bull; {{ generateRounds() }} {{ generateRounds() === 1 ? 'vuelta' : 'vueltas' }}
+          </div>
+        </div>
+        <div class="calc-total-badge">
+          {{ getExpectedMatchesCount() }} partidos
+        </div>
+      </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="modal-actions">
+        <button
+          pButton
+          type="button"
+          class="p-button-outlined p-button-secondary"
+          (click)="showGenerateModal.set(false)">
+          {{ 'COMMON.CANCEL' | translate }}
+        </button>
+        <button
+          pButton
+          type="button"
+          class="p-button-primary"
+          (click)="confirmGenerateMatches()">
+          <i class="pi pi-check"></i>
+          {{ 'ADMIN.MODAL_GENERATE_MATCHES_TITLE' | translate }}
+        </button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Modal Gestionar Equipos del Ranking -->
+  <p-dialog
+    [(visible)]="showManageTeamsModal"
+    [modal]="true"
+    [header]="'ADMIN.MODAL_MANAGE_TEAMS_TITLE' | translate"
+    [style]="{ width: '90vw', maxWidth: '720px' }"
+    [draggable]="false"
+    [resizable]="false"
+    [closable]="true">
+
+    <div class="manage-teams-modal-content">
+      @if (manageTeamsRanking(); as r) {
+        <div class="ranking-header-card">
+          <div class="header-main">
+            <div class="ranking-title-row">
+              <i class="pi pi-trophy trophy-icon"></i>
+              <h3>{{ r.name }}</h3>
+              <p-tag [value]="(r.active ? 'STATUS.ACTIVE' : 'STATUS.INACTIVE') | translate" [severity]="r.active ? 'success' : 'secondary'"></p-tag>
+            </div>
+            <p class="modal-subtext">{{ 'ADMIN.MODAL_MANAGE_TEAMS_SUBTITLE' | translate }}</p>
+          </div>
+          <div class="ranking-meta-chips">
+            @if (r.locationName) {
+              <span class="meta-chip"><i class="pi pi-map-marker"></i> {{ r.locationName }}</span>
+            }
+            @if (r.levelName) {
+              <span class="meta-chip"><i class="pi pi-chart-line"></i> {{ r.levelName }}</span>
+            }
+            @if (r.categoryName) {
+              <span class="meta-chip"><i class="pi pi-tag"></i> {{ r.categoryName }}</span>
+            }
+          </div>
+        </div>
+
+        <!-- Section: Inscribir nuevo equipo -->
+        <div class="enroll-form-card">
+          <label class="section-label">
+            <i class="pi pi-user-plus"></i>
+            {{ 'ADMIN.ENROLL_TEAM_LABEL' | translate }}
+          </label>
+          <div class="enroll-form-row">
+            <p-select
+              [(ngModel)]="selectedTeamToEnroll"
+              [options]="getAvailableTeamsToEnroll()"
+              optionLabel="name"
+              optionValue="id"
+              [placeholder]="'ADMIN.SELECT_TEAM_TO_ENROLL_PLACEHOLDER' | translate"
+              [filter]="true"
+              filterBy="name,player1Name,player2Name"
+              styleClass="enroll-select"
+              appendTo="body">
+              <ng-template #item let-team>
+                <div class="team-option-item">
+                  <strong>{{ team.name }}</strong>
+                  <span class="team-option-players">{{ team.player1Name }} &bull; {{ team.player2Name }}</span>
+                </div>
+              </ng-template>
+            </p-select>
+            <button
+              pButton
+              type="button"
+              severity="success"
+              [disabled]="!selectedTeamToEnroll()"
+              (click)="handleEnrollTeam()">
+              <i class="pi pi-plus"></i>
+              <span>{{ 'ADMIN.ENROLL_TEAM_BTN' | translate }}</span>
+            </button>
+          </div>
+          @if (getAvailableTeamsToEnroll().length === 0 && teams().length > 0) {
+            <small class="text-secondary text-italic">
+              <i class="pi pi-info-circle"></i> {{ 'ADMIN.NO_MORE_TEAMS_TO_ENROLL' | translate }}
+            </small>
+          }
+        </div>
+
+        <!-- Section: Lista de equipos inscritos -->
+        <div class="enrolled-list-section">
+          <div class="enrolled-list-header">
+            <div class="enrolled-title">
+              <i class="pi pi-shield text-primary"></i>
+              <strong>{{ 'ADMIN.ENROLLED_TEAMS_COUNT' | translate }}</strong>
+              <span class="count-badge">{{ rankingEnrolledTeams().length }}</span>
+            </div>
+            @if (rankingEnrolledTeams().length < 4) {
+              <small class="text-warn">
+                <i class="pi pi-exclamation-triangle"></i> {{ 'ADMIN.MIN_TEAMS_HINT' | translate }}
+              </small>
+            }
+          </div>
+
+          <div class="enrolled-teams-table-wrap">
+            @if (rankingEnrolledTeams().length === 0) {
+              <div class="empty-teams-message">
+                <i class="pi pi-users empty-icon"></i>
+                <p>{{ 'ADMIN.NO_ENROLLED_TEAMS_WARN' | translate }}</p>
+                <small>{{ 'ADMIN.MIN_TEAMS_HINT' | translate }}</small>
+              </div>
+            } @else {
+              <div class="teams-enrolled-grid">
+                @for (team of rankingEnrolledTeams(); track team.id) {
+                  <div class="enrolled-team-card">
+                    <div class="team-avatar">
+                      <i class="pi pi-shield"></i>
+                    </div>
+                    <div class="team-info">
+                      <div class="team-name">{{ team.name }}</div>
+                      <div class="team-players">
+                        <i class="pi pi-users player-icon"></i>
+                        <span>{{ team.player1Name }} {{ team.player1Surname || '' }} &bull; {{ team.player2Name }} {{ team.player2Surname || '' }}</span>
+                      </div>
+                      @if (team.phone) {
+                        <div class="team-contact">
+                          <i class="pi pi-phone"></i> {{ team.phone }}
+                        </div>
+                      }
+                    </div>
+                    <div class="team-actions">
+                      <button
+                        pButton
+                        type="button"
+                        severity="danger"
+                        size="small"
+                        [outlined]="true"
+                        (click)="handleUnenrollTeam(team)"
+                        [pTooltip]="'COMMON.DELETE' | translate"
+                        tooltipPosition="left">
+                        <i class="pi pi-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <ng-template pTemplate="footer">
+      <div class="modal-actions">
+        <button
+          pButton
+          type="button"
+          class="p-button-outlined p-button-secondary"
+          (click)="showManageTeamsModal.set(false)">
+          {{ 'COMMON.CLOSE' | translate }}
+        </button>
+      </div>
+    </ng-template>
+  </p-dialog>
 </div>
+
+

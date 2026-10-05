@@ -1,6 +1,7 @@
 'use strict';
 
 const crypto = require('crypto');
+const { getDb } = require('../../database/db');
 const matchModel = require('./match.model');
 const rankingModel = require('../rankings/ranking.model');
 const teamModel = require('../teams/team.model');
@@ -30,10 +31,10 @@ function getById(id) {
 }
 
 /**
- * Genera todos los partidos round-robin para un ranking.
- * Se llama cuando el admin u organizador asocia equipos al ranking.
+ * Genera todos los partidos round-robin para un ranking con soporte de múltiples vueltas.
+ * Se llama cuando el admin u organizador genera el calendario.
  */
-async function generateMatchesForRanking(rankingId, teamIds, user) {
+async function generateMatchesForRanking(rankingId, teamIds, user, rounds = 1) {
   const ranking = rankingModel.findById(rankingId);
   if (!ranking) throw createError(404, 'Ranking no encontrado.');
 
@@ -44,24 +45,77 @@ async function generateMatchesForRanking(rankingId, teamIds, user) {
     throw createError(403, 'No tienes permisos para generar partidos en un ranking que no te pertenece.');
   }
 
-  if (teamIds.length < 4) {
-    throw createError(400, 'Un ranking necesita al menos 4 equipos para generar partidos.');
+  let finalTeamIds = Array.isArray(teamIds) && teamIds.length > 0 ? teamIds : [];
+  if (finalTeamIds.length === 0) {
+    const enrolledTeams = rankingModel.getTeams(rankingId);
+    finalTeamIds = enrolledTeams.map(t => t.id);
   }
 
-  // Eliminar partidos anteriores en PENDING_RESULT (si se regenera)
-  const now = new Date().toISOString();
-  const pairs = generateRoundRobinPairs(teamIds);
+  if (finalTeamIds.length < 4) {
+    throw createError(400, `Se necesitan al menos 4 equipos inscritos en el ranking para generar el calendario. Actualmente hay ${finalTeamIds.length} equipos inscritos.`);
+  }
 
-  const matchesToCreate = pairs
-    .filter(pair => !matchModel.findExisting(rankingId, pair.teamOneId, pair.teamTwoId))
-    .map(pair => ({
-      id: crypto.randomUUID(),
-      rankingId,
-      teamOneId: pair.teamOneId,
-      teamTwoId: pair.teamTwoId,
-      createdAt: now,
-      updatedAt: now,
-    }));
+  const numRounds = Math.max(1, parseInt(rounds, 10) || 1);
+  const db = getDb();
+
+  // Comprobar si ya existen partidos generados para este ranking
+  const existingMatches = matchModel.findAll({ rankingId });
+  let preservedPlayedMatches = [];
+
+  if (existingMatches && existingMatches.length > 0) {
+    const existingTeamIds = new Set(existingMatches.flatMap(m => [m.teamOneId, m.teamTwoId]));
+    const isSameTeams = existingTeamIds.size === finalTeamIds.length && finalTeamIds.every(id => existingTeamIds.has(id));
+
+    if (isSameTeams) {
+      throw createError(400, 'El calendario para este ranking ya ha sido generado previamente con estos mismos equipos y no se puede volver a generar.');
+    }
+
+    const activeSet = new Set(finalTeamIds);
+
+    // 1. Eliminar partidos de equipos que ya no están inscritos en el ranking (Opción A)
+    for (const m of existingMatches) {
+      if (!activeSet.has(m.teamOneId) || !activeSet.has(m.teamTwoId)) {
+        db.prepare("DELETE FROM matches WHERE id = ?").run(m.id);
+      }
+    }
+
+    // 2. Preservar partidos ya disputados entre los equipos que siguen activos
+    const remainingMatches = db.prepare("SELECT * FROM matches WHERE rankingId = ?").all(rankingId);
+    preservedPlayedMatches = remainingMatches.filter(m => m.status !== 'PENDING_RESULT');
+
+    // 3. Eliminar únicamente los partidos pendientes antiguos para regenerar el fixture
+    db.prepare("DELETE FROM matches WHERE rankingId = ? AND status = 'PENDING_RESULT'").run(rankingId);
+  }
+
+  // Generar las parejas esperadas para los equipos activos y las vueltas solicitadas
+  const pairs = generateRoundRobinPairs(finalTeamIds, numRounds);
+
+  // Mapa de partidos jugados preservados para no duplicar enfrentamientos ya disputados
+  const playedCounts = new Map();
+  for (const pm of preservedPlayedMatches) {
+    const key = [pm.teamOneId, pm.teamTwoId].sort().join('__');
+    playedCounts.set(key, (playedCounts.get(key) || 0) + 1);
+  }
+
+  const now = new Date().toISOString();
+  const matchesToCreate = [];
+
+  for (const pair of pairs) {
+    const key = [pair.teamOneId, pair.teamTwoId].sort().join('__');
+    const available = playedCounts.get(key) || 0;
+    if (available > 0) {
+      playedCounts.set(key, available - 1);
+    } else {
+      matchesToCreate.push({
+        id: crypto.randomUUID(),
+        rankingId,
+        teamOneId: pair.teamOneId,
+        teamTwoId: pair.teamTwoId,
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+  }
 
   if (matchesToCreate.length > 0) {
     matchModel.createMany(matchesToCreate);
@@ -72,7 +126,12 @@ async function generateMatchesForRanking(rankingId, teamIds, user) {
     action: 'GENERATE_MATCHES',
     entity: 'Ranking',
     entityId: rankingId,
-    data: { matchesCreated: matchesToCreate.length, teamCount: teamIds.length },
+    data: {
+      matchesCreated: matchesToCreate.length,
+      preservedMatches: preservedPlayedMatches.length,
+      teamCount: finalTeamIds.length,
+      rounds: numRounds
+    },
   });
 
   return matchesToCreate.length;

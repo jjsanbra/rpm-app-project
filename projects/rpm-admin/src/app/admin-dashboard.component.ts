@@ -1,7 +1,13 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { DialogModule } from 'primeng/dialog';
+import { ButtonDirective } from 'primeng/button';
+import { SelectModule } from 'primeng/select';
+import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import {
   RankingService,
   TeamService,
@@ -34,6 +40,13 @@ import { AdminOrganizersComponent, CreateOrganizerPayload, UpdateOrganizerPayloa
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
+    DialogModule,
+    ButtonDirective,
+    SelectModule,
+    TagModule,
+    TooltipModule,
+    TranslatePipe,
     AdminHeaderComponent,
     AdminRankingsComponent,
     AdminTeamsComponent,
@@ -72,9 +85,29 @@ export class AdminDashboardComponent implements OnInit {
 
   selectedRankingId = signal<string>('');
 
+  // Generar Calendario Modal State
+  showGenerateModal = signal<boolean>(false);
+  generateRankingName = signal<string>('');
+  generateEnrolledTeams = signal<Team[]>([]);
+  generateRounds = signal<number>(1);
+
+  roundsOptions = [
+    { labelKey: 'ADMIN.ROUNDS_1_LABEL', value: 1 },
+    { labelKey: 'ADMIN.ROUNDS_2_LABEL', value: 2 },
+    { labelKey: 'ADMIN.ROUNDS_3_LABEL', value: 3 },
+    { labelKey: 'ADMIN.ROUNDS_4_LABEL', value: 4 }
+  ];
+
   levelsList = signal<AuxiliaryItem[]>([]);
   categoriesList = signal<AuxiliaryItem[]>([]);
   locationsList = signal<AuxiliaryItem[]>([]);
+
+  // Manage Ranking Teams Modal State
+  showManageTeamsModal = signal<boolean>(false);
+  manageTeamsRanking = signal<Ranking | null>(null);
+  rankingEnrolledTeams = signal<Team[]>([]);
+  selectedTeamToEnroll = signal<string>('');
+  loadingRankingTeams = signal<boolean>(false);
 
   ngOnInit(): void {
     this.loadAllData();
@@ -334,6 +367,88 @@ export class AdminDashboardComponent implements OnInit {
     this.loadMatchesForSelectedRanking();
   }
 
+  // Manage Ranking Teams
+  openManageTeams(r: Ranking): void {
+    this.manageTeamsRanking.set(r);
+    this.selectedTeamToEnroll.set('');
+    this.loadingRankingTeams.set(true);
+    this.showManageTeamsModal.set(true);
+    this.loadRankingTeams(r.id);
+  }
+
+  loadRankingTeams(rankingId: string): void {
+    this.rankingService.getTeams(rankingId).subscribe({
+      next: (res) => {
+        this.rankingEnrolledTeams.set(res.data || []);
+        this.loadingRankingTeams.set(false);
+      },
+      error: () => {
+        this.loadingRankingTeams.set(false);
+      }
+    });
+  }
+
+  getAvailableTeamsToEnroll(): Team[] {
+    const enrolledIds = new Set(this.rankingEnrolledTeams().map(t => t.id));
+    return this.teams().filter(t => !enrolledIds.has(t.id));
+  }
+
+  handleEnrollTeam(): void {
+    const ranking = this.manageTeamsRanking();
+    const teamId = this.selectedTeamToEnroll();
+    if (!ranking || !teamId) return;
+
+    this.rankingService.enrollTeam(ranking.id, teamId).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('ADMIN.TEAM_ENROLLED_SUCCESS'),
+          detail: this.translate.instant('ADMIN.TEAM_ENROLLED_DETAIL')
+        });
+        this.selectedTeamToEnroll.set('');
+        this.loadRankingTeams(ranking.id);
+        this.loadRankings();
+        if (this.selectedRankingId() === ranking.id) {
+          this.loadMatchesForSelectedRanking();
+        }
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translate.instant('COMMON.ERROR'),
+          detail: err.error?.error || err.error?.error?.message || this.translate.instant('COMMON.ERROR')
+        });
+      }
+    });
+  }
+
+  handleUnenrollTeam(team: Team): void {
+    const ranking = this.manageTeamsRanking();
+    if (!ranking) return;
+
+    this.rankingService.unenrollTeam(ranking.id, team.id).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'info',
+          summary: this.translate.instant('ADMIN.TEAM_UNENROLLED_SUCCESS'),
+          detail: this.translate.instant('ADMIN.TEAM_UNENROLLED_DETAIL')
+        });
+        this.loadRankingTeams(ranking.id);
+        this.loadRankings();
+        if (this.selectedRankingId() === ranking.id) {
+          this.loadMatchesForSelectedRanking();
+        }
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translate.instant('COMMON.ERROR'),
+          detail: err.error?.error || err.error?.error?.message || this.translate.instant('COMMON.ERROR')
+        });
+      }
+    });
+  }
+
   // Team actions
   handleCreateTeam(payload: CreateTeamPayload): void {
     this.teamService.create({
@@ -437,22 +552,71 @@ export class AdminDashboardComponent implements OnInit {
   generateRoundRobin(): void {
     const rankingId = this.selectedRankingId();
     if (!rankingId) return;
-    const teamIds = this.teams().map(t => t.id);
-    if (teamIds.length < 4) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: this.translate.instant('ADMIN.INSUFFICIENT_TEAMS_WARN'),
-        detail: this.translate.instant('ADMIN.INSUFFICIENT_TEAMS_DETAIL')
-      });
-      return;
-    }
 
-    this.matchService.generateMatches(rankingId, teamIds).subscribe({
+    const ranking = this.rankings().find(r => r.id === rankingId);
+    this.generateRankingName.set(ranking ? ranking.name : '');
+
+    this.rankingService.getTeams(rankingId).subscribe({
       next: (res) => {
+        const enrolled = res.data || [];
+        if (enrolled.length < 4) {
+          this.messageService.add({
+            severity: 'warn',
+            summary: this.translate.instant('ADMIN.INSUFFICIENT_TEAMS_WARN'),
+            detail: this.translate.instant('ADMIN.INSUFFICIENT_ENROLLED_TEAMS_DETAIL')
+          });
+          return;
+        }
+
+        // Si ya hay partidos generados, comparar si los equipos participantes son exactamente los mismos
+        if (this.matches().length > 0) {
+          const matchTeamIds = new Set(this.matches().flatMap(m => [m.teamOneId, m.teamTwoId]));
+          const isSameTeams = matchTeamIds.size === enrolled.length && enrolled.every(t => matchTeamIds.has(t.id));
+
+          if (isSameTeams) {
+            this.messageService.add({
+              severity: 'warn',
+              summary: this.translate.instant('ADMIN.CALENDAR_ALREADY_GENERATED_WARN'),
+              detail: this.translate.instant('ADMIN.CALENDAR_ALREADY_GENERATED_DETAIL')
+            });
+            return;
+          }
+        }
+
+        this.generateEnrolledTeams.set(enrolled);
+        this.generateRounds.set(1);
+        this.showGenerateModal.set(true);
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: this.translate.instant('COMMON.ERROR'),
+          detail: err.error?.error || err.error?.error?.message || this.translate.instant('COMMON.ERROR')
+        });
+      }
+    });
+  }
+
+  getExpectedMatchesCount(): number {
+    const n = this.generateEnrolledTeams().length;
+    const r = this.generateRounds() || 1;
+    return Math.floor((n * (n - 1)) / 2) * r;
+  }
+
+  confirmGenerateMatches(): void {
+    const rankingId = this.selectedRankingId();
+    if (!rankingId) return;
+
+    const rounds = this.generateRounds();
+    const teamIds = this.generateEnrolledTeams().map(t => t.id);
+
+    this.matchService.generateMatches(rankingId, rounds, teamIds).subscribe({
+      next: (res) => {
+        this.showGenerateModal.set(false);
         this.messageService.add({
           severity: 'success',
           summary: this.translate.instant('ADMIN.MATCHES_GENERATED_SUCCESS'),
-          detail: res.data.message || this.translate.instant('ADMIN.MATCHES_GENERATED_SUCCESS')
+          detail: res.data?.message || this.translate.instant('ADMIN.MATCHES_GENERATED_SUCCESS')
         });
         this.loadMatchesForSelectedRanking();
       },

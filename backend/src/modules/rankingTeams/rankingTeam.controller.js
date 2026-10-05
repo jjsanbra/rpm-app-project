@@ -22,8 +22,9 @@ async function removeTeam(req, res, next) {
 
 async function generateMatches(req, res, next) {
   try {
-    const count = await svc.generateMatches(req.params.rankingId, req.user);
-    res.json({ data: { message: `${count} partidos generados.`, matchesCreated: count } });
+    const { rounds } = req.body;
+    const count = await svc.generateMatches(req.params.rankingId, req.user, rounds);
+    res.json({ data: { message: `${count} partidos generados exitosamente.`, matchesCreated: count } });
   } catch (err) { next(err); }
 }
 

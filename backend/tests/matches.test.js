@@ -281,4 +281,172 @@ describe('Matches & Scoring Integration Tests', () => {
       expect(res.body.data.status).toBe('CONFIRMED');
     });
   });
+
+  describe('Calendar generation rules', () => {
+    it('no debe permitir volver a generar calendario si el ranking ya tiene partidos generados', async () => {
+      const res = await request(app)
+        .post(`/api/matches/ranking/${rankingId}/generate`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ rounds: 1 });
+
+      expect(res.status).toBe(400);
+      expect(res.body.error.message).toContain('ya ha sido generado previamente');
+    });
+
+    it('no debe permitir generar calendario si hay menos de 4 equipos inscritos', async () => {
+      // Crear un ranking nuevo sin equipos inscritos
+      const db = getDb();
+      const newRankId = 'test-empty-ranking-' + Date.now();
+      const location = db.prepare('SELECT id FROM locations LIMIT 1').get();
+      const level = db.prepare('SELECT id FROM levels LIMIT 1').get();
+      const category = db.prepare('SELECT id FROM categories LIMIT 1').get();
+      const adminUser = db.prepare("SELECT id FROM users WHERE role = 'ADMIN' LIMIT 1").get();
+
+      db.prepare(`
+        INSERT INTO rankings (id, name, locationId, levelId, categoryId, startDate, endDate, active, createdBy, createdAt, updatedAt)
+        VALUES (?, 'Ranking Vacío Test', ?, ?, ?, '2026-10-01', '2026-12-31', 1, ?, datetime('now'), datetime('now'))
+      `).run(newRankId, location.id, level.id, category.id, adminUser.id);
+
+      const res = await request(app)
+        .post(`/api/matches/ranking/${newRankId}/generate`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ rounds: 1 });
+
+      expect(res.status).toBe(400);
+      expect(res.body.error.message).toContain('al menos 4 equipos');
+    });
+
+    it('al desinscribir un equipo dejando menos de 4, debe retirar los partidos automáticamente', async () => {
+      const db = getDb();
+      // Crear un ranking de prueba con 4 equipos
+      const testRankId = 'test-rank-auto-' + Date.now();
+      const location = db.prepare('SELECT id FROM locations LIMIT 1').get();
+      const level = db.prepare('SELECT id FROM levels LIMIT 1').get();
+      const category = db.prepare('SELECT id FROM categories LIMIT 1').get();
+      const adminUser = db.prepare("SELECT id FROM users WHERE role = 'ADMIN' LIMIT 1").get();
+      const teams = db.prepare('SELECT id FROM teams LIMIT 5').all();
+
+      db.prepare(`
+        INSERT INTO rankings (id, name, locationId, levelId, categoryId, startDate, endDate, active, createdBy, createdAt, updatedAt)
+        VALUES (?, 'Ranking Auto Sync Test', ?, ?, ?, '2026-10-01', '2026-12-31', 1, ?, datetime('now'), datetime('now'))
+      `).run(testRankId, location.id, level.id, category.id, adminUser.id);
+
+      // Inscribir 4 equipos (teams[0]..teams[3])
+      for (let i = 0; i < 4; i++) {
+        await request(app)
+          .post(`/api/ranking-team-registrations/${testRankId}/teams`)
+          .set('Authorization', `Bearer ${adminToken}`)
+          .send({ teamId: teams[i].id });
+      }
+
+      // Generar calendario inicial
+      const genRes = await request(app)
+        .post(`/api/matches/ranking/${testRankId}/generate`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ rounds: 1 });
+      expect(genRes.status).toBe(201);
+
+      // Verificar que hay 6 partidos (4 equipos -> (4*3)/2 = 6)
+      let matches = db.prepare('SELECT * FROM matches WHERE rankingId = ?').all(testRankId);
+      expect(matches.length).toBe(6);
+
+      // Desinscribir un equipo (quedan 3) -> debe retirar los partidos automáticamente
+      const delRes = await request(app)
+        .delete(`/api/ranking-team-registrations/${testRankId}/teams/${teams[3].id}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+      expect(delRes.status).toBe(200);
+
+      matches = db.prepare('SELECT * FROM matches WHERE rankingId = ?').all(testRankId);
+      expect(matches.length).toBe(0);
+
+      // Inscribir otro equipo (teams[4]), volviendo a tener 4 equipos -> debe regenerar calendario
+      const addRes = await request(app)
+        .post(`/api/ranking-team-registrations/${testRankId}/teams`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ teamId: teams[4].id });
+      expect(addRes.status).toBe(201);
+
+      // Al generar de nuevo con la nueva lista de equipos, debe permitirlo exitosamente
+      const regenRes = await request(app)
+        .post(`/api/matches/ranking/${testRankId}/generate`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ rounds: 1 });
+      expect(regenRes.status).toBe(201);
+
+      matches = db.prepare('SELECT * FROM matches WHERE rankingId = ?').all(testRankId);
+      expect(matches.length).toBe(6);
+
+      // Verificar que teams[4] está en los partidos y teams[3] no
+      const matchTeamIds = new Set(matches.flatMap(m => [m.teamOneId, m.teamTwoId]));
+      expect(matchTeamIds.has(teams[4].id)).toBe(true);
+      expect(matchTeamIds.has(teams[3].id)).toBe(false);
+    });
+
+    it('debe preservar los partidos confirmados/jugados al agregar un nuevo equipo al ranking', async () => {
+      const db = getDb();
+      const testRankId = 'test-rank-preserve-' + Date.now();
+      const location = db.prepare('SELECT id FROM locations LIMIT 1').get();
+      const level = db.prepare('SELECT id FROM levels LIMIT 1').get();
+      const category = db.prepare('SELECT id FROM categories LIMIT 1').get();
+      const adminUser = db.prepare("SELECT id FROM users WHERE role = 'ADMIN' LIMIT 1").get();
+      const teams = db.prepare('SELECT id FROM teams LIMIT 5').all();
+
+      db.prepare(`
+        INSERT INTO rankings (id, name, locationId, levelId, categoryId, startDate, endDate, active, createdBy, createdAt, updatedAt)
+        VALUES (?, 'Ranking Preserve Scores Test', ?, ?, ?, '2026-10-01', '2026-12-31', 1, ?, datetime('now'), datetime('now'))
+      `).run(testRankId, location.id, level.id, category.id, adminUser.id);
+
+      // Inscribir 4 equipos (teams[0]..teams[3])
+      for (let i = 0; i < 4; i++) {
+        await request(app)
+          .post(`/api/ranking-team-registrations/${testRankId}/teams`)
+          .set('Authorization', `Bearer ${adminToken}`)
+          .send({ teamId: teams[i].id });
+      }
+
+      // Generar calendario
+      await request(app)
+        .post(`/api/matches/ranking/${testRankId}/generate`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ rounds: 1 });
+
+      // Simular que el partido entre teams[0] y teams[1] se juega y se confirma (6-3, 6-4)
+      const matchToPlay = db.prepare(`
+        SELECT id FROM matches 
+        WHERE rankingId = ? AND ((teamOneId = ? AND teamTwoId = ?) OR (teamOneId = ? AND teamTwoId = ?))
+      `).get(testRankId, teams[0].id, teams[1].id, teams[1].id, teams[0].id);
+
+      expect(matchToPlay).toBeDefined();
+
+      db.prepare(`
+        UPDATE matches SET
+          status = 'CONFIRMED',
+          set1TeamOne = 6, set1TeamTwo = 3,
+          set2TeamOne = 6, set2TeamTwo = 4,
+          setsTeamOne = 2, setsTeamTwo = 0,
+          gamesTeamOne = 12, gamesTeamTwo = 7,
+          pointsTeamOne = 5, pointsTeamTwo = 1
+        WHERE id = ?
+      `).run(matchToPlay.id);
+
+      // Agregar un 5º equipo (teams[4])
+      await request(app)
+        .post(`/api/ranking-team-registrations/${testRankId}/teams`)
+        .set('Authorization', `Bearer ${adminToken}`)
+        .send({ teamId: teams[4].id });
+
+      // Verificar que el partido confirmado entre teams[0] y teams[1] SE MANTIENE CON SUS RESULTADOS
+      const preservedMatch = db.prepare('SELECT * FROM matches WHERE id = ?').get(matchToPlay.id);
+      expect(preservedMatch).toBeDefined();
+      expect(preservedMatch.status).toBe('CONFIRMED');
+      expect(preservedMatch.set1TeamOne).toBe(6);
+      expect(preservedMatch.set1TeamTwo).toBe(3);
+      expect(preservedMatch.pointsTeamOne).toBe(5);
+
+      // Con 5 equipos debe haber 10 partidos en total ((5*4)/2 = 10)
+      const allMatches = db.prepare('SELECT * FROM matches WHERE rankingId = ?').all(testRankId);
+      expect(allMatches.length).toBe(10);
+    });
+  });
 });
+

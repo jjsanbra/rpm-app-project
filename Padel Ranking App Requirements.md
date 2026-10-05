@@ -324,28 +324,40 @@ req.user = {
 Nunca confiar en teamId enviado por el frontend si no coincide con el usuario autenticado.
 
 ==================================================
-8. REGLAS DE PARTIDOS
+8. REGLAS DE PARTIDOS Y GENERACIÓN DE CALENDARIO
 ==================================================
 
-El ranking funcionará como mínimo con formato de todos contra todos (round-robin), salvo que posteriormente se añada otro sistema.
+El ranking funcionará con formato de todos contra todos (Round-Robin) con soporte multivuelta (1 a 4+ vueltas):
 
-Cada pareja/equipo debe enfrentarse contra los demás equipos del ranking.
+### 8.1. Regla de Mínimo de Equipos
+- Se requiere un **mínimo de 4 equipos inscritos activos** en el ranking para poder generar el calendario.
+- Si hay 3 o menos equipos inscritos, el sistema **no permite** generar el calendario y emite un mensaje de advertencia indicando que se necesitan al menos 4 equipos.
 
-Los partidos no necesitan tener una fecha previamente asignada.
+### 8.2. Selección de Vueltas (Rounds)
+- Al generar el calendario, el administrador u organizador selecciona el número de vueltas a disputar:
+  - **1 Vuelta (Solo Ida)**: $N \times (N - 1) / 2$ partidos.
+  - **2 Vueltas (Ida y Vuelta)**: $N \times (N - 1)$ partidos.
+  - **3 Vueltas (Triple Vuelta)**: $3 \times N \times (N - 1) / 2$ partidos.
+  - **4 Vueltas (Cuádruple Vuelta)**: $2 \times N \times (N - 1)$ partidos.
+- Cada equipo debe enfrentarse a los demás equipos del ranking al menos una vez por vuelta.
 
-NO almacenar una hora del partido.
+### 8.3. Control de Generación Única y Comparación de Equipos
+- Si se solicita generar el calendario para un ranking que ya tiene partidos y la lista de equipos participantes es **idéntica**, el sistema bloquea la acción indicando que el calendario ya ha sido generado.
+- Si la lista de equipos varía (altas o bajas) y el total resultante es de al menos 4 equipos, se permite la regeneración / sincronización.
 
-La fecha del partido se selecciona cuando se registra el resultado.
+### 8.4. Sincronización y Regeneración Automática (Preservación de Resultados - Opción A)
+Cuando se añaden o eliminan equipos en un ranking con calendario existente:
+- **Partidos Jugados y Confirmados**: Los partidos que ya han sido disputados (`CONFIRMED`, `PENDING_CONFIRMATION`, `DISPUTED`) entre equipos que continúan activos se **preservan íntegramente** (se mantienen sus resultados, sets, juegos y puntos).
+- **Equipos Eliminados**: Se eliminan todos los partidos (pendientes o jugados) en los que participaba el equipo desinscrito.
+- **Partidos Pendientes**: Se eliminan los partidos anteriores no disputados (`PENDING_RESULT`) y se generan automáticamente los nuevos enfrentamientos pendientes necesarios para completar el Round-Robin multivuelta entre todos los equipos activos actuales.
+- **Caso de < 4 Equipos**: Si tras una baja quedan menos de 4 equipos, se eliminan los partidos pendientes y el ranking queda en espera de alcanzar nuevamente el cupo mínimo.
 
-Antes de registrar el resultado:
-
-- El partido no tiene necesariamente fecha.
-- Mostrar algo como "Fecha pendiente de resultado".
-
-Después de registrar el resultado:
-
-- Mostrar la fecha seleccionada.
-- Esa fecha representa el día real en el que se disputó el partido.
+### 8.5. Gestión de Fechas de Partidos
+- Los partidos generados no tienen fecha asignada previamente (`PENDING_RESULT`).
+- NO almacenar una hora del partido.
+- La fecha del partido se selecciona cuando se registra el resultado.
+- Antes de registrar el resultado se muestra "Fecha pendiente de resultado".
+- Después de registrar el resultado se muestra la fecha seleccionada, la cual representa el día real en el que se disputó el partido.
 
 ==================================================
 9. REGLA DE FECHA DEL PARTIDO
@@ -1225,10 +1237,11 @@ Pantallas y Funcionalidades:
 - Dashboard
 - Gestión de rankings (Crear y editar ranking: nombre, descripción, fechas, sede/ubicación, nivel y categoría, activación/desactivación)
 - Gestión de equipos (Crear y editar equipo: nombre, jugadores titulares 1 y 2, jugador reserva opcional, emails de contacto y acceso sincronizados con `users`, activación/desactivación y reenvío de credenciales de bienvenida)
-- Generador de calendario de partidos (Round-Robin)
+- Gestión de inscripciones de equipos por ranking (Inscribir equipos existentes, desinscribir equipos y control de cupo mínimo de 4 equipos)
+- Generador de calendario de partidos (Round-Robin con selector de 1 a 4+ vueltas, cálculo dinámico de partidos, bloqueo de regeneración idéntica y sincronización automática con preservación de resultados disputados)
 - Gestión y modificación administrativa de partidos (Admin Override con recálculo automático de clasificación y puntos)
 - Gestión y resolución de incidencias arbitrales
-- Gestión de tablas maestras/auxiliares (Niveles, Categorías, Sedes/Ubicaciones, Patrocinadores)
+- Gestión de tablas maestras/auxiliares (Niveles, Categorías, Sedes/Ubicaciones con dirección/ciudad/CP, Patrocinadores)
 - Registro de auditoría de seguridad
 
 ==================================================

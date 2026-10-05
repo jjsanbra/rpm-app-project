@@ -12,6 +12,12 @@
   gap: 1rem;
 }
 
+.generate-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
 .ranking-picker {
   display: flex;
   flex-direction: column;

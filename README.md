@@ -6,7 +6,13 @@ Plataforma web completa, modular y escalable para la gestión de **Rankings de P
 
 ## 🌟 Características Principales
 
-- **Concepto Centrado en Ranking**: Diseñado específicamente para rankings por temporadas con formato todos contra todos (Round-Robin).
+- **Concepto Centrado en Ranking y Calendario Round-Robin Inteligente**:
+  - Diseñado específicamente para rankings por temporadas con formato todos contra todos (Round-Robin).
+  - **Selector de Vueltas**: Configuración flexible de 1 a 4+ vueltas (Ida, Ida y Vuelta, Triple Vuelta, Cuádruple Vuelta) con cálculo dinámico de partidos a disputar.
+  - **Regla de Mínimo 4 Equipos**: Requiere al menos 4 equipos inscritos para generar calendario; si hay 3 o menos se bloquea con advertencia descriptiva.
+  - **Control de Generación Única y Sincronización Automática**: Bloquea regeneración si los equipos son idénticos. Si se inscriben o desinscriben equipos, se sincroniza automáticamente el calendario **preservando íntegramente los partidos ya jugados/confirmados** entre equipos activos y recalculando los partidos pendientes.
+- **Gestión de Equipos por Ranking (ADMIN y ORGANIZER)**:
+  - Inscripción y baja de equipos por ranking mediante endpoints dedicados (`/api/ranking-team-registrations/:rankingId/teams`) y modales interactivos en el panel de administración.
 - **Sistema de Puntuación Federado en Backend**:
   - Victoria 2 - 0: **5 puntos** al ganador / **1 punto** al perdedor.
   - Victoria 2 - 1: **4 puntos** al ganador / **2 puntos** al perdedor.
@@ -100,7 +106,7 @@ npx ng serve rpm-live
 
 ## 🧪 Pruebas Automatizadas
 
-### Backend Tests (35 pruebas de integración)
+### Backend Tests (39 pruebas de integración)
 ```bash
 npm run test:backend
 ```
@@ -108,6 +114,9 @@ npm run test:backend
 - Creación, listado, aislamiento y permisos de `ORGANIZER` (`rankings.test.js`)
 - Gestión de organizadores por `ADMIN` (`rankings.test.js`)
 - Equipos, emails y jugadores (`teams.test.js`)
+- Inscripción/desinscripción de equipos en rankings y mínimo de 4 equipos (`matches.test.js`)
+- Generación multivuelta (rounds 1 a 4) y bloqueo de regeneración idéntica (`matches.test.js`)
+- Sincronización automática de calendario con preservación de resultados disputados (`matches.test.js`)
 - Flujo de resultados, confirmación, disputa y auditoría (`matches.test.js`)
 - Tanteo en tiempo real, modo Punto de Oro vs Ventajas, validación de rival y firma de actas (`matches.test.js`)
 - Entidades auxiliares (`auxiliary.test.js`)
