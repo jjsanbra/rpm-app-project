@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { AuthService } from '@core';
+import { AuthService, extractErrorMessage } from '@core';
 
 // PrimeNG Modules
 import { CardModule } from 'primeng/card';
@@ -63,7 +63,7 @@ export class LoginComponent {
       },
       error: (err) => {
         this.loading.set(false);
-        this.errorMessage.set(err.error?.error || this.translate.instant('AUTH.INVALID_CREDENTIALS'));
+        this.errorMessage.set(extractErrorMessage(err, this.translate.instant('AUTH.INVALID_CREDENTIALS')));
       }
     });
   }

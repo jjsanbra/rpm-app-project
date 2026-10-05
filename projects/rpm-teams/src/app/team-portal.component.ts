@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthService, MatchService, TeamService, Match, Team } from '@core';
+import { AuthService, MatchService, TeamService, Match, Team, extractErrorMessage } from '@core';
 import { MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -112,7 +112,7 @@ export class TeamPortalComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: this.translate.instant('COMMON.ERROR'),
-          detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+          detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
         });
       }
     });
@@ -132,7 +132,7 @@ export class TeamPortalComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: this.translate.instant('TEAM_PORTAL.ERROR_CONFIRM_TITLE'),
-          detail: err.error?.error || this.translate.instant('TEAM_PORTAL.ERROR_CONFIRM_DETAIL')
+          detail: extractErrorMessage(err, this.translate.instant('TEAM_PORTAL.ERROR_CONFIRM_DETAIL'))
         });
       }
     });
@@ -166,7 +166,7 @@ export class TeamPortalComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: this.translate.instant('COMMON.ERROR'),
-          detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+          detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
         });
       }
     });
