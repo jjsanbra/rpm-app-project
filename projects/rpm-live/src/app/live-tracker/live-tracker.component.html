@@ -3,28 +3,12 @@
 <div class="live-container">
   <!-- Top Navigation & Header -->
   <header class="live-header glass-panel">
-    <div class="header-left">
+    <div class="header-top-row">
       <button class="btn-back" (click)="goBack()" title="{{ 'COMMON.BACK' | translate }}">
         <i class="pi pi-arrow-left"></i>
         <span>{{ 'COMMON.BACK' | translate }}</span>
       </button>
-      <div class="match-meta">
-        <span class="ranking-pill">
-          <i class="pi pi-trophy"></i>
-          {{ session()?.rankingName || match()?.rankingName || ('LIVE.RANKING_MATCH' | translate) }}
-        </span>
-        <span class="mode-pill" [class.advantage]="isAdvantageMode()">
-          <i class="pi" [ngClass]="isAdvantageMode() ? 'pi-sliders-h' : 'pi-star-fill'"></i>
-          {{ (isAdvantageMode() ? 'LIVE.MODE_ADVANTAGE' : 'LIVE.MODE_GOLDEN_POINT') | translate }}
-        </span>
-        <span class="date-text" *ngIf="match()?.matchDate">
-          <i class="pi pi-calendar"></i>
-          {{ match()?.matchDate }}
-        </span>
-      </div>
-    </div>
 
-    <div class="header-right">
       <!-- Status Badge -->
       <div class="live-status-badge" [ngClass]="session()?.status || 'PENDING'">
         <span class="status-dot" *ngIf="session()?.status === 'IN_PROGRESS'"></span>
@@ -34,6 +18,21 @@
         <span *ngIf="session()?.status === 'CONFIRMED'">{{ 'LIVE.STATUS_CONFIRMED' | translate }}</span>
         <span *ngIf="!session()">{{ 'LIVE.STATUS_PENDING' | translate }}</span>
       </div>
+    </div>
+
+    <div class="match-meta">
+      <span class="ranking-pill" [title]="session()?.rankingName || match()?.rankingName || ''">
+        <i class="pi pi-trophy"></i>
+        <span class="pill-text">{{ session()?.rankingName || match()?.rankingName || ('LIVE.RANKING_MATCH' | translate) }}</span>
+      </span>
+      <span class="mode-pill" [class.advantage]="isAdvantageMode()">
+        <i class="pi" [ngClass]="isAdvantageMode() ? 'pi-sliders-h' : 'pi-star-fill'"></i>
+        <span class="pill-text">{{ (isAdvantageMode() ? 'LIVE.MODE_ADVANTAGE' : 'LIVE.MODE_GOLDEN_POINT') | translate }}</span>
+      </span>
+      <span class="date-text" *ngIf="match()?.matchDate">
+        <i class="pi pi-calendar"></i>
+        <span class="pill-text">{{ match()?.matchDate }}</span>
+      </span>
     </div>
   </header>
 
