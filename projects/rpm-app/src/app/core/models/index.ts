@@ -57,6 +57,7 @@ export interface Ranking {
   categoryName?: string | null;
   createdBy?: string | null;
   creatorEmail?: string | null;
+  teamCount?: number;
   createdAt: string;
   updatedAt: string;
 }

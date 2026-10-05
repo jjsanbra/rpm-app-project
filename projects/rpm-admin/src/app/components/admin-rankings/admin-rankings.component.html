@@ -30,6 +30,16 @@
           <button
             type="button"
             pButton
+            severity="secondary"
+            size="small"
+            [outlined]="true"
+            (click)="manageTeams.emit(r)">
+            <i class="pi pi-shield"></i>
+            <span>{{ 'ADMIN.MANAGE_TEAMS_BTN' | translate }} ({{ r.teamCount ?? 0 }})</span>
+          </button>
+          <button
+            type="button"
+            pButton
             severity="warn"
             size="small"
             [outlined]="true"

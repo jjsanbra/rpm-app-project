@@ -28,6 +28,18 @@ export class RankingService {
     return this.http.patch<{ data: Ranking }>(`${this.apiUrl}/${id}/active`, { active });
   }
 
+  getTeams(rankingId: string): Observable<{ data: Team[] }> {
+    return this.http.get<{ data: Team[] }>(`${this.apiUrl}/${rankingId}/teams`);
+  }
+
+  enrollTeam(rankingId: string, teamId: string): Observable<any> {
+    return this.http.post(`/api/ranking-team-registrations/${rankingId}/teams`, { teamId });
+  }
+
+  unenrollTeam(rankingId: string, teamId: string): Observable<any> {
+    return this.http.delete(`/api/ranking-team-registrations/${rankingId}/teams/${teamId}`);
+  }
+
   delete(id: string): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }
@@ -118,8 +130,8 @@ export class MatchService {
     return this.http.post<{ data: any; message: string }>(`${this.apiUrl}/${id}/dispute`, { description });
   }
 
-  generateMatches(rankingId: string, teamIds: string[]): Observable<any> {
-    return this.http.post(`${this.apiUrl}/ranking/${rankingId}/generate`, { teamIds });
+  generateMatches(rankingId: string, rounds = 1, teamIds?: string[]): Observable<any> {
+    return this.http.post(`${this.apiUrl}/ranking/${rankingId}/generate`, { rounds, teamIds });
   }
 
   adminOverride(id: string, data: any): Observable<{ data: Match }> {

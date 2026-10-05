@@ -56,6 +56,7 @@ export class AdminRankingsComponent {
   updateRanking = output<UpdateRankingPayload>();
   toggleActive = output<Ranking>();
   selectForMatches = output<Ranking>();
+  manageTeams = output<Ranking>();
   deleteRanking = output<Ranking>();
 
   // Create Modal state

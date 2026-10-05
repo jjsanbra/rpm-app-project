@@ -108,7 +108,7 @@ function getTeams(rankingId) {
     SELECT t.*, rt.status as registrationStatus, rt.id as registrationId, rt.createdAt as registeredAt
     FROM teams t
     JOIN ranking_teams rt ON rt.teamId = t.id
-    WHERE rt.rankingId = ?
+    WHERE rt.rankingId = ? AND rt.status = 'ACTIVE'
     ORDER BY t.name
   `).all(rankingId);
 }

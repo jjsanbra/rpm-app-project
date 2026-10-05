@@ -69,7 +69,8 @@ router.get('/:id', authenticateOptional, ctrl.getById);
  * @swagger
  * /api/matches/ranking/{rankingId}/generate:
  *   post:
- *     summary: Generar calendario de partidos round-robin para un conjunto de equipos (ADMIN u ORGANIZER)
+ *     summary: Generar o regenerar calendario de partidos (ADMIN u ORGANIZER)
+ *     description: Genera el fixture Round-Robin para los equipos inscritos en el ranking (mínimo 4). Permite configurar el número de vueltas (rounds). Preserva los partidos ya jugados entre equipos activos y elimina únicamente los partidos de equipos dados de baja y los partidos pendientes anteriores.
  *     tags: [Matches]
  *     security:
  *       - bearerAuth: []
@@ -80,26 +81,37 @@ router.get('/:id', authenticateOptional, ctrl.getById);
  *         schema:
  *           type: string
  *     requestBody:
- *       required: true
+ *       required: false
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required: [teamIds]
  *             properties:
+ *               rounds:
+ *                 type: integer
+ *                 default: 1
+ *                 minimum: 1
+ *                 maximum: 10
+ *                 description: Número de vueltas a disputar (1 = Ida, 2 = Ida y Vuelta, etc.)
  *               teamIds:
  *                 type: array
  *                 items:
  *                   type: string
  *                 minItems: 4
+ *                 description: Lista opcional de IDs de equipos. Si no se indica, se usan los equipos inscritos activos.
  *     responses:
  *       201:
- *         description: Partidos generados correctamente
+ *         description: Partidos generados o regenerados exitosamente
  *       400:
- *         description: Menos de 4 equipos o datos inválidos
+ *         description: Menos de 4 equipos inscritos o el calendario ya ha sido generado previamente con estos mismos equipos
+ *       403:
+ *         description: No autorizado
+ *       404:
+ *         description: Ranking no encontrado
  */
 router.post('/ranking/:rankingId/generate', authenticate, authorize('ADMIN', 'ORGANIZER'), [
-  body('teamIds').isArray({ min: 4 }).withMessage('Se necesitan al menos 4 equipos.'),
+  body('rounds').optional().isInt({ min: 1, max: 10 }).withMessage('El número de vueltas debe ser entre 1 y 10.'),
+  body('teamIds').optional().isArray({ min: 4 }).withMessage('Se necesitan al menos 4 equipos.'),
 ], validateRequest, ctrl.generateMatches);
 
 /**

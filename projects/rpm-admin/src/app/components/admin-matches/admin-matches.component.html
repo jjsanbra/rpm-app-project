@@ -12,10 +12,21 @@
       </p-select>
     </div>
 
-    <button type="button" pButton severity="success" size="small" (click)="generateMatches.emit()">
-      <i class="pi pi-bolt"></i>
-      <span>{{ 'ADMIN.GENERATE_MATCHES_BTN' | translate }}</span>
-    </button>
+    <div class="generate-btn-group">
+      @if (matches().length > 0) {
+        <p-tag severity="success" icon="pi pi-check-circle" [value]="'ADMIN.CALENDAR_ALREADY_GENERATED_BADGE' | translate"></p-tag>
+      } @else {
+        <button 
+          type="button" 
+          pButton 
+          severity="success" 
+          size="small" 
+          (click)="generateMatches.emit()">
+          <i class="pi pi-bolt"></i>
+          <span>{{ 'ADMIN.GENERATE_MATCHES_BTN' | translate }}</span>
+        </button>
+      }
+    </div>
   </div>
 
   <div class="table-container glass-panel">
