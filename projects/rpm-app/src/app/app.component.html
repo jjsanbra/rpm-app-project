@@ -1,7 +1,14 @@
 <p-toast position="top-right"></p-toast>
 <p-confirmdialog></p-confirmdialog>
-<app-navbar></app-navbar>
-<main class="main-content">
+
+@if (!isLiveRoute()) {
+  <app-navbar></app-navbar>
+}
+
+<main class="main-content" [class.live-mode]="isLiveRoute()">
   <router-outlet></router-outlet>
 </main>
-<app-footer></app-footer>
+
+@if (!isLiveRoute()) {
+  <app-footer></app-footer>
+}
