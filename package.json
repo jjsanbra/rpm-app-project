@@ -43,7 +43,9 @@
     "@ngx-translate/http-loader": "^18.0.0",
     "@primeng/themes": "^21.0.4",
     "@primeuix/themes": "^3.0.1",
+    "@types/jasmine": "^7.0.0",
     "chart.js": "^4.5.1",
+    "concurrently": "^9.1.2",
     "es-module-shims": "^2.1.2",
     "primeicons": "^8.0.2",
     "primeng": "^22.1.2",
@@ -52,8 +54,5 @@
     "typescript": "~6.0.2",
     "zone.js": "~0.16.0"
   },
-  "devDependencies": {
-    "@types/jasmine": "^7.0.0",
-    "concurrently": "^9.1.2"
-  }
+  "devDependencies": {}
 }
