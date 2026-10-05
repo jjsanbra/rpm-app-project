@@ -4,8 +4,12 @@ export interface User {
   id: string;
   email: string;
   role: Role;
+  firstName?: string | null;
+  lastName?: string | null;
+  phone?: string | null;
   teamId?: string | null;
   teamName?: string | null;
+  rankingCount?: number;
   active?: boolean;
   createdAt?: string;
   updatedAt?: string;

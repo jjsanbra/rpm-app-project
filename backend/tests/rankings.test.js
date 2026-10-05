@@ -142,29 +142,48 @@ describe('Rankings Module Integration Tests', () => {
     expect(res.status).toBe(200);
   });
 
-  it('debe permitir a un ADMIN gestionar (listar, crear, editar, eliminar) la lista de organizadores', async () => {
+  it('debe permitir a un ADMIN gestionar (listar, crear, editar, eliminar) la lista de organizadores con nombre, apellidos y teléfono', async () => {
     // Listar
     const listRes = await request(app)
       .get('/api/users/organizers')
       .set('Authorization', `Bearer ${adminToken}`);
     expect(listRes.status).toBe(200);
     expect(listRes.body.data.length).toBeGreaterThanOrEqual(2);
+    expect(listRes.body.data[0]).toHaveProperty('firstName');
+    expect(listRes.body.data[0]).toHaveProperty('lastName');
+    expect(listRes.body.data[0]).toHaveProperty('phone');
 
     // Crear
     const createRes = await request(app)
       .post('/api/users/organizers')
       .set('Authorization', `Bearer ${adminToken}`)
-      .send({ email: 'nuevo.org@padelranking.dev', password: 'OrgPassword123!' });
+      .send({
+        email: 'nuevo.org@padelranking.dev',
+        password: 'OrgPassword123!',
+        firstName: 'Roberto',
+        lastName: 'Sánchez',
+        phone: '+34 655 444 333'
+      });
     expect(createRes.status).toBe(201);
     expect(createRes.body.data.email).toBe('nuevo.org@padelranking.dev');
+    expect(createRes.body.data.firstName).toBe('Roberto');
+    expect(createRes.body.data.lastName).toBe('Sánchez');
+    expect(createRes.body.data.phone).toBe('+34 655 444 333');
 
-    // Editar (cambio de email y estado)
+    // Editar (cambio de email, nombre, teléfono y estado)
     const updateRes = await request(app)
       .put(`/api/users/organizers/${createRes.body.data.id}`)
       .set('Authorization', `Bearer ${adminToken}`)
-      .send({ email: 'nuevo.org.editado@padelranking.dev', active: false });
+      .send({
+        email: 'nuevo.org.editado@padelranking.dev',
+        firstName: 'Roberto Editado',
+        phone: '+34 699 888 777',
+        active: false
+      });
     expect(updateRes.status).toBe(200);
     expect(updateRes.body.data.email).toBe('nuevo.org.editado@padelranking.dev');
+    expect(updateRes.body.data.firstName).toBe('Roberto Editado');
+    expect(updateRes.body.data.phone).toBe('+34 699 888 777');
     expect(Boolean(updateRes.body.data.active)).toBe(false);
 
     // Eliminar

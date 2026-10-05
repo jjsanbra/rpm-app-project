@@ -4,17 +4,19 @@
       <h2>{{ 'ADMIN.ORGANIZERS_HEADING' | translate }}</h2>
       <p class="section-subtitle">{{ 'ADMIN.ORGANIZERS_SUBTITLE' | translate }}</p>
     </div>
-    <button type="button" pButton severity="info" size="small" (click)="openCreateModal()">
-      <i class="pi pi-user-plus"></i>
+    <button type="button" pButton severity="success" size="small" (click)="openCreateModal()">
+      <i class="pi pi-plus"></i>
       <span>{{ 'ADMIN.CREATE_ORGANIZER_BTN' | translate }}</span>
     </button>
   </div>
 
   <div class="table-container glass-panel">
-    <p-table [value]="organizers()" [tableStyle]="{ 'min-width': '40rem' }" responsiveLayout="scroll">
+    <p-table [value]="organizers()" [tableStyle]="{ 'min-width': '48rem' }" responsiveLayout="scroll">
       <ng-template #header>
         <tr>
+          <th>{{ 'ADMIN.TH_ORGANIZER_NAME' | translate }}</th>
           <th>{{ 'ADMIN.TH_ORGANIZER_EMAIL' | translate }}</th>
+          <th>{{ 'ADMIN.TH_PHONE' | translate }}</th>
           <th>{{ 'ADMIN.TH_ROLE' | translate }}</th>
           <th>{{ 'ADMIN.TH_STATUS' | translate }}</th>
           <th>{{ 'ADMIN.TH_CREATED_AT' | translate }}</th>
@@ -24,10 +26,26 @@
       <ng-template #body let-org>
         <tr>
           <td>
-            <div class="user-email-cell">
-              <i class="pi pi-id-card"></i>
-              <strong>{{ org.email }}</strong>
+            <div class="user-name-cell">
+              <i class="pi pi-user"></i>
+              <strong>{{ org.firstName ? (org.firstName + ' ' + (org.lastName || '')) : ('ADMIN.ORGANIZER_UNNAMED' | translate) }}</strong>
             </div>
+          </td>
+          <td>
+            <div class="user-email-cell">
+              <i class="pi pi-envelope"></i>
+              <span>{{ org.email }}</span>
+            </div>
+          </td>
+          <td>
+            @if (org.phone) {
+              <div class="phone-cell">
+                <i class="pi pi-phone"></i>
+                <span>{{ org.phone }}</span>
+              </div>
+            } @else {
+              <span class="text-dim">-</span>
+            }
           </td>
           <td>
             <p-tag [value]="'ROLES.ORGANIZER' | translate" severity="info"></p-tag>
@@ -66,7 +84,7 @@
       </ng-template>
       <ng-template #emptymessage>
         <tr>
-          <td colspan="5" class="empty-state">
+          <td colspan="7" class="empty-state">
             <i class="pi pi-users empty-icon"></i>
             <p>{{ 'ADMIN.NO_ORGANIZERS' | translate }}</p>
           </td>
@@ -81,10 +99,26 @@
   [(visible)]="showCreateModal"
   [modal]="true"
   [header]="'ADMIN.MODAL_CREATE_ORGANIZER_TITLE' | translate"
-  [style]="{ width: '90vw', maxWidth: '480px' }"
+  [style]="{ width: '90vw', maxWidth: '520px' }"
   styleClass="custom-p-dialog">
   
   <form (ngSubmit)="submitCreate()" class="modal-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.ORGANIZER_FIRST_NAME_LABEL' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="newFirstName" name="firstName" placeholder="Carlos" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.ORGANIZER_LAST_NAME_LABEL' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="newLastName" name="lastName" placeholder="Gómez Martín" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.ORGANIZER_PHONE_LABEL' | translate }}</label>
+      <input type="tel" class="form-control" [(ngModel)]="newPhone" name="phone" placeholder="+34 600 000 000" />
+    </div>
+
     <div class="form-group">
       <label class="form-label">{{ 'ADMIN.ORGANIZER_EMAIL_LABEL' | translate }}</label>
       <input type="email" class="form-control" [(ngModel)]="newEmail" name="email" required placeholder="organizador@padelranking.dev" />
@@ -100,7 +134,7 @@
       <button type="button" pButton severity="secondary" size="small" (click)="showCreateModal = false">
         {{ 'COMMON.CANCEL' | translate }}
       </button>
-      <button type="submit" pButton severity="info" size="small" [disabled]="!newEmail.trim()">
+      <button type="submit" pButton severity="success" size="small" [disabled]="!newEmail.trim()">
         {{ 'COMMON.CREATE' | translate }}
       </button>
     </div>
@@ -108,10 +142,30 @@
 </p-dialog>
 
 <!-- MODAL EDITAR ORGANIZADOR -->
-<p-dialog [(visible)]="showEditModal" [modal]="true" [header]="'ADMIN.MODAL_EDIT_ORGANIZER_TITLE' | translate"
-  [style]="{ width: '90vw', maxWidth: '480px' }" styleClass="custom-p-dialog">
+<p-dialog
+  [(visible)]="showEditModal"
+  [modal]="true"
+  [header]="'ADMIN.MODAL_EDIT_ORGANIZER_TITLE' | translate"
+  [style]="{ width: '90vw', maxWidth: '520px' }"
+  styleClass="custom-p-dialog">
 
   <form (ngSubmit)="submitEdit()" class="modal-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.ORGANIZER_FIRST_NAME_LABEL' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="editFirstName" name="editFirstName" placeholder="Carlos" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.ORGANIZER_LAST_NAME_LABEL' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="editLastName" name="editLastName" placeholder="Gómez Martín" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.ORGANIZER_PHONE_LABEL' | translate }}</label>
+      <input type="tel" class="form-control" [(ngModel)]="editPhone" name="editPhone" placeholder="+34 600 000 000" />
+    </div>
+
     <div class="form-group">
       <label class="form-label">{{ 'ADMIN.ORGANIZER_EMAIL_LABEL' | translate }}</label>
       <input type="email" class="form-control" [(ngModel)]="editEmail" name="editEmail" required />
@@ -126,10 +180,9 @@
 
     <div class="form-group">
       <label class="form-label">{{ 'ADMIN.STATUS_LABEL' | translate }}</label>
-      <div class="flex items-center gap-2">
+      <div class="checkbox-group">
         <input type="checkbox" id="editActiveCheck" [(ngModel)]="editActive" name="editActive" />
-        <label for="editActiveCheck" class="text-sm cursor-pointer">{{ (editActive ? 'STATUS.ACTIVE' :
-          'STATUS.INACTIVE') | translate }}</label>
+        <label for="editActiveCheck">{{ (editActive ? 'STATUS.ACTIVE' : 'STATUS.INACTIVE') | translate }}</label>
       </div>
     </div>
 
@@ -137,7 +190,7 @@
       <button type="button" pButton severity="secondary" size="small" (click)="showEditModal = false">
         {{ 'COMMON.CANCEL' | translate }}
       </button>
-      <button type="submit" pButton severity="info" size="small" [disabled]="!editEmail.trim()">
+      <button type="submit" pButton severity="success" size="small" [disabled]="!editEmail.trim()">
         {{ 'COMMON.SAVE' | translate }}
       </button>
     </div>

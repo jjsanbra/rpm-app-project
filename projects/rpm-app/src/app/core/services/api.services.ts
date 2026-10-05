@@ -42,11 +42,11 @@ export class UserService {
     return this.http.get<{ data: User[] }>(`${this.apiUrl}/organizers`);
   }
 
-  createOrganizer(data: { email: string; password?: string }): Observable<{ data: User; message: string }> {
+  createOrganizer(data: { email: string; password?: string; firstName?: string; lastName?: string; phone?: string }): Observable<{ data: User; message: string }> {
     return this.http.post<{ data: User; message: string }>(`${this.apiUrl}/organizers`, data);
   }
 
-  updateOrganizer(id: string, data: { email?: string; password?: string; active?: boolean }): Observable<{ data: User }> {
+  updateOrganizer(id: string, data: { email?: string; password?: string; firstName?: string; lastName?: string; phone?: string; active?: boolean }): Observable<{ data: User }> {
     return this.http.put<{ data: User }>(`${this.apiUrl}/organizers/${id}`, data);
   }
 

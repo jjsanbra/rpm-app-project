@@ -13,12 +13,18 @@ import { TooltipModule } from 'primeng/tooltip';
 export interface CreateOrganizerPayload {
   email: string;
   password?: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
 }
 
 export interface UpdateOrganizerPayload {
   id: string;
   email: string;
   password?: string;
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
   active: boolean;
 }
 
@@ -49,17 +55,26 @@ export class AdminOrganizersComponent {
 
   // Modal Crear
   showCreateModal = false;
+  newFirstName = '';
+  newLastName = '';
+  newPhone = '';
   newEmail = '';
   newPassword = '';
 
   // Modal Editar
   showEditModal = false;
   editId = '';
+  editFirstName = '';
+  editLastName = '';
+  editPhone = '';
   editEmail = '';
   editPassword = '';
   editActive = true;
 
   openCreateModal(): void {
+    this.newFirstName = '';
+    this.newLastName = '';
+    this.newPhone = '';
     this.newEmail = '';
     this.newPassword = '';
     this.showCreateModal = true;
@@ -69,13 +84,19 @@ export class AdminOrganizersComponent {
     if (!this.newEmail.trim()) return;
     this.createOrganizer.emit({
       email: this.newEmail.trim(),
-      password: this.newPassword.trim() || undefined
+      password: this.newPassword.trim() || undefined,
+      firstName: this.newFirstName.trim() || undefined,
+      lastName: this.newLastName.trim() || undefined,
+      phone: this.newPhone.trim() || undefined,
     });
     this.showCreateModal = false;
   }
 
   openEditModal(org: User): void {
     this.editId = org.id;
+    this.editFirstName = org.firstName || '';
+    this.editLastName = org.lastName || '';
+    this.editPhone = org.phone || '';
     this.editEmail = org.email;
     this.editPassword = '';
     this.editActive = org.active !== false;
@@ -88,6 +109,9 @@ export class AdminOrganizersComponent {
       id: this.editId,
       email: this.editEmail.trim(),
       password: this.editPassword.trim() || undefined,
+      firstName: this.editFirstName.trim() || undefined,
+      lastName: this.editLastName.trim() || undefined,
+      phone: this.editPhone.trim() || undefined,
       active: this.editActive
     });
     this.showEditModal = false;

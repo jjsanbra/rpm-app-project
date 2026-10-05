@@ -44,6 +44,9 @@ async function createOrganizer(data, adminUserId) {
     email,
     passwordHash,
     role: 'ORGANIZER',
+    firstName: data.firstName?.trim() || null,
+    lastName: data.lastName?.trim() || null,
+    phone: data.phone?.trim() || null,
     createdAt: now,
     updatedAt: now,
   });
@@ -53,7 +56,7 @@ async function createOrganizer(data, adminUserId) {
     action: 'CREATE_ORGANIZER',
     entity: 'User',
     entityId: user.id,
-    data: { email: user.email, role: 'ORGANIZER' },
+    data: { email: user.email, firstName: user.firstName, lastName: user.lastName, phone: user.phone, role: 'ORGANIZER' },
   });
 
   const { passwordHash: _, ...safe } = user;
@@ -97,6 +100,18 @@ async function updateOrganizer(id, data, adminUserId) {
     }
   }
 
+  if (data.firstName !== undefined) {
+    updates.firstName = data.firstName ? data.firstName.trim() : null;
+  }
+
+  if (data.lastName !== undefined) {
+    updates.lastName = data.lastName ? data.lastName.trim() : null;
+  }
+
+  if (data.phone !== undefined) {
+    updates.phone = data.phone ? data.phone.trim() : null;
+  }
+
   if (data.password && data.password.trim()) {
     if (data.password.length < 6) {
       throw createError(400, 'La contraseña debe tener al menos 6 caracteres.');
@@ -115,7 +130,7 @@ async function updateOrganizer(id, data, adminUserId) {
     action: 'UPDATE_ORGANIZER',
     entity: 'User',
     entityId: id,
-    data: { email: updated.email, active: updated.active },
+    data: { email: updated.email, firstName: updated.firstName, lastName: updated.lastName, phone: updated.phone, active: updated.active },
   });
 
   const { passwordHash: _, setupToken: __, ...safe } = updated;

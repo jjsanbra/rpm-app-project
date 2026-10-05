@@ -81,7 +81,7 @@
 
 .quick-login-box {
   padding-top: 1rem;
-  border-top: 1px dashed rgba(255, 255, 255, 0.15);
+  border-top: 1px dashed var(--border-color, #e2e8f0);
 
   .quick-login-header {
     display: flex;
@@ -90,9 +90,9 @@
     margin-bottom: 0.25rem;
 
     .badge-dev {
-      background: rgba(234, 179, 8, 0.2);
-      color: #facc15;
-      border: 1px solid rgba(234, 179, 8, 0.4);
+      background: rgba(217, 119, 6, 0.12);
+      color: #b45309;
+      border: 1px solid rgba(217, 119, 6, 0.25);
       padding: 0.15rem 0.45rem;
       border-radius: 4px;
       font-size: 0.68rem;
@@ -106,13 +106,13 @@
     .quick-login-title {
       font-size: 0.85rem;
       font-weight: 700;
-      color: var(--text-main, #fff);
+      color: var(--text-main, #0f172a);
     }
   }
 
   .quick-login-desc {
     font-size: 0.75rem;
-    color: var(--text-muted, #94a3b8);
+    color: var(--text-muted, #64748b);
     margin: 0 0 0.75rem 0;
   }
 }
@@ -130,8 +130,8 @@
   width: 100%;
   padding: 0.55rem 0.75rem;
   border-radius: 8px;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #f8fafc;
+  border: 1px solid var(--border-color, #e2e8f0);
   cursor: pointer;
   text-align: left;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -139,36 +139,36 @@
   .btn-role {
     font-size: 0.8rem;
     font-weight: 600;
-    color: var(--text-main, #fff);
+    color: var(--text-main, #0f172a);
   }
 
   .btn-email {
     font-size: 0.72rem;
-    color: var(--text-muted, #94a3b8);
+    color: var(--text-dim, #64748b);
     font-family: monospace;
   }
 
   &:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   }
 
   &.admin-btn:hover:not(:disabled) {
-    background: rgba(239, 68, 68, 0.12);
-    border-color: rgba(239, 68, 68, 0.4);
-    .btn-role { color: #f87171; }
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.3);
+    .btn-role { color: #dc2626; }
   }
 
   &.org-btn:hover:not(:disabled) {
-    background: rgba(56, 189, 248, 0.12);
-    border-color: rgba(56, 189, 248, 0.4);
-    .btn-role { color: #38bdf8; }
+    background: rgba(8, 145, 178, 0.08);
+    border-color: rgba(8, 145, 178, 0.3);
+    .btn-role { color: #0891b2; }
   }
 
   &.team-btn:hover:not(:disabled) {
-    background: rgba(0, 230, 118, 0.12);
-    border-color: rgba(0, 230, 118, 0.4);
-    .btn-role { color: #00e676; }
+    background: rgba(5, 150, 105, 0.08);
+    border-color: rgba(5, 150, 105, 0.3);
+    .btn-role { color: #059669; }
   }
 
   &:disabled {

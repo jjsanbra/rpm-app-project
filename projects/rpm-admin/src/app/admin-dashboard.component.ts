@@ -122,6 +122,9 @@ export class AdminDashboardComponent implements OnInit {
     this.userService.updateOrganizer(payload.id, {
       email: payload.email,
       password: payload.password,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+      phone: payload.phone,
       active: payload.active
     }).subscribe({
       next: () => {

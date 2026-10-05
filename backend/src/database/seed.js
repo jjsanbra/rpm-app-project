@@ -88,21 +88,21 @@ async function runSeed() {
   const adminId = crypto.randomUUID();
   const adminHash = await bcrypt.hash('Admin123!', BCRYPT_ROUNDS);
   db.prepare(`
-    INSERT INTO users (id, email, passwordHash, role, teamId, active, createdAt, updatedAt)
-    VALUES (?, ?, ?, 'ADMIN', NULL, 1, ?, ?)
+    INSERT INTO users (id, email, passwordHash, role, firstName, lastName, phone, teamId, active, createdAt, updatedAt)
+    VALUES (?, ?, ?, 'ADMIN', NULL, NULL, NULL, NULL, 1, ?, ?)
   `).run(adminId, 'admin@padelranking.dev', adminHash, now, now);
 
   const orgPassword = await bcrypt.hash('Org123!', BCRYPT_ROUNDS);
   const org1Id = crypto.randomUUID();
   db.prepare(`
-    INSERT INTO users (id, email, passwordHash, role, teamId, active, createdAt, updatedAt)
-    VALUES (?, ?, ?, 'ORGANIZER', NULL, 1, ?, ?)
+    INSERT INTO users (id, email, passwordHash, role, firstName, lastName, phone, teamId, active, createdAt, updatedAt)
+    VALUES (?, ?, ?, 'ORGANIZER', 'Carlos', 'Gómez Martín', '+34 600 111 222', NULL, 1, ?, ?)
   `).run(org1Id, 'organizador1@padelranking.dev', orgPassword, now, now);
 
   const org2Id = crypto.randomUUID();
   db.prepare(`
-    INSERT INTO users (id, email, passwordHash, role, teamId, active, createdAt, updatedAt)
-    VALUES (?, ?, ?, 'ORGANIZER', NULL, 1, ?, ?)
+    INSERT INTO users (id, email, passwordHash, role, firstName, lastName, phone, teamId, active, createdAt, updatedAt)
+    VALUES (?, ?, ?, 'ORGANIZER', 'Laura', 'Fernández Ruiz', '+34 600 333 444', NULL, 1, ?, ?)
   `).run(org2Id, 'organizador2@padelranking.dev', orgPassword, now, now);
 
   const teamPassword = await bcrypt.hash('Team123!', BCRYPT_ROUNDS);
@@ -121,7 +121,8 @@ async function runSeed() {
     );
 
     const createdTeams = [];
-    for (const t of cfg.teams) {
+    for (let i = 0; i < cfg.teams.length; i++) {
+      const t = cfg.teams[i];
       const teamId = crypto.randomUUID();
       db.prepare(`
         INSERT INTO teams (id, name, player1Name, player1Surname, player2Name, player2Surname, reserveName, reserveSurname, active, createdAt, updatedAt)
@@ -139,10 +140,11 @@ async function runSeed() {
 
       // Usuario
       const userId = crypto.randomUUID();
+      const userPhone = `+34 612 ${String(100 + createdTeams.length + i * 10).padStart(3, '0')} ${String(200 + i * 7).padStart(3, '0')}`;
       db.prepare(`
-        INSERT INTO users (id, email, passwordHash, role, teamId, active, createdAt, updatedAt)
-        VALUES (?, ?, ?, 'TEAM_USER', ?, 1, ?, ?)
-      `).run(userId, t.email1, teamPassword, teamId, now, now);
+        INSERT INTO users (id, email, passwordHash, role, firstName, lastName, phone, teamId, active, createdAt, updatedAt)
+        VALUES (?, ?, ?, 'TEAM_USER', ?, ?, ?, ?, 1, ?, ?)
+      `).run(userId, t.email1, teamPassword, t.p1n, t.p1s, userPhone, teamId, now, now);
 
       // Inscripción en ranking
       const rtId = crypto.randomUUID();

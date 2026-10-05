@@ -19,7 +19,7 @@ function findById(id) {
 function findAll({ includeInactive = false } = {}) {
   const db = getDb();
   return db.prepare(`
-    SELECT u.id, u.email, u.role, u.teamId, u.active, u.createdAt, u.updatedAt, t.name as teamName
+    SELECT u.id, u.email, u.role, u.firstName, u.lastName, u.phone, u.teamId, u.active, u.createdAt, u.updatedAt, t.name as teamName
     FROM users u
     LEFT JOIN teams t ON u.teamId = t.id
     ${includeInactive ? '' : 'WHERE u.active = 1'}
@@ -30,11 +30,12 @@ function findAll({ includeInactive = false } = {}) {
 function create(data) {
   const db = getDb();
   db.prepare(`
-    INSERT INTO users (id, email, passwordHash, role, teamId, active, setupToken, setupTokenExpiresAt, createdAt, updatedAt)
-    VALUES (?, ?, ?, ?, ?, 1, ?, ?, ?, ?)
+    INSERT INTO users (id, email, passwordHash, role, firstName, lastName, phone, teamId, active, setupToken, setupTokenExpiresAt, createdAt, updatedAt)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?)
   `).run(
     data.id, data.email.toLowerCase().trim(), data.passwordHash || null,
-    data.role, data.teamId || null, data.setupToken || null,
+    data.role, data.firstName || null, data.lastName || null, data.phone || null,
+    data.teamId || null, data.setupToken || null,
     data.setupTokenExpiresAt || null, data.createdAt, data.updatedAt
   );
   return findById(data.id);
@@ -42,7 +43,7 @@ function create(data) {
 
 function update(id, data) {
   const db = getDb();
-  const allowed = ['email', 'passwordHash', 'role', 'teamId', 'active', 'setupToken', 'setupTokenExpiresAt', 'resetToken', 'resetTokenExpiresAt'];
+  const allowed = ['email', 'passwordHash', 'role', 'firstName', 'lastName', 'phone', 'teamId', 'active', 'setupToken', 'setupTokenExpiresAt', 'resetToken', 'resetTokenExpiresAt'];
   const fields = [];
   const values = [];
 
@@ -72,7 +73,7 @@ function saveSetupToken(userId, token, expiresAt) {
 function findOrganizers() {
   const db = getDb();
   return db.prepare(`
-    SELECT u.id, u.email, u.role, u.active, u.createdAt, u.updatedAt,
+    SELECT u.id, u.email, u.role, u.firstName, u.lastName, u.phone, u.active, u.createdAt, u.updatedAt,
            (SELECT COUNT(*) FROM rankings r WHERE r.createdBy = u.id) as rankingCount
     FROM users u
     WHERE u.role = 'ORGANIZER'
