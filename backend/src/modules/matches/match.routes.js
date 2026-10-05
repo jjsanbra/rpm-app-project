@@ -16,11 +16,88 @@ const { authenticate, authenticateOptional } = require('../../middleware/auth.mi
 const { authorize } = require('../../middleware/authz.middleware');
 const { validateRequest } = require('../../middleware/validateRequest');
 
-// Consulta pública
+/**
+ * @swagger
+ * /api/matches:
+ *   get:
+ *     summary: Listar partidos con filtros opcionales (rankingId, teamId, status)
+ *     tags: [Matches]
+ *     parameters:
+ *       - in: query
+ *         name: rankingId
+ *         schema:
+ *           type: string
+ *         description: Filtrar por ID de ranking
+ *       - in: query
+ *         name: teamId
+ *         schema:
+ *           type: string
+ *         description: Filtrar por ID de equipo
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [PENDING_RESULT, PENDING_CONFIRMATION, CONFIRMED, DISPUTED, CANCELLED]
+ *         description: Filtrar por estado del partido
+ *     responses:
+ *       200:
+ *         description: Lista de partidos
+ */
 router.get('/', authenticateOptional, ctrl.getAll);
+
+/**
+ * @swagger
+ * /api/matches/{id}:
+ *   get:
+ *     summary: Obtener detalle completo de un partido por ID
+ *     tags: [Matches]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Detalle del partido
+ *       404:
+ *         description: Partido no encontrado
+ */
 router.get('/:id', authenticateOptional, ctrl.getById);
 
-// Generar partidos round-robin (ADMIN u ORGANIZER del ranking)
+/**
+ * @swagger
+ * /api/matches/ranking/{rankingId}/generate:
+ *   post:
+ *     summary: Generar calendario de partidos round-robin para un conjunto de equipos (ADMIN u ORGANIZER)
+ *     tags: [Matches]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: rankingId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [teamIds]
+ *             properties:
+ *               teamIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 minItems: 4
+ *     responses:
+ *       201:
+ *         description: Partidos generados correctamente
+ *       400:
+ *         description: Menos de 4 equipos o datos inválidos
+ */
 router.post('/ranking/:rankingId/generate', authenticate, authorize('ADMIN', 'ORGANIZER'), [
   body('teamIds').isArray({ min: 4 }).withMessage('Se necesitan al menos 4 equipos.'),
 ], validateRequest, ctrl.generateMatches);

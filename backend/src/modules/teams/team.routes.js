@@ -74,9 +74,13 @@ router.get('/:id', authenticateOptional, ctrl.getById);
  *                 type: string
  *               player2Surname:
  *                 type: string
- *               player3Name:
+ *               reserveName:
  *                 type: string
- *               player3Surname:
+ *               reserveSurname:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               phone2:
  *                 type: string
  *               emails:
  *                 type: array
