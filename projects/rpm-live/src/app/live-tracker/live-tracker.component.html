@@ -39,7 +39,7 @@
 
   <!-- Loading State -->
   <div class="loading-state glass-panel" *ngIf="loading()">
-    <i class="pi pi-spin pi-spinner text-4xl text-emerald-400"></i>
+    <i class="pi pi-spin pi-spinner text-4xl text-emerald-600"></i>
     <p>{{ 'COMMON.LOADING' | translate }}</p>
   </div>
 
@@ -267,14 +267,14 @@
 
       <!-- Spectator live banner -->
       <div class="spectator-live-banner glass-panel text-center" *ngIf="isSpectator() && session()?.status === 'IN_PROGRESS'">
-        <i class="pi pi-eye text-emerald-400"></i>
+        <i class="pi pi-eye text-emerald-600"></i>
         <span>{{ 'LIVE.SPECTATING_REALTIME' | translate }}</span>
       </div>
 
       <!-- Mutual Digital Confirmation & Signature Card -->
       <div class="signature-section glass-panel" *ngIf="session()?.status === 'COMPLETED' || session()?.status === 'CONFIRMED' || (isParticipant() && (session()?.setsTeamOne === 2 || session()?.setsTeamTwo === 2))">
         <div class="signature-header">
-          <i class="pi pi-file-edit text-emerald-400 text-2xl"></i>
+          <i class="pi pi-file-edit text-emerald-600 text-2xl"></i>
           <div>
             <h3>{{ 'LIVE.ACTA_SIGNATURE_TITLE' | translate }}</h3>
             <p>{{ 'LIVE.ACTA_SIGNATURE_DESC' | translate }}</p>
@@ -285,7 +285,7 @@
           <!-- Captain 1 Signature status -->
           <div class="captain-card" [class.signed]="session()?.confirmedByTeamOne === 1">
             <div class="captain-icon">
-              <i class="pi" [ngClass]="session()?.confirmedByTeamOne === 1 ? 'pi-check-circle text-emerald-400' : 'pi-clock text-amber-400'"></i>
+              <i class="pi" [ngClass]="session()?.confirmedByTeamOne === 1 ? 'pi-check-circle text-emerald-600' : 'pi-clock text-amber-600'"></i>
             </div>
             <div class="captain-details">
               <span class="team-label">{{ session()?.teamOneName }}</span>
@@ -298,7 +298,7 @@
           <!-- Captain 2 Signature status -->
           <div class="captain-card" [class.signed]="session()?.confirmedByTeamTwo === 1">
             <div class="captain-icon">
-              <i class="pi" [ngClass]="session()?.confirmedByTeamTwo === 1 ? 'pi-check-circle text-emerald-400' : 'pi-clock text-amber-400'"></i>
+              <i class="pi" [ngClass]="session()?.confirmedByTeamTwo === 1 ? 'pi-check-circle text-emerald-600' : 'pi-clock text-amber-600'"></i>
             </div>
             <div class="captain-details">
               <span class="team-label">{{ session()?.teamTwoName }}</span>
@@ -320,7 +320,7 @@
 
         <!-- Fully Confirmed Success Banner -->
         <div class="confirmed-success-banner" *ngIf="session()?.status === 'CONFIRMED'">
-          <i class="pi pi-verified text-3xl text-emerald-400"></i>
+          <i class="pi pi-verified text-3xl text-emerald-600"></i>
           <div>
             <h4>{{ 'LIVE.OFFICIALLY_CONFIRMED_TITLE' | translate }}</h4>
             <p>{{ 'LIVE.OFFICIALLY_CONFIRMED_DESC' | translate }}</p>
