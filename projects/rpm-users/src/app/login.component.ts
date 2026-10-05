@@ -63,7 +63,11 @@ export class LoginComponent {
       },
       error: (err) => {
         this.loading.set(false);
-        this.errorMessage.set(err.error?.error || this.translate.instant('AUTH.INVALID_CREDENTIALS'));
+        const errorDetail = err.error?.error?.message || 
+          (typeof err.error?.error === 'string' ? err.error.error : null) || 
+          err.error?.message || 
+          this.translate.instant('AUTH.INVALID_CREDENTIALS');
+        this.errorMessage.set(errorDetail);
       }
     });
   }
