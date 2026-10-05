@@ -12,6 +12,8 @@
     "test:backend": "cd backend && npm test",
     "build": "ng build rpm-admin && ng build rpm-rankings && ng build rpm-teams && ng build rpm-users && ng build rpm-live && ng build rpm-app",
     "build:all": "ng build rpm-admin && ng build rpm-rankings && ng build rpm-teams && ng build rpm-users && ng build rpm-live && ng build rpm-app",
+    "build:prod": "npm run build:all",
+    "start:prod": "cd backend && NODE_ENV=production node src/server.js",
     "test": "ng test"
   },
   "keywords": [

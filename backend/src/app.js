@@ -572,8 +572,34 @@ app.get('/api/audit-logs', require('./middleware/auth.middleware').authenticate,
   } catch (err) { next(err); }
 });
 
+// ─── Servir Frontend Angular en Producción ──────────────────────────────────
+const distRoot = path.join(__dirname, '../../dist');
+const rpmAppDist = path.join(distRoot, 'rpm-app/browser');
+
+app.use('/remotes/rpm-admin', express.static(path.join(distRoot, 'rpm-admin/browser')));
+app.use('/remotes/rpm-rankings', express.static(path.join(distRoot, 'rpm-rankings/browser')));
+app.use('/remotes/rpm-teams', express.static(path.join(distRoot, 'rpm-teams/browser')));
+app.use('/remotes/rpm-users', express.static(path.join(distRoot, 'rpm-users/browser')));
+app.use('/remotes/rpm-live', express.static(path.join(distRoot, 'rpm-live/browser')));
+
+app.use(express.static(rpmAppDist));
+
+// SPA Fallback para el enrutador de Angular
+app.use((req, res, next) => {
+  if (req.method !== 'GET' || req.path.startsWith('/api') || req.path.startsWith('/api-docs')) {
+    return next();
+  }
+  const fs = require('fs');
+  const indexPath = path.join(rpmAppDist, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    return res.sendFile(indexPath);
+  }
+  next();
+});
+
 // ─── Manejo de errores ────────────────────────────────────────────────────────
 app.use(notFoundHandler);
 app.use(errorHandler);
 
 module.exports = app;
+
