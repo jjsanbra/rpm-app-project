@@ -4,6 +4,11 @@
   padding: 4rem 1.25rem 2rem;
   max-width: 900px;
   margin: 0 auto;
+  scroll-margin-top: 11rem;
+
+  @media (max-width: 768px) {
+    scroll-margin-top: 8.5rem;
+  }
 }
 
 .hero-badge {
