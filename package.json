@@ -6,7 +6,7 @@
   "scripts": {
     "ng": "ng",
     "start": "concurrently -n \"API,APP,ADMIN,RANKINGS,TEAMS,USERS,LIVE\" -c \"cyan.bold,green.bold,yellow.bold,blue.bold,magenta.bold,red.bold,white.bold\" \"npm run dev:backend\" \"ng serve rpm-app\" \"ng serve rpm-admin\" \"ng serve rpm-rankings\" \"ng serve rpm-teams\" \"ng serve rpm-users\" \"ng serve rpm-live\"",
-    "start:network": "concurrently -n \"API,APP,ADMIN,RANKINGS,TEAMS,USERS,LIVE\" -c \"cyan.bold,green.bold,yellow.bold,blue.bold,magenta.bold,red.bold,white.bold\" \"npm run dev:backend\" \"ng serve rpm-app --host 0.0.0.0 --disable-host-check\" \"ng serve rpm-admin --host 0.0.0.0 --disable-host-check\" \"ng serve rpm-rankings --host 0.0.0.0 --disable-host-check\" \"ng serve rpm-teams --host 0.0.0.0 --disable-host-check\" \"ng serve rpm-users --host 0.0.0.0 --disable-host-check\" \"ng serve rpm-live --host 0.0.0.0 --disable-host-check\"",
+    "start:network": "concurrently -n \"API,APP,ADMIN,RANKINGS,TEAMS,USERS,LIVE\" -c \"cyan.bold,green.bold,yellow.bold,blue.bold,magenta.bold,red.bold,white.bold\" \"npm run dev:backend\" \"ng serve rpm-app\" \"ng serve rpm-admin\" \"ng serve rpm-rankings\" \"ng serve rpm-teams\" \"ng serve rpm-users\" \"ng serve rpm-live\"",
     "start:app": "concurrently -n \"API,APP\" -c \"cyan.bold,green.bold\" \"npm run dev:backend\" \"ng serve rpm-app\"",
     "dev:backend": "cd backend && npm run dev",
     "test:backend": "cd backend && npm test",

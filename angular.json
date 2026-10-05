@@ -94,6 +94,7 @@
           "defaultConfiguration": "development",
           "options": {
             "port": 4200,
+            "host": "0.0.0.0",
             "proxyConfig": "proxy.conf.json"
           }
         }
@@ -184,7 +185,8 @@
           },
           "defaultConfiguration": "development",
           "options": {
-            "port": 4201
+            "port": 4201,
+            "host": "0.0.0.0"
           }
         }
       }
@@ -274,7 +276,8 @@
           },
           "defaultConfiguration": "development",
           "options": {
-            "port": 4202
+            "port": 4202,
+            "host": "0.0.0.0"
           }
         }
       }
@@ -364,7 +367,8 @@
           },
           "defaultConfiguration": "development",
           "options": {
-            "port": 4203
+            "port": 4203,
+            "host": "0.0.0.0"
           }
         }
       }
@@ -454,7 +458,8 @@
           },
           "defaultConfiguration": "development",
           "options": {
-            "port": 4204
+            "port": 4204,
+            "host": "0.0.0.0"
           }
         }
       }
@@ -544,7 +549,8 @@
           },
           "defaultConfiguration": "development",
           "options": {
-            "port": 4205
+            "port": 4205,
+            "host": "0.0.0.0"
           }
         }
       }
