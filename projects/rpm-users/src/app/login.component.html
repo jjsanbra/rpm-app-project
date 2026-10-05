@@ -8,10 +8,6 @@
       </div>
     </ng-template>
 
-    @if (errorMessage()) {
-      <p-message severity="error" styleClass="w-full mb-3">{{ errorMessage() }}</p-message>
-    }
-
     <form (ngSubmit)="onSubmit()" class="auth-form">
       <div class="form-field">
         <label class="form-label" for="email">{{ 'AUTH.EMAIL' | translate }}</label>

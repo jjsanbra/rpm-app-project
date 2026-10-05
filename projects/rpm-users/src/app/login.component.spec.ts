@@ -4,6 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
+import { MessageService } from 'primeng/api';
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -16,7 +17,8 @@ describe('LoginComponent', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
-        provideTranslateService()
+        provideTranslateService(),
+        MessageService
       ]
     }).compileComponents();
 
@@ -33,6 +35,5 @@ describe('LoginComponent', () => {
     expect(component.email).toBe('');
     expect(component.password).toBe('');
     expect(component.loading()).toBeFalse();
-    expect(component.errorMessage()).toBeNull();
   });
 });
