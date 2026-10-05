@@ -41,8 +41,9 @@ async function create(data, adminUserId) {
   teamModel.setEmails(teamId, emails);
 
   // Crear/asociar usuarios TEAM_USER para cada email
-  for (const email of emails) {
-    await _ensureTeamUser(email, teamId, team.name, rankingName || 'Ranking de Pádel');
+  for (let i = 0; i < emails.length; i++) {
+    const userPhone = i === 0 ? (data.phone || null) : (data.phone2 || null);
+    await _ensureTeamUser(emails[i], teamId, team.name, rankingName || 'Ranking de Pádel', userPhone);
   }
 
   await auditService.log({
@@ -144,7 +145,7 @@ async function resendWelcomeEmail(id, rankingName, adminUserId) {
 /**
  * Crea o asocia un usuario TEAM_USER al equipo y envía email de bienvenida.
  */
-async function _ensureTeamUser(email, teamId, teamName, rankingName) {
+async function _ensureTeamUser(email, teamId, teamName, rankingName, phone) {
   let user = userModel.findByEmail(email);
 
   const token = crypto.randomBytes(32).toString('hex');
@@ -158,6 +159,7 @@ async function _ensureTeamUser(email, teamId, teamName, rankingName) {
       email,
       passwordHash: null,
       role: 'TEAM_USER',
+      phone: phone || null,
       teamId,
       setupToken: token,
       setupTokenExpiresAt: expiresAt,
@@ -165,7 +167,12 @@ async function _ensureTeamUser(email, teamId, teamName, rankingName) {
       updatedAt: now,
     });
   } else {
-    userModel.update(user.id, { teamId, setupToken: token, setupTokenExpiresAt: expiresAt });
+    userModel.update(user.id, {
+      teamId,
+      ...(phone ? { phone } : {}),
+      setupToken: token,
+      setupTokenExpiresAt: expiresAt
+    });
   }
 
   await emailService.sendWelcomeEmail({

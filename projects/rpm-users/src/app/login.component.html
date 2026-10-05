@@ -58,12 +58,47 @@
     </form>
 
     <ng-template #footer>
-      <div class="demo-hints">
-        <span class="hint-title"><i class="pi pi-info-circle"></i> {{ 'AUTH.DEV_CREDENTIALS_TITLE' | translate }}</span>
-        <div class="hint-item"><strong>{{ 'AUTH.ADMIN_LABEL' | translate }}</strong> admin&#64;padelranking.dev / Admin123!</div>
-        <div class="hint-item"><strong>{{ 'AUTH.TEAM_1_LABEL' | translate }}</strong> equipo1&#64;padelranking.dev / Team123!</div>
-        <div class="hint-item"><strong>{{ 'AUTH.TEAM_2_LABEL' | translate }}</strong> equipo2&#64;padelranking.dev / Team123!</div>
+      @if (isLocal) {
+      <div class="quick-login-box">
+        <div class="quick-login-header">
+          <span class="badge-dev"><i class="pi pi-bolt"></i> LOCAL DEV</span>
+          <span class="quick-login-title">{{ 'AUTH.QUICK_LOGIN_TITLE' | translate }}</span>
+        </div>
+        <p class="quick-login-desc">{{ 'AUTH.QUICK_LOGIN_DESC' | translate }}</p>
+      
+        <div class="quick-buttons-grid">
+          <button type="button" class="quick-btn admin-btn" [disabled]="loading()"
+            (click)="quickLogin('admin@padelranking.dev', 'Admin123!')" title="Entrar como Administrador">
+            <div class="btn-role">👑 Administrador</div>
+            <div class="btn-email">admin&#64;padelranking.dev</div>
+          </button>
+      
+          <button type="button" class="quick-btn org-btn" [disabled]="loading()"
+            (click)="quickLogin('organizador1@padelranking.dev', 'Org123!')" title="Entrar como Organizador 1">
+            <div class="btn-role">🏆 Organizador 1</div>
+            <div class="btn-email">organizador1&#64;padelranking.dev</div>
+          </button>
+      
+          <button type="button" class="quick-btn org-btn" [disabled]="loading()"
+            (click)="quickLogin('organizador2@padelranking.dev', 'Org123!')" title="Entrar como Organizador 2">
+            <div class="btn-role">🏆 Organizador 2</div>
+            <div class="btn-email">organizador2&#64;padelranking.dev</div>
+          </button>
+      
+          <button type="button" class="quick-btn team-btn" [disabled]="loading()"
+            (click)="quickLogin('equipo1@padelranking.dev', 'Team123!')" title="Entrar como Los Ases">
+            <div class="btn-role">🎾 Equipo 1 (Los Ases)</div>
+            <div class="btn-email">equipo1&#64;padelranking.dev</div>
+          </button>
+      
+          <button type="button" class="quick-btn team-btn" [disabled]="loading()"
+            (click)="quickLogin('equipo2@padelranking.dev', 'Team123!')" title="Entrar como Smash Bros">
+            <div class="btn-role">🎾 Equipo 2 (Smash Bros)</div>
+            <div class="btn-email">equipo2&#64;padelranking.dev</div>
+          </button>
+        </div>
       </div>
+      }
     </ng-template>
   </p-card>
 </div>

@@ -18,6 +18,8 @@ export interface CreateTeamPayload {
   player2Surname: string;
   reserveName?: string | null;
   reserveSurname?: string | null;
+  phone?: string | null;
+  phone2?: string | null;
   emails: string[];
 }
 
@@ -30,6 +32,8 @@ export interface UpdateTeamPayload {
   player2Surname: string;
   reserveName?: string | null;
   reserveSurname?: string | null;
+  phone?: string | null;
+  phone2?: string | null;
   emails: string[];
 }
 
@@ -66,6 +70,8 @@ export class AdminTeamsComponent {
   newTeamP2S = '';
   newTeamRN = '';
   newTeamRS = '';
+  newTeamPhone = '';
+  newTeamPhone2 = '';
   newTeamEmail1 = '';
   newTeamEmail2 = '';
 
@@ -79,6 +85,8 @@ export class AdminTeamsComponent {
   editTeamP2S = '';
   editTeamRN = '';
   editTeamRS = '';
+  editTeamPhone = '';
+  editTeamPhone2 = '';
   editTeamEmail1 = '';
   editTeamEmail2 = '';
 
@@ -96,6 +104,8 @@ export class AdminTeamsComponent {
     this.newTeamP2S = '';
     this.newTeamRN = '';
     this.newTeamRS = '';
+    this.newTeamPhone = '';
+    this.newTeamPhone2 = '';
     this.newTeamEmail1 = '';
     this.newTeamEmail2 = '';
     this.showCreateModal = true;
@@ -114,6 +124,8 @@ export class AdminTeamsComponent {
       player2Surname: this.newTeamP2S,
       reserveName: this.newTeamRN.trim() || null,
       reserveSurname: this.newTeamRS.trim() || null,
+      phone: this.newTeamPhone.trim() || null,
+      phone2: this.newTeamPhone2.trim() || null,
       emails
     });
     this.showCreateModal = false;
@@ -128,6 +140,8 @@ export class AdminTeamsComponent {
     this.editTeamP2S = t.player2Surname;
     this.editTeamRN = t.reserveName || '';
     this.editTeamRS = t.reserveSurname || '';
+    this.editTeamPhone = t.phone || '';
+    this.editTeamPhone2 = t.phone2 || '';
     const emails = this.getTeamEmailsList(t);
     this.editTeamEmail1 = emails[0] || '';
     this.editTeamEmail2 = emails[1] || '';
@@ -148,6 +162,8 @@ export class AdminTeamsComponent {
       player2Surname: this.editTeamP2S,
       reserveName: this.editTeamRN.trim() || null,
       reserveSurname: this.editTeamRS.trim() || null,
+      phone: this.editTeamPhone.trim() || null,
+      phone2: this.editTeamPhone2.trim() || null,
       emails
     });
     this.showEditModal = false;

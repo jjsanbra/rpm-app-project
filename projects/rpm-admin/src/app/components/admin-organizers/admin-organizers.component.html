@@ -1,0 +1,198 @@
+<section class="tab-section">
+  <div class="section-actions">
+    <div>
+      <h2>{{ 'ADMIN.ORGANIZERS_HEADING' | translate }}</h2>
+      <p class="section-subtitle">{{ 'ADMIN.ORGANIZERS_SUBTITLE' | translate }}</p>
+    </div>
+    <button type="button" pButton severity="success" size="small" (click)="openCreateModal()">
+      <i class="pi pi-plus"></i>
+      <span>{{ 'ADMIN.CREATE_ORGANIZER_BTN' | translate }}</span>
+    </button>
+  </div>
+
+  <div class="table-container glass-panel">
+    <p-table [value]="organizers()" [tableStyle]="{ 'min-width': '48rem' }" responsiveLayout="scroll">
+      <ng-template #header>
+        <tr>
+          <th>{{ 'ADMIN.TH_ORGANIZER_NAME' | translate }}</th>
+          <th>{{ 'ADMIN.TH_ORGANIZER_EMAIL' | translate }}</th>
+          <th>{{ 'ADMIN.TH_PHONE' | translate }}</th>
+          <th>{{ 'ADMIN.TH_ROLE' | translate }}</th>
+          <th>{{ 'ADMIN.TH_STATUS' | translate }}</th>
+          <th>{{ 'ADMIN.TH_CREATED_AT' | translate }}</th>
+          <th>{{ 'ADMIN.TH_ACTIONS' | translate }}</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-org>
+        <tr>
+          <td>
+            <div class="user-name-cell">
+              <i class="pi pi-user"></i>
+              <strong>{{ org.firstName ? (org.firstName + ' ' + (org.lastName || '')) : ('ADMIN.ORGANIZER_UNNAMED' | translate) }}</strong>
+            </div>
+          </td>
+          <td>
+            <div class="user-email-cell">
+              <i class="pi pi-envelope"></i>
+              <span>{{ org.email }}</span>
+            </div>
+          </td>
+          <td>
+            @if (org.phone) {
+              <div class="phone-cell">
+                <i class="pi pi-phone"></i>
+                <span>{{ org.phone }}</span>
+              </div>
+            } @else {
+              <span class="text-dim">-</span>
+            }
+          </td>
+          <td>
+            <p-tag [value]="'ROLES.ORGANIZER' | translate" severity="info"></p-tag>
+          </td>
+          <td>
+            <p-tag [value]="(org.active ? 'STATUS.ACTIVE' : 'STATUS.INACTIVE') | translate" [severity]="org.active ? 'success' : 'secondary'"></p-tag>
+          </td>
+          <td>
+            <span class="date-txt">{{ org.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button
+                type="button"
+                pButton
+                severity="warn"
+                size="small"
+                [outlined]="true"
+                (click)="openEditModal(org)"
+                [pTooltip]="'COMMON.EDIT' | translate">
+                <i class="pi pi-pencil"></i>
+              </button>
+              <button
+                type="button"
+                pButton
+                severity="danger"
+                size="small"
+                [outlined]="true"
+                (click)="deleteOrganizer.emit(org)"
+                [pTooltip]="'COMMON.DELETE' | translate">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="7" class="empty-state">
+            <i class="pi pi-users empty-icon"></i>
+            <p>{{ 'ADMIN.NO_ORGANIZERS' | translate }}</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</section>
+
+<!-- MODAL CREAR ORGANIZADOR -->
+<p-dialog
+  [(visible)]="showCreateModal"
+  [modal]="true"
+  [header]="'ADMIN.MODAL_CREATE_ORGANIZER_TITLE' | translate"
+  [style]="{ width: '90vw', maxWidth: '520px' }"
+  styleClass="custom-p-dialog">
+  
+  <form (ngSubmit)="submitCreate()" class="modal-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.ORGANIZER_FIRST_NAME_LABEL' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="newFirstName" name="firstName" placeholder="Carlos" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.ORGANIZER_LAST_NAME_LABEL' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="newLastName" name="lastName" placeholder="Gómez Martín" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.ORGANIZER_PHONE_LABEL' | translate }}</label>
+      <input type="tel" class="form-control" [(ngModel)]="newPhone" name="phone" placeholder="+34 600 000 000" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.ORGANIZER_EMAIL_LABEL' | translate }}</label>
+      <input type="email" class="form-control" [(ngModel)]="newEmail" name="email" required placeholder="organizador@padelranking.dev" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.ORGANIZER_PASSWORD_LABEL' | translate }}</label>
+      <input type="password" class="form-control" [(ngModel)]="newPassword" name="password" placeholder="{{ 'ADMIN.ORGANIZER_PASSWORD_PLACEHOLDER' | translate }}" />
+      <small class="form-hint">{{ 'ADMIN.ORGANIZER_PASSWORD_HINT' | translate }}</small>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" pButton severity="secondary" size="small" (click)="showCreateModal = false">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button type="submit" pButton severity="success" size="small" [disabled]="!newEmail.trim()">
+        {{ 'COMMON.CREATE' | translate }}
+      </button>
+    </div>
+  </form>
+</p-dialog>
+
+<!-- MODAL EDITAR ORGANIZADOR -->
+<p-dialog
+  [(visible)]="showEditModal"
+  [modal]="true"
+  [header]="'ADMIN.MODAL_EDIT_ORGANIZER_TITLE' | translate"
+  [style]="{ width: '90vw', maxWidth: '520px' }"
+  styleClass="custom-p-dialog">
+
+  <form (ngSubmit)="submitEdit()" class="modal-form">
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.ORGANIZER_FIRST_NAME_LABEL' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="editFirstName" name="editFirstName" placeholder="Carlos" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.ORGANIZER_LAST_NAME_LABEL' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="editLastName" name="editLastName" placeholder="Gómez Martín" />
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.ORGANIZER_PHONE_LABEL' | translate }}</label>
+      <input type="tel" class="form-control" [(ngModel)]="editPhone" name="editPhone" placeholder="+34 600 000 000" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.ORGANIZER_EMAIL_LABEL' | translate }}</label>
+      <input type="email" class="form-control" [(ngModel)]="editEmail" name="editEmail" required />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.ORGANIZER_NEW_PASSWORD_LABEL' | translate }}</label>
+      <input type="password" class="form-control" [(ngModel)]="editPassword" name="editPassword"
+        placeholder="{{ 'ADMIN.ORGANIZER_NEW_PASSWORD_PLACEHOLDER' | translate }}" />
+      <small class="form-hint">{{ 'ADMIN.ORGANIZER_NEW_PASSWORD_HINT' | translate }}</small>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.STATUS_LABEL' | translate }}</label>
+      <div class="checkbox-group">
+        <input type="checkbox" id="editActiveCheck" [(ngModel)]="editActive" name="editActive" />
+        <label for="editActiveCheck">{{ (editActive ? 'STATUS.ACTIVE' : 'STATUS.INACTIVE') | translate }}</label>
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" pButton severity="secondary" size="small" (click)="showEditModal = false">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button type="submit" pButton severity="success" size="small" [disabled]="!editEmail.trim()">
+        {{ 'COMMON.SAVE' | translate }}
+      </button>
+    </div>
+  </form>
+</p-dialog>

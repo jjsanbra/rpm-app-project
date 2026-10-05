@@ -30,7 +30,7 @@
             <i class="pi pi-users"></i> {{ 'NAV.MY_TEAM' | translate }}
           </a>
         }
-        @if (authService.isAdmin()) {
+        @if (authService.canManageRankings()) {
           <a routerLink="/admin" routerLinkActive="active" class="nav-link admin-link">
             <i class="pi pi-cog"></i> {{ 'NAV.ADMIN_PANEL' | translate }}
           </a>
@@ -44,8 +44,8 @@
         <div class="user-badge">
           <span class="user-email">{{ authService.currentUser()?.email }}</span>
           <p-tag
-            [value]="authService.isAdmin() ? ('NAV.ROLE_ADMIN' | translate) : (authService.currentUser()?.teamName || ('NAV.ROLE_TEAM' | translate))"
-            [severity]="authService.isAdmin() ? 'warn' : 'success'">
+            [value]="authService.isAdmin() ? ('NAV.ROLE_ADMIN' | translate) : (authService.isOrganizer() ? ('NAV.ROLE_ORGANIZER' | translate) : (authService.currentUser()?.teamName || ('NAV.ROLE_TEAM' | translate)))"
+            [severity]="authService.isAdmin() ? 'warn' : (authService.isOrganizer() ? 'info' : 'success')">
           </p-tag>
         </div>
         <button

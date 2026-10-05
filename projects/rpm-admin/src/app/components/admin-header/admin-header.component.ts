@@ -4,7 +4,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { ButtonDirective } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
 
-export type AdminTab = 'rankings' | 'teams' | 'matches' | 'incidents' | 'auxiliary' | 'audit';
+export type AdminTab = 'rankings' | 'teams' | 'matches' | 'incidents' | 'auxiliary' | 'audit' | 'organizers';
 
 @Component({
   selector: 'rpm-admin-header',
@@ -15,10 +15,12 @@ export type AdminTab = 'rankings' | 'teams' | 'matches' | 'incidents' | 'auxilia
 })
 export class AdminHeaderComponent {
   activeTab = input<AdminTab>('rankings');
+  isAdmin = input<boolean>(true);
   rankingsCount = input<number>(0);
   teamsCount = input<number>(0);
   matchesCount = input<number>(0);
   openIncidentsCount = input<number>(0);
+  organizersCount = input<number>(0);
 
   tabChange = output<AdminTab>();
 }

@@ -20,7 +20,7 @@ async function getById(req, res, next) {
 async function generateMatches(req, res, next) {
   try {
     const { teamIds } = req.body;
-    const count = await matchService.generateMatchesForRanking(req.params.rankingId, teamIds, req.user.id);
+    const count = await matchService.generateMatchesForRanking(req.params.rankingId, teamIds, req.user);
     res.status(201).json({ data: { message: `${count} partidos generados.`, matchesCreated: count } });
   } catch (err) { next(err); }
 }
@@ -48,7 +48,7 @@ async function disputeResult(req, res, next) {
 
 async function adminUpdate(req, res, next) {
   try {
-    const match = await matchService.adminUpdateMatch(req.params.id, req.body, req.user.id);
+    const match = await matchService.adminUpdateMatch(req.params.id, req.body, req.user);
     res.json({ data: match });
   } catch (err) { next(err); }
 }

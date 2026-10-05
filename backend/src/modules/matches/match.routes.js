@@ -16,12 +16,89 @@ const { authenticate, authenticateOptional } = require('../../middleware/auth.mi
 const { authorize } = require('../../middleware/authz.middleware');
 const { validateRequest } = require('../../middleware/validateRequest');
 
-// Consulta pública
+/**
+ * @swagger
+ * /api/matches:
+ *   get:
+ *     summary: Listar partidos con filtros opcionales (rankingId, teamId, status)
+ *     tags: [Matches]
+ *     parameters:
+ *       - in: query
+ *         name: rankingId
+ *         schema:
+ *           type: string
+ *         description: Filtrar por ID de ranking
+ *       - in: query
+ *         name: teamId
+ *         schema:
+ *           type: string
+ *         description: Filtrar por ID de equipo
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [PENDING_RESULT, PENDING_CONFIRMATION, CONFIRMED, DISPUTED, CANCELLED]
+ *         description: Filtrar por estado del partido
+ *     responses:
+ *       200:
+ *         description: Lista de partidos
+ */
 router.get('/', authenticateOptional, ctrl.getAll);
+
+/**
+ * @swagger
+ * /api/matches/{id}:
+ *   get:
+ *     summary: Obtener detalle completo de un partido por ID
+ *     tags: [Matches]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Detalle del partido
+ *       404:
+ *         description: Partido no encontrado
+ */
 router.get('/:id', authenticateOptional, ctrl.getById);
 
-// Generar partidos round-robin (solo ADMIN)
-router.post('/ranking/:rankingId/generate', authenticate, authorize('ADMIN'), [
+/**
+ * @swagger
+ * /api/matches/ranking/{rankingId}/generate:
+ *   post:
+ *     summary: Generar calendario de partidos round-robin para un conjunto de equipos (ADMIN u ORGANIZER)
+ *     tags: [Matches]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: rankingId
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [teamIds]
+ *             properties:
+ *               teamIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 minItems: 4
+ *     responses:
+ *       201:
+ *         description: Partidos generados correctamente
+ *       400:
+ *         description: Menos de 4 equipos o datos inválidos
+ */
+router.post('/ranking/:rankingId/generate', authenticate, authorize('ADMIN', 'ORGANIZER'), [
   body('teamIds').isArray({ min: 4 }).withMessage('Se necesitan al menos 4 equipos.'),
 ], validateRequest, ctrl.generateMatches);
 
@@ -213,8 +290,211 @@ router.post('/:id/dispute', authenticate, [
  *       200:
  *         description: Acta de partido modificada y clasificación actualizada
  */
-router.put('/:id', authenticate, authorize('ADMIN'), ctrl.adminUpdate);
-router.put('/:id/admin-override', authenticate, authorize('ADMIN'), ctrl.adminUpdate);
+router.put('/:id', authenticate, authorize('ADMIN', 'ORGANIZER'), ctrl.adminUpdate);
+router.put('/:id/admin-override', authenticate, authorize('ADMIN', 'ORGANIZER'), ctrl.adminUpdate);
+
+// ─── PARTIDOS EN TIEMPO REAL / LIVE MATCH TRACKER ─────────────────────────
+const liveCtrl = require('./liveMatch.controller');
+
+/**
+ * @swagger
+ * /api/matches/live/active:
+ *   get:
+ *     summary: Obtener listado de partidos actualmente en vivo o pendientes de aceptación
+ *     tags: [Matches]
+ *     responses:
+ *       200:
+ *         description: Lista de partidos activos en vivo
+ */
+router.get('/live/active', authenticateOptional, liveCtrl.getActiveLiveMatches);
+
+/**
+ * @swagger
+ * /api/matches/live/stream:
+ *   get:
+ *     summary: Streaming Server-Sent Events (SSE) global para cambios en cualquier partido en vivo
+ *     tags: [Matches]
+ *     responses:
+ *       200:
+ *         description: Conexión SSE establecida (text/event-stream)
+ */
+router.get('/live/stream', authenticateOptional, liveCtrl.streamGlobalLiveMatches);
+
+/**
+ * @swagger
+ * /api/matches/{id}/live:
+ *   get:
+ *     summary: Obtener estado actual de la sesión en directo de un partido
+ *     tags: [Matches]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Estado y marcador en tiempo real del partido
+ *       404:
+ *         description: No hay sesión en directo activa
+ */
+router.get('/:id/live', authenticateOptional, liveCtrl.getLiveSession);
+
+/**
+ * @swagger
+ * /api/matches/{id}/live/stream:
+ *   get:
+ *     summary: Conexión SSE para recibir actualizaciones en tiempo real del partido
+ *     tags: [Matches]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Flujo de eventos SSE con el marcador sincronizado
+ */
+router.get('/:id/live/stream', authenticateOptional, liveCtrl.streamLiveMatch);
+
+/**
+ * @swagger
+ * /api/matches/{id}/live/request:
+ *   post:
+ *     summary: Solicitar inicio de tanteo en directo en pista (Equipo participante o Admin)
+ *     tags: [Matches]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               gameMode:
+ *                 type: string
+ *                 enum: [GOLDEN_POINT, ADVANTAGE]
+ *                 default: GOLDEN_POINT
+ *                 description: Modalidad de juego (Punto de Oro o Con Ventajas)
+ *     responses:
+ *       200:
+ *         description: Solicitud creada en estado REQUESTED, esperando aceptación del rival
+ *       403:
+ *         description: Usuario no autorizado para este partido
+ */
+router.post('/:id/live/request', authenticate, liveCtrl.requestLiveMatch);
+
+/**
+ * @swagger
+ * /api/matches/{id}/live/accept:
+ *   post:
+ *     summary: Aceptar invitación de partido en vivo en pista (Equipo rival o Admin)
+ *     tags: [Matches]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               gameMode:
+ *                 type: string
+ *                 enum: [GOLDEN_POINT, ADVANTAGE]
+ *     responses:
+ *       200:
+ *         description: Partido aceptado y comenzado (estado IN_PROGRESS)
+ *       400:
+ *         description: El equipo solicitante no puede auto-aprobarse; debe ser el rival
+ */
+router.post('/:id/live/accept', authenticate, liveCtrl.acceptLiveMatch);
+
+/**
+ * @swagger
+ * /api/matches/{id}/live/point:
+ *   post:
+ *     summary: Anotar un punto para un equipo en tiempo real
+ *     tags: [Matches]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [team]
+ *             properties:
+ *               team:
+ *                 type: integer
+ *                 enum: [1, 2]
+ *                 description: 1 para Equipo 1, 2 para Equipo 2
+ *     responses:
+ *       200:
+ *         description: Punto anotado y marcador actualizado y retransmitido
+ */
+router.post('/:id/live/point', authenticate, liveCtrl.scorePoint);
+
+/**
+ * @swagger
+ * /api/matches/{id}/live/undo:
+ *   post:
+ *     summary: Deshacer el último punto anotado (Undo)
+ *     tags: [Matches]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Marcador revertido un punto
+ */
+router.post('/:id/live/undo', authenticate, liveCtrl.undoPoint);
+
+/**
+ * @swagger
+ * /api/matches/{id}/live/sign:
+ *   post:
+ *     summary: Firma digital del acta oficial por el capitán de equipo
+ *     tags: [Matches]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Firma registrada. Si ambos capitanes han firmado, el partido pasa a CONFIRMED y actualiza el ranking
+ */
+router.post('/:id/live/sign', authenticate, liveCtrl.signLiveMatch);
 
 // ─── PARTIDOS EN TIEMPO REAL / LIVE MATCH TRACKER ─────────────────────────
 const liveCtrl = require('./liveMatch.controller');

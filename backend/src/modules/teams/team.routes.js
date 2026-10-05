@@ -74,9 +74,13 @@ router.get('/:id', authenticateOptional, ctrl.getById);
  *                 type: string
  *               player2Surname:
  *                 type: string
- *               player3Name:
+ *               reserveName:
  *                 type: string
- *               player3Surname:
+ *               reserveSurname:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               phone2:
  *                 type: string
  *               emails:
  *                 type: array
@@ -99,6 +103,8 @@ router.post('/', authenticate, authorize('ADMIN'), [
   body('player2Surname').notEmpty().withMessage('El titular 2 (apellido) es obligatorio.'),
   body('emails').isArray({ min: 1, max: 2 }).withMessage('Entre 1 y 2 emails son obligatorios.'),
   body('emails.*').isEmail().withMessage('Email inválido.'),
+  body('phone').optional().isString().trim(),
+  body('phone2').optional().isString().trim(),
 ], validateRequest, ctrl.create);
 
 /**
@@ -132,9 +138,13 @@ router.post('/', authenticate, authorize('ADMIN'), [
  *                 type: string
  *               player2Surname:
  *                 type: string
- *               player3Name:
+ *               reserveName:
  *                 type: string
- *               player3Surname:
+ *               reserveSurname:
+ *                 type: string
+ *               phone:
+ *                 type: string
+ *               phone2:
  *                 type: string
  *               emails:
  *                 type: array
@@ -145,7 +155,17 @@ router.post('/', authenticate, authorize('ADMIN'), [
  *       200:
  *         description: Equipo actualizado
  */
-router.put('/:id', authenticate, authorize('ADMIN'), ctrl.update);
+router.put('/:id', authenticate, authorize('ADMIN'), [
+  body('name').optional().notEmpty().withMessage('El nombre no puede estar vacío.'),
+  body('player1Name').optional().notEmpty().withMessage('El titular 1 (nombre) no puede estar vacío.'),
+  body('player1Surname').optional().notEmpty().withMessage('El titular 1 (apellido) no puede estar vacío.'),
+  body('player2Name').optional().notEmpty().withMessage('El titular 2 (nombre) no puede estar vacío.'),
+  body('player2Surname').optional().notEmpty().withMessage('El titular 2 (apellido) no puede estar vacío.'),
+  body('phone').optional().isString().trim(),
+  body('phone2').optional().isString().trim(),
+  body('emails').optional().isArray({ min: 1, max: 2 }).withMessage('Entre 1 y 2 emails son obligatorios.'),
+  body('emails.*').optional().isEmail().withMessage('Email inválido.'),
+], validateRequest, ctrl.update);
 
 /**
  * @swagger

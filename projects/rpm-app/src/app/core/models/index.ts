@@ -1,12 +1,18 @@
-export type Role = 'ADMIN' | 'TEAM_USER';
+export type Role = 'ADMIN' | 'ORGANIZER' | 'TEAM_USER';
 
 export interface User {
   id: string;
   email: string;
   role: Role;
+  firstName?: string | null;
+  lastName?: string | null;
+  phone?: string | null;
   teamId?: string | null;
   teamName?: string | null;
+  rankingCount?: number;
   active?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface TeamEmail {
@@ -25,6 +31,8 @@ export interface Team {
   player2Surname: string;
   reserveName?: string | null;
   reserveSurname?: string | null;
+  phone?: string | null;
+  phone2?: string | null;
   active: boolean;
   emails?: TeamEmail[] | string[];
   createdAt: string;
@@ -47,6 +55,8 @@ export interface Ranking {
   levelName?: string | null;
   categoryId?: string | null;
   categoryName?: string | null;
+  createdBy?: string | null;
+  creatorEmail?: string | null;
   createdAt: string;
   updatedAt: string;
 }

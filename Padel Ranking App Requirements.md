@@ -48,28 +48,30 @@ El administrador tendrá control total.
 2. ROLES
 ==================================================
 
-Existirán inicialmente únicamente estos roles:
+Existirán los siguientes roles de usuario:
 
 - ADMIN
+- ORGANIZER
 - TEAM_USER
 
 ### ADMIN
 
-Puede:
-- Crear rankings.
-- Editar rankings.
-- Activar/desactivar rankings.
-- Configurar fechas.
-- Configurar reglamento.
+Superusuario de la plataforma. Puede:
+- Crear rankings globales.
+- Editar cualquier ranking.
+- Activar/desactivar cualquier ranking.
+- Eliminar cualquier ranking.
+- Configurar fechas y reglamento.
+- Crear y gestionar usuarios con rol `ORGANIZER`.
 - Crear equipos.
 - Editar equipos.
 - Eliminar/desactivar equipos.
 - Gestionar jugadores.
 - Gestionar emails de los equipos.
 - Crear usuarios.
-- Gestionar partidos.
-- Gestionar resultados.
-- Corregir resultados.
+- Gestionar partidos de cualquier ranking.
+- Gestionar resultados y modificar actas oficiales.
+- Corregir resultados arbitrales.
 - Resolver incidencias.
 - Consultar clasificación.
 - Gestionar patrocinadores.
@@ -77,7 +79,38 @@ Puede:
 - Gestionar niveles/categorías.
 - Gestionar configuración general.
 - Reenviar emails de acceso.
-- Consultar información de auditoría.
+- Consultar información de auditoría global.
+
+### ORGANIZER (Organizador)
+
+Rol intermedio para gestores de competiciones específicas. Su ciclo de vida es gestionado exclusivamente por el `ADMIN` mediante un módulo administrativo completo (crear, editar, activar/desactivar y eliminar).
+
+Datos del Organizador:
+- `firstName`: Nombre
+- `lastName`: Apellidos
+- `email`: Correo electrónico único
+- `phone`: Teléfono de contacto
+- `role`: 'ORGANIZER'
+
+Puede:
+- Iniciar sesión en la plataforma y acceder al Panel de Gestión.
+- Crear sus propios rankings (`createdBy = organizer.id`).
+- Modificar, editar, activar/desactivar y eliminar **únicamente sus propios rankings**.
+- Inscribir y gestionar equipos dentro de sus propios rankings.
+- Generar el calendario de partidos round-robin para sus propios rankings.
+- Modificar actas oficiales o corregir resultados de partidos que pertenezcan a sus propios rankings.
+- Resolver incidencias reportadas en partidos de sus rankings.
+- Consultar clasificaciones y estadísticas de sus rankings.
+
+NO puede:
+- Ver, editar ni eliminar rankings creados por el `ADMIN` o por otros `ORGANIZER` (Aislamiento Multi-Tenancy estricto tanto en backend como frontend).
+- Crear, editar o eliminar a otros organizadores (competencia exclusiva del ADMIN).
+- Acceder a los registros globales de auditoría de la plataforma.
+- Modificar configuraciones globales del sistema fuera del ámbito de sus propios torneos.
+
+### POLÍTICA DE TELÉFONOS EN USUARIOS
+- Todos los usuarios de la plataforma (Organizadores, Jugadores y Usuarios de Equipo) disponen de un campo `phone` para contacto directo y gestión de partidos.
+- El usuario `ADMIN` es un superusuario del sistema y no requiere teléfono.
 
 ### TEAM_USER
 
@@ -185,18 +218,21 @@ El equipo debe tener:
 
 - id UUID
 - nombre
-- jugador titular 1
-- jugador titular 2
-- jugador reserva opcional
+- jugador titular 1 (nombre y apellidos)
+- jugador titular 2 (nombre y apellidos)
+- jugador reserva opcional (nombre y apellidos)
+- teléfono de contacto titular 1 (`phone` - obligatorio)
+- teléfono de contacto titular 2 (`phone2` - opcional)
 - al menos 1 email de contacto
 - como máximo 2 emails de contacto
 - active
 - createdAt
 - updatedAt
 
-REGLAS DE EMAIL:
-- Cada equipo debe tener como mínimo 1 email.
-- Cada equipo puede tener como máximo 2 emails.
+REGLAS DE CONTACTO Y EMAIL:
+- Cada equipo debe tener como mínimo 1 teléfono y 1 email.
+- Cada equipo puede tener hasta 2 teléfonos y 2 emails para los dos titulares.
+- Los teléfonos se visualizan en tablas administrativas y en tarjetas informativas de rivales para agilizar la concertación de partidos.
 - Los emails deben validarse.
 - No almacenar contraseñas en texto plano.
 - Los emails deben utilizarse para comunicación y acceso de los usuarios del equipo.
@@ -209,9 +245,9 @@ NO existe registro público de equipos.
 6. USUARIOS Y ACCESO DE EQUIPOS
 ==================================================
 
-Al crear un equipo, el administrador introducirá entre 1 y 2 emails.
+Al crear un equipo, el administrador introducirá los datos de los titulares, sus teléfonos y entre 1 y 2 emails.
 
-El sistema deberá crear/asociar los accesos correspondientes al equipo.
+El sistema deberá crear/asociar los accesos correspondientes al equipo sincronizando nombre, apellidos y teléfono.
 
 Los usuarios asociados a esos emails tendrán rol TEAM_USER.
 
@@ -266,6 +302,14 @@ Implementar autenticación mediante:
 - Expiración configurable del JWT.
 - Recuperación de contraseña.
 - Configuración inicial de contraseña mediante enlace seguro.
+
+### ACCESO RÁPIDO EN ENTORNO LOCAL (DEV ACCOUNT SWITCHER)
+- En **entorno local de desarrollo (`localhost`)**, la pantalla de login dispone de un selector rápido interactivo de cuentas preconfiguradas (ADMIN, ORGANIZADOR 1, ORGANIZADOR 2, Equipos).
+- Al pulsar sobre cualquiera de ellos, la aplicación inicia sesión de manera instantánea sin requerir que el desarrollador introduzca manualmente el email y la contraseña.
+- En **el resto de entornos (red local con IP, staging, producción, dispositivos móviles)**, el selector rápido se deshabilita automáticamente y es **estrictamente obligatorio** rellenar el email y la contraseña para garantizar la seguridad del acceso.
+
+### ACCESO MULTIDISPOSITIVO (RED LOCAL Y EXTERNA)
+- La aplicación soporta ejecución con `--host 0.0.0.0 --disable-host-check` (`npm run start:network`) para ser consumida y testeada desde tablets, teléfonos móviles u otros ordenadores conectados a la misma red local o mediante túneles seguros (e.g., ngrok / Cloudflare Tunnels).
 
 El backend deberá adjuntar el usuario autenticado al request.
 
@@ -792,43 +836,39 @@ NO existe registro público.
 El administrador es quien incorpora los equipos al ranking.
 
 ==================================================
-22. ENTIDADES ADICIONALES
+22. ENTIDADES ADICIONALES (CATÁLOGOS MAESTROS)
 ==================================================
 
-Preparar estas entidades:
+Todas las entidades maestras auxiliares deben permitir su gestión completa (**Creación, Listado, Edición y Eliminación**) desde el panel de administración con modales dinámicos y estilos homogéneos.
 
-### Level
+### Level (Niveles)
+- `id`: UUID
+- `name`: Nombre del nivel (e.g. Iniciación, Intermedio, Avanzado, Pro, Veteranos +45)
+- `description`: Descripción de los objetivos y características del nivel
 
-- id
-- name
-- description
+### Category (Categorías)
+- `id`: UUID
+- `name`: Nombre de la categoría (e.g. Masculina, Femenina, Mixta, Sub-21)
+- `description`: Descripción de la categoría
 
-### Category
+### Sponsor (Patrocinadores)
+- `id`: UUID
+- `name`: Nombre del patrocinador o marca oficial
+- `description`: Descripción del patrocinio
+- `logo`: Imagen o logo en Base64/URL
 
-- id
-- name
-- description
+### Location (Sedes / Ubicaciones)
+Cada sede o instalación deportiva debe registrar y permitir la edición de todos los campos del modelo de base de datos:
+- `id`: UUID
+- `name`: Nombre del club o complejo deportivo
+- `street`: Dirección / Calle y número
+- `city`: Ciudad / Municipio
+- `postalCode`: Código postal
+- `description`: Características de las pistas e instalaciones
+- `state`: Provincia / Comunidad
+- `country`: País (por defecto 'España')
 
-### Sponsor
-
-- id
-- name
-- description
-- logo
-
-### Location
-
-- id
-- name
-- description
-- street
-- city
-- postalCode
-- state
-- country
-
-El país debe permitir como mínimo:
-- España
+Tanto la tabla de listado en la interfaz de administración como los modales de creación y edición deben reflejar y permitir modificar estos campos específicos.
 
 Estas entidades deben estar desacopladas para poder ampliarlas posteriormente.
 

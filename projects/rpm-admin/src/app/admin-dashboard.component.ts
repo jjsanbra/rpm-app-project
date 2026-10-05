@@ -9,12 +9,15 @@ import {
   IncidentService,
   AuditService,
   AuxiliaryService,
+  UserService,
+  AuthService,
   Ranking,
   Team,
   Match,
   Incident,
   AuditLog,
-  AuxiliaryItem
+  AuxiliaryItem,
+  User
 } from '@core';
 
 import { AdminHeaderComponent, AdminTab } from './components/admin-header/admin-header.component';
@@ -24,6 +27,7 @@ import { AdminMatchesComponent, AdminOverridePayload } from './components/admin-
 import { AdminIncidentsComponent, ResolveIncidentPayload } from './components/admin-incidents/admin-incidents.component';
 import { AdminAuxiliaryComponent, AuxCatalogType } from './components/admin-auxiliary/admin-auxiliary.component';
 import { AdminAuditComponent } from './components/admin-audit/admin-audit.component';
+import { AdminOrganizersComponent, CreateOrganizerPayload, UpdateOrganizerPayload } from './components/admin-organizers/admin-organizers.component';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -36,7 +40,8 @@ import { AdminAuditComponent } from './components/admin-audit/admin-audit.compon
     AdminMatchesComponent,
     AdminIncidentsComponent,
     AdminAuxiliaryComponent,
-    AdminAuditComponent
+    AdminAuditComponent,
+    AdminOrganizersComponent
   ],
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.scss'
@@ -48,9 +53,12 @@ export class AdminDashboardComponent implements OnInit {
   private incidentService = inject(IncidentService);
   private auditService = inject(AuditService);
   private auxService = inject(AuxiliaryService);
+  private userService = inject(UserService);
+  private authService = inject(AuthService);
   private messageService = inject(MessageService);
   private translate = inject(TranslateService);
 
+  isAdmin = this.authService.isAdmin;
   activeTab = signal<AdminTab>('rankings');
 
   rankings = signal<Ranking[]>([]);
@@ -59,6 +67,7 @@ export class AdminDashboardComponent implements OnInit {
   incidents = signal<Incident[]>([]);
   auditLogs = signal<AuditLog[]>([]);
   auxItems = signal<AuxiliaryItem[]>([]);
+  organizers = signal<User[]>([]);
   auxType = signal<AuxCatalogType>('levels');
 
   selectedRankingId = signal<string>('');
@@ -75,9 +84,101 @@ export class AdminDashboardComponent implements OnInit {
     this.loadRankings();
     this.loadTeams();
     this.loadIncidents();
-    this.loadAuditLogs();
+    if (this.isAdmin()) {
+      this.loadAuditLogs();
+      this.loadOrganizers();
+    }
     this.loadAuxItems();
     this.loadAllAuxCatalogs();
+  }
+
+  loadOrganizers(): void {
+    if (!this.isAdmin()) return;
+    this.userService.getOrganizers().subscribe({
+      next: (res) => this.organizers.set(res.data),
+      error: () => {}
+    });
+  }
+
+  handleCreateOrganizer(payload: CreateOrganizerPayload): void {
+    this.userService.createOrganizer(payload).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('ADMIN.ORGANIZER_CREATED_SUCCESS'),
+          detail: this.translate.instant('ADMIN.ORGANIZER_CREATED_DETAIL')
+        });
+        this.loadOrganizers();
+      },
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
+    });
+  }
+
+  handleUpdateOrganizer(payload: UpdateOrganizerPayload): void {
+    this.userService.updateOrganizer(payload.id, {
+      email: payload.email,
+      password: payload.password,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+      phone: payload.phone,
+      active: payload.active
+    }).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('ADMIN.ORGANIZER_UPDATED_SUCCESS'),
+          detail: this.translate.instant('ADMIN.ORGANIZER_UPDATED_DETAIL')
+        });
+        this.loadOrganizers();
+      },
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
+    });
+  }
+
+  handleDeleteOrganizer(user: User): void {
+    if (!confirm(`¿Eliminar organizador ${user.email}?`)) return;
+    this.userService.deleteOrganizer(user.id).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'info',
+          summary: this.translate.instant('ADMIN.ORGANIZER_DELETED_INFO'),
+          detail: this.translate.instant('ADMIN.ORGANIZER_DELETED_DETAIL')
+        });
+        this.loadOrganizers();
+      },
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
+    });
+  }
+
+  handleDeleteRanking(ranking: Ranking): void {
+    if (!confirm(`¿Estás seguro de que deseas eliminar el ranking "${ranking.name}"?`)) return;
+    this.rankingService.delete(ranking.id).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'info',
+          summary: this.translate.instant('ADMIN.RANKING_DELETED_INFO'),
+          detail: this.translate.instant('ADMIN.RANKING_DELETED_DETAIL')
+        });
+        this.loadRankings();
+      },
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
+    });
   }
 
   loadAllAuxCatalogs(): void {
@@ -243,6 +344,8 @@ export class AdminDashboardComponent implements OnInit {
       player2Surname: payload.player2Surname,
       reserveName: payload.reserveName,
       reserveSurname: payload.reserveSurname,
+      phone: payload.phone,
+      phone2: payload.phone2,
       emails: payload.emails,
     }).subscribe({
       next: () => {
@@ -270,6 +373,8 @@ export class AdminDashboardComponent implements OnInit {
       player2Surname: payload.player2Surname,
       reserveName: payload.reserveName,
       reserveSurname: payload.reserveSurname,
+      phone: payload.phone,
+      phone2: payload.phone2,
       emails: payload.emails,
     }).subscribe({
       next: () => {
@@ -412,13 +517,31 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   // Auxiliary actions
-  handleCreateAuxItem(payload: { name: string; description: string }): void {
+  handleCreateAuxItem(payload: any): void {
     this.auxService.createItem(this.auxType(), payload).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
           summary: this.translate.instant('ADMIN.AUX_CREATED_SUCCESS'),
           detail: this.translate.instant('ADMIN.AUX_CREATED_SUCCESS')
+        });
+        this.loadAuxItems();
+      },
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
+    });
+  }
+
+  handleUpdateAuxItem(payload: { id: string; data: any }): void {
+    this.auxService.updateItem(this.auxType(), payload.id, payload.data).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('ADMIN.AUX_UPDATED_SUCCESS'),
+          detail: this.translate.instant('ADMIN.AUX_UPDATED_DETAIL')
         });
         this.loadAuxItems();
       },

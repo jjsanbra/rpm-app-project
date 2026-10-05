@@ -34,13 +34,15 @@ describe('Teams Module Integration Tests', () => {
     expect(res.body.data.length).toBeGreaterThanOrEqual(4);
   });
 
-  it('un ADMIN puede crear un nuevo equipo con emails y credenciales', async () => {
+  it('un ADMIN puede crear un nuevo equipo con teléfonos, emails y credenciales', async () => {
     const newTeam = {
       name: 'Volea Perfecta',
       player1Name: 'Mario',
       player1Surname: 'Navarro',
       player2Name: 'Sergio',
       player2Surname: 'Gómez',
+      phone: '+34 600 111 222',
+      phone2: '+34 600 333 444',
       emails: ['mario@voleaperfecta.dev', 'sergio@voleaperfecta.dev'],
     };
 
@@ -51,7 +53,18 @@ describe('Teams Module Integration Tests', () => {
 
     expect(res.status).toBe(201);
     expect(res.body.data.name).toBe('Volea Perfecta');
+    expect(res.body.data.phone).toBe('+34 600 111 222');
+    expect(res.body.data.phone2).toBe('+34 600 333 444');
     expect(res.body.data.emails.length).toBe(2);
+
+    // Actualizar teléfonos
+    const updateRes = await request(app)
+      .put(`/api/teams/${res.body.data.id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ phone: '+34 699 999 999' });
+
+    expect(updateRes.status).toBe(200);
+    expect(updateRes.body.data.phone).toBe('+34 699 999 999');
   });
 
   it('debe rechazar la creación de equipo si no es ADMIN (403)', async () => {

@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Ranking, Team, Match, ClassificationRow, Incident, AuditLog, AuxiliaryItem, SubmitResultPayload, LiveMatchSession, LivePointPayload } from '../models';
+import { Ranking, Team, Match, ClassificationRow, Incident, AuditLog, AuxiliaryItem, SubmitResultPayload, LiveMatchSession, LivePointPayload, User } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class RankingService {
@@ -26,6 +26,32 @@ export class RankingService {
 
   toggleActive(id: string, active: boolean): Observable<{ data: Ranking }> {
     return this.http.patch<{ data: Ranking }>(`${this.apiUrl}/${id}/active`, { active });
+  }
+
+  delete(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+}
+
+@Injectable({ providedIn: 'root' })
+export class UserService {
+  private http = inject(HttpClient);
+  private apiUrl = '/api/users';
+
+  getOrganizers(): Observable<{ data: User[] }> {
+    return this.http.get<{ data: User[] }>(`${this.apiUrl}/organizers`);
+  }
+
+  createOrganizer(data: { email: string; password?: string; firstName?: string; lastName?: string; phone?: string }): Observable<{ data: User; message: string }> {
+    return this.http.post<{ data: User; message: string }>(`${this.apiUrl}/organizers`, data);
+  }
+
+  updateOrganizer(id: string, data: { email?: string; password?: string; firstName?: string; lastName?: string; phone?: string; active?: boolean }): Observable<{ data: User }> {
+    return this.http.put<{ data: User }>(`${this.apiUrl}/organizers/${id}`, data);
+  }
+
+  deleteOrganizer(id: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/organizers/${id}`);
   }
 }
 

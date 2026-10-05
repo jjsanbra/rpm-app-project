@@ -17,6 +17,8 @@ export class AuthService {
 
   isAuthenticated = computed(() => !!this.token());
   isAdmin = computed(() => this.currentUser()?.role === 'ADMIN');
+  isOrganizer = computed(() => this.currentUser()?.role === 'ORGANIZER');
+  canManageRankings = computed(() => this.currentUser()?.role === 'ADMIN' || this.currentUser()?.role === 'ORGANIZER');
   isTeamUser = computed(() => this.currentUser()?.role === 'TEAM_USER');
 
   login(credentials: { email: string; password: string }): Observable<{ data: { token: string; user: User } }> {

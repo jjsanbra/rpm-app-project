@@ -16,7 +16,7 @@ const MATCH_SELECT = `
     u_sub.email as submittedByEmail,
     u_conf.email as confirmedByEmail,
     u_disp.email as disputedByEmail,
-    r.name as rankingName, r.startDate as rankingStartDate, r.endDate as rankingEndDate
+    r.name as rankingName, r.startDate as rankingStartDate, r.endDate as rankingEndDate, r.createdBy as rankingCreatedBy
   FROM matches m
   JOIN teams t1 ON t1.id = m.teamOneId
   JOIN teams t2 ON t2.id = m.teamTwoId
