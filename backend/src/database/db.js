@@ -132,6 +132,8 @@ function _createSchema() {
       player2Surname  TEXT NOT NULL,
       reserveName     TEXT,
       reserveSurname  TEXT,
+      phone           TEXT,
+      phone2          TEXT,
       active          INTEGER NOT NULL DEFAULT 1,
       createdAt       TEXT NOT NULL,
       updatedAt       TEXT NOT NULL

@@ -61,15 +61,15 @@ async function runSeed() {
 
   // ─── 3. SEDES / UBICACIONES ───────────────────────────────────────────────
   const locations = [
-    { id: crypto.randomUUID(), name: 'Club Pádel Central', desc: 'Instalaciones cubiertas de última generación', city: 'Madrid', street: 'Paseo de la Castellana 120' },
-    { id: crypto.randomUUID(), name: 'Ciudad de la Raqueta', desc: 'Complejo deportivo con 20 pistas', city: 'Madrid', street: 'Calle Monasterio de El Paular 2' },
-    { id: crypto.randomUUID(), name: 'Club Pádel Mirasierra', desc: 'Club social con pistas panorámicas', city: 'Madrid', street: 'Calle Costa Brava 8' },
-    { id: crypto.randomUUID(), name: 'Real Club Pádel Sport', desc: 'Club premium con gradas y servicios completos', city: 'Pozuelo de Alarcón', street: 'Av. de Europa 15' },
-    { id: crypto.randomUUID(), name: 'Club Deportivo El Tejar', desc: 'Entorno natural con pistas de cristal', city: 'Majadahonda', street: 'Carretera de El Plantío 4' },
+    { id: crypto.randomUUID(), name: 'Club Pádel Central', desc: 'Instalaciones cubiertas de última generación', street: 'Paseo de la Castellana 120', city: 'Madrid', postalCode: '28046' },
+    { id: crypto.randomUUID(), name: 'Ciudad de la Raqueta', desc: 'Complejo deportivo con 20 pistas', street: 'Calle Monasterio de El Paular 2', city: 'Madrid', postalCode: '28049' },
+    { id: crypto.randomUUID(), name: 'Club Pádel Mirasierra', desc: 'Club social con pistas panorámicas', street: 'Calle Costa Brava 8', city: 'Madrid', postalCode: '28034' },
+    { id: crypto.randomUUID(), name: 'Real Club Pádel Sport', desc: 'Club premium con gradas y servicios completos', street: 'Av. de Europa 15', city: 'Pozuelo de Alarcón', postalCode: '28224' },
+    { id: crypto.randomUUID(), name: 'Club Deportivo El Tejar', desc: 'Entorno natural con pistas de cristal', street: 'Carretera de El Plantío 4', city: 'Majadahonda', postalCode: '28220' },
   ];
   for (const loc of locations) {
-    db.prepare(`INSERT INTO locations (id, name, description, street, city, country, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, 'España', ?, ?)`)
-      .run(loc.id, loc.name, loc.desc, loc.street, loc.city, now, now);
+    db.prepare(`INSERT INTO locations (id, name, description, street, city, postalCode, country, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, 'España', ?, ?)`)
+      .run(loc.id, loc.name, loc.desc, loc.street, loc.city, loc.postalCode, now, now);
   }
 
   // ─── 4. PATROCINADORES ────────────────────────────────────────────────────
@@ -124,10 +124,12 @@ async function runSeed() {
     for (let i = 0; i < cfg.teams.length; i++) {
       const t = cfg.teams[i];
       const teamId = crypto.randomUUID();
+      const phone1 = `+34 612 ${String(100 + createdTeams.length + i * 10).padStart(3, '0')} ${String(200 + i * 7).padStart(3, '0')}`;
+      const phone2 = t.email2 ? `+34 613 ${String(100 + createdTeams.length + i * 10).padStart(3, '0')} ${String(300 + i * 5).padStart(3, '0')}` : null;
       db.prepare(`
-        INSERT INTO teams (id, name, player1Name, player1Surname, player2Name, player2Surname, reserveName, reserveSurname, active, createdAt, updatedAt)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)
-      `).run(teamId, t.name, t.p1n, t.p1s, t.p2n, t.p2s, t.rn || null, t.rs || null, now, now);
+        INSERT INTO teams (id, name, player1Name, player1Surname, player2Name, player2Surname, reserveName, reserveSurname, phone, phone2, active, createdAt, updatedAt)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)
+      `).run(teamId, t.name, t.p1n, t.p1s, t.p2n, t.p2s, t.rn || null, t.rs || null, phone1, phone2, now, now);
 
       // Email primario
       const primaryEmailId = crypto.randomUUID();
@@ -140,11 +142,10 @@ async function runSeed() {
 
       // Usuario
       const userId = crypto.randomUUID();
-      const userPhone = `+34 612 ${String(100 + createdTeams.length + i * 10).padStart(3, '0')} ${String(200 + i * 7).padStart(3, '0')}`;
       db.prepare(`
         INSERT INTO users (id, email, passwordHash, role, firstName, lastName, phone, teamId, active, createdAt, updatedAt)
         VALUES (?, ?, ?, 'TEAM_USER', ?, ?, ?, ?, 1, ?, ?)
-      `).run(userId, t.email1, teamPassword, t.p1n, t.p1s, userPhone, teamId, now, now);
+      `).run(userId, t.email1, teamPassword, t.p1n, t.p1s, phone1, teamId, now, now);
 
       // Inscripción en ranking
       const rtId = crypto.randomUUID();

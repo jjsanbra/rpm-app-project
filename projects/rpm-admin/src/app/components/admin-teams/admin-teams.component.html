@@ -8,13 +8,14 @@
   </div>
 
   <div class="table-container glass-panel">
-    <p-table [value]="teams()" [tableStyle]="{ 'min-width': '50rem' }" responsiveLayout="scroll">
+    <p-table [value]="teams()" [tableStyle]="{ 'min-width': '52rem' }" responsiveLayout="scroll">
       <ng-template #header>
         <tr>
           <th>{{ 'ADMIN.TH_TEAM' | translate }}</th>
           <th>{{ 'ADMIN.TH_PLAYERS' | translate }}</th>
           <th>{{ 'ADMIN.TH_RESERVE' | translate }}</th>
           <th>{{ 'ADMIN.TH_EMAILS' | translate }}</th>
+          <th>{{ 'ADMIN.TH_PHONES' | translate }}</th>
           <th>{{ 'ADMIN.TH_STATUS' | translate }}</th>
           <th>{{ 'ADMIN.TH_ACTIONS' | translate }}</th>
         </tr>
@@ -38,6 +39,17 @@
           <td>
             @for (em of getTeamEmailsList(t); track em) {
               <div class="email-row"><i class="pi pi-envelope"></i> {{ em }}</div>
+            }
+          </td>
+          <td>
+            @if (t.phone) {
+              <div class="phone-row"><i class="pi pi-phone"></i> {{ t.phone }}</div>
+            }
+            @if (t.phone2) {
+              <div class="phone-row"><i class="pi pi-phone"></i> {{ t.phone2 }}</div>
+            }
+            @if (!t.phone && !t.phone2) {
+              <span class="text-dim">-</span>
             }
           </td>
           <td>
@@ -131,6 +143,17 @@
 
     <div class="form-row">
       <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.PHONE1_LABEL' | translate }}</label>
+        <input type="tel" class="form-control" [(ngModel)]="newTeamPhone" name="phone" placeholder="+34 600 000 000" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.PHONE2_LABEL' | translate }}</label>
+        <input type="tel" class="form-control" [(ngModel)]="newTeamPhone2" name="phone2" placeholder="+34 600 000 000" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
         <label class="form-label">{{ 'ADMIN.EMAIL1_LABEL' | translate }}</label>
         <input type="email" class="form-control" [(ngModel)]="newTeamEmail1" name="email1" required />
       </div>
@@ -196,6 +219,17 @@
       <div class="form-group">
         <label class="form-label">{{ 'ADMIN.RES_SURNAME_LABEL' | translate }}</label>
         <input type="text" class="form-control" [(ngModel)]="editTeamRS" name="editRs" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.PHONE1_LABEL' | translate }}</label>
+        <input type="tel" class="form-control" [(ngModel)]="editTeamPhone" name="editPhone" placeholder="+34 600 000 000" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.PHONE2_LABEL' | translate }}</label>
+        <input type="tel" class="form-control" [(ngModel)]="editTeamPhone2" name="editPhone2" placeholder="+34 600 000 000" />
       </div>
     </div>
 

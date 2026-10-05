@@ -50,6 +50,11 @@
       <ng-template #header>
         <tr>
           <th>{{ 'ADMIN.TH_NAME' | translate }}</th>
+          @if (auxType() === 'locations') {
+            <th>{{ 'ADMIN.TH_STREET' | translate }}</th>
+            <th>{{ 'ADMIN.TH_CITY' | translate }}</th>
+            <th>{{ 'ADMIN.TH_POSTAL_CODE' | translate }}</th>
+          }
           <th>{{ 'ADMIN.TH_DESCRIPTION' | translate }}</th>
           <th>{{ 'ADMIN.TH_ACTIONS' | translate }}</th>
         </tr>
@@ -59,18 +64,35 @@
           <td>
             <strong>{{ item.name }}</strong>
           </td>
+          @if (auxType() === 'locations') {
+            <td>{{ item.street || '-' }}</td>
+            <td>{{ item.city || '-' }}</td>
+            <td>{{ item.postalCode || '-' }}</td>
+          }
           <td>{{ item.description || '-' }}</td>
           <td>
-            <button
-              type="button"
-              pButton
-              severity="danger"
-              size="small"
-              [outlined]="true"
-              (click)="deleteItem.emit(item.id)">
-              <i class="pi pi-trash"></i>
-              <span>{{ 'COMMON.DELETE' | translate }}</span>
-            </button>
+            <div class="action-buttons">
+              <button
+                type="button"
+                pButton
+                severity="warn"
+                size="small"
+                [outlined]="true"
+                (click)="openEditModal(item)">
+                <i class="pi pi-pencil"></i>
+                <span>{{ 'COMMON.EDIT' | translate }}</span>
+              </button>
+              <button
+                type="button"
+                pButton
+                severity="danger"
+                size="small"
+                [outlined]="true"
+                (click)="deleteItem.emit(item.id)">
+                <i class="pi pi-trash"></i>
+                <span>{{ 'COMMON.DELETE' | translate }}</span>
+              </button>
+            </div>
           </td>
         </tr>
       </ng-template>
@@ -83,7 +105,7 @@
   [(visible)]="showCreateModal"
   [modal]="true"
   [header]="'ADMIN.MODAL_CREATE_RECORD_TITLE' | translate"
-  [style]="{ width: '90vw', maxWidth: '450px' }"
+  [style]="{ width: '90vw', maxWidth: '500px' }"
   styleClass="custom-p-dialog">
   
   <form (ngSubmit)="submitCreate()" class="modal-form">
@@ -91,6 +113,24 @@
       <label class="form-label">{{ 'ADMIN.NAME_LABEL' | translate }}</label>
       <input type="text" class="form-control" [(ngModel)]="newName" name="auxName" required />
     </div>
+
+    @if (auxType() === 'locations') {
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.STREET_LABEL' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="newStreet" name="auxStreet" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">{{ 'ADMIN.CITY_LABEL' | translate }}</label>
+          <input type="text" class="form-control" [(ngModel)]="newCity" name="auxCity" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">{{ 'ADMIN.POSTAL_CODE_LABEL' | translate }}</label>
+          <input type="text" class="form-control" [(ngModel)]="newPostalCode" name="auxPostalCode" />
+        </div>
+      </div>
+    }
 
     <div class="form-group">
       <label class="form-label">{{ 'ADMIN.DESCRIPTION_LABEL' | translate }}</label>
@@ -108,3 +148,53 @@
     </div>
   </form>
 </p-dialog>
+
+<!-- MODAL EDITAR ELEMENTO AUXILIAR -->
+<p-dialog
+  [(visible)]="showEditModal"
+  [modal]="true"
+  [header]="'ADMIN.MODAL_EDIT_RECORD_TITLE' | translate"
+  [style]="{ width: '90vw', maxWidth: '500px' }"
+  styleClass="custom-p-dialog">
+  
+  <form (ngSubmit)="submitEdit()" class="modal-form">
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.NAME_LABEL' | translate }}</label>
+      <input type="text" class="form-control" [(ngModel)]="editName" name="editAuxName" required />
+    </div>
+
+    @if (auxType() === 'locations') {
+      <div class="form-group">
+        <label class="form-label">{{ 'ADMIN.STREET_LABEL' | translate }}</label>
+        <input type="text" class="form-control" [(ngModel)]="editStreet" name="editAuxStreet" />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">{{ 'ADMIN.CITY_LABEL' | translate }}</label>
+          <input type="text" class="form-control" [(ngModel)]="editCity" name="editAuxCity" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">{{ 'ADMIN.POSTAL_CODE_LABEL' | translate }}</label>
+          <input type="text" class="form-control" [(ngModel)]="editPostalCode" name="editAuxPostalCode" />
+        </div>
+      </div>
+    }
+
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.DESCRIPTION_LABEL' | translate }}</label>
+      <textarea class="form-control" [(ngModel)]="editDesc" name="editAuxDesc" rows="2"></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" pButton severity="secondary" (click)="showEditModal = false">
+        <span>{{ 'COMMON.CANCEL' | translate }}</span>
+      </button>
+      <button type="submit" pButton severity="success">
+        <i class="pi pi-check"></i>
+        <span>{{ 'ADMIN.SAVE_CHANGES_BTN' | translate }}</span>
+      </button>
+    </div>
+  </form>
+</p-dialog>
+

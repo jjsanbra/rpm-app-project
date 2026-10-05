@@ -344,6 +344,8 @@ export class AdminDashboardComponent implements OnInit {
       player2Surname: payload.player2Surname,
       reserveName: payload.reserveName,
       reserveSurname: payload.reserveSurname,
+      phone: payload.phone,
+      phone2: payload.phone2,
       emails: payload.emails,
     }).subscribe({
       next: () => {
@@ -371,6 +373,8 @@ export class AdminDashboardComponent implements OnInit {
       player2Surname: payload.player2Surname,
       reserveName: payload.reserveName,
       reserveSurname: payload.reserveSurname,
+      phone: payload.phone,
+      phone2: payload.phone2,
       emails: payload.emails,
     }).subscribe({
       next: () => {
@@ -513,13 +517,31 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   // Auxiliary actions
-  handleCreateAuxItem(payload: { name: string; description: string }): void {
+  handleCreateAuxItem(payload: any): void {
     this.auxService.createItem(this.auxType(), payload).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
           summary: this.translate.instant('ADMIN.AUX_CREATED_SUCCESS'),
           detail: this.translate.instant('ADMIN.AUX_CREATED_SUCCESS')
+        });
+        this.loadAuxItems();
+      },
+      error: (err) => this.messageService.add({
+        severity: 'error',
+        summary: this.translate.instant('COMMON.ERROR'),
+        detail: err.error?.error || this.translate.instant('COMMON.ERROR')
+      })
+    });
+  }
+
+  handleUpdateAuxItem(payload: { id: string; data: any }): void {
+    this.auxService.updateItem(this.auxType(), payload.id, payload.data).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('ADMIN.AUX_UPDATED_SUCCESS'),
+          detail: this.translate.instant('ADMIN.AUX_UPDATED_DETAIL')
         });
         this.loadAuxItems();
       },

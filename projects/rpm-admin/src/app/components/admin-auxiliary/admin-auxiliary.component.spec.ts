@@ -48,4 +48,40 @@ describe('AdminAuxiliaryComponent', () => {
     component.auxTypeChange.emit('categories');
     expect(emitted).toBe('categories');
   });
+
+  it('should populate fields and emit updateItem on submitEdit', () => {
+    let updatedPayload: any = null;
+    component.updateItem.subscribe((payload) => {
+      updatedPayload = payload;
+    });
+
+    component.openEditModal({
+      id: 'loc-1',
+      name: 'Club Padel',
+      description: 'Pistas cristal',
+      street: 'Gran Via 1',
+      city: 'Madrid',
+      postalCode: '28013'
+    });
+
+    expect(component.showEditModal).toBeTrue();
+    expect(component.editName).toBe('Club Padel');
+    expect(component.editStreet).toBe('Gran Via 1');
+
+    fixture.componentRef.setInput('auxType', 'locations');
+    component.editName = 'Club Padel Actualizado';
+    component.submitEdit();
+
+    expect(component.showEditModal).toBeFalse();
+    expect(updatedPayload).toEqual({
+      id: 'loc-1',
+      data: {
+        name: 'Club Padel Actualizado',
+        description: 'Pistas cristal',
+        street: 'Gran Via 1',
+        city: 'Madrid',
+        postalCode: '28013'
+      }
+    });
+  });
 });

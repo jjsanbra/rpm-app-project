@@ -64,6 +64,7 @@
       [items]="auxItems()"
       (auxTypeChange)="setAuxType($event)"
       (createItem)="handleCreateAuxItem($event)"
+      (updateItem)="handleUpdateAuxItem($event)"
       (deleteItem)="handleDeleteAuxItem($event)">
     </rpm-admin-auxiliary>
   }

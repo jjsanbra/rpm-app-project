@@ -31,6 +31,8 @@ export interface Team {
   player2Surname: string;
   reserveName?: string | null;
   reserveSurname?: string | null;
+  phone?: string | null;
+  phone2?: string | null;
   active: boolean;
   emails?: TeamEmail[] | string[];
   createdAt: string;

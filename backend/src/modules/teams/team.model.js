@@ -48,13 +48,14 @@ function create(data) {
   const now = new Date().toISOString();
 
   db.prepare(`
-    INSERT INTO teams (id, name, player1Name, player1Surname, player2Name, player2Surname, reserveName, reserveSurname, active, createdAt, updatedAt)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)
+    INSERT INTO teams (id, name, player1Name, player1Surname, player2Name, player2Surname, reserveName, reserveSurname, phone, phone2, active, createdAt, updatedAt)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)
   `).run(
     data.id, data.name,
     data.player1Name, data.player1Surname,
     data.player2Name, data.player2Surname,
     data.reserveName || null, data.reserveSurname || null,
+    data.phone || null, data.phone2 || null,
     now, now
   );
 
@@ -63,7 +64,7 @@ function create(data) {
 
 function update(id, data) {
   const db = getDb();
-  const allowed = ['name', 'player1Name', 'player1Surname', 'player2Name', 'player2Surname', 'reserveName', 'reserveSurname', 'active'];
+  const allowed = ['name', 'player1Name', 'player1Surname', 'player2Name', 'player2Surname', 'reserveName', 'reserveSurname', 'phone', 'phone2', 'active'];
   const fields = [];
   const values = [];
 
