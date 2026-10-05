@@ -58,15 +58,27 @@
       <i class="pi pi-database"></i>
       <span>{{ 'ADMIN.TAB_AUXILIARY' | translate }}</span>
     </button>
-    <button
-      type="button"
-      pButton
-      [outlined]="activeTab() !== 'audit'"
-      severity="secondary"
-      size="small"
-      (click)="tabChange.emit('audit')">
-      <i class="pi pi-history"></i>
-      <span>{{ 'ADMIN.TAB_AUDIT' | translate }}</span>
-    </button>
+    @if (isAdmin()) {
+      <button
+        type="button"
+        pButton
+        [outlined]="activeTab() !== 'organizers'"
+        severity="info"
+        size="small"
+        (click)="tabChange.emit('organizers')">
+        <i class="pi pi-user-plus"></i>
+        <span>{{ 'ADMIN.TAB_ORGANIZERS' | translate }} ({{ organizersCount() }})</span>
+      </button>
+      <button
+        type="button"
+        pButton
+        [outlined]="activeTab() !== 'audit'"
+        severity="secondary"
+        size="small"
+        (click)="tabChange.emit('audit')">
+        <i class="pi pi-history"></i>
+        <span>{{ 'ADMIN.TAB_AUDIT' | translate }}</span>
+      </button>
+    }
   </div>
 </header>

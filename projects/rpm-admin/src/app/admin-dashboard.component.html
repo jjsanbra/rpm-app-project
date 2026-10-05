@@ -2,10 +2,12 @@
   <!-- Top Bar / Header with Tabs -->
   <rpm-admin-header
     [activeTab]="activeTab()"
+    [isAdmin]="isAdmin()"
     [rankingsCount]="rankings().length"
     [teamsCount]="teams().length"
     [matchesCount]="matches().length"
     [openIncidentsCount]="openIncidentsCount()"
+    [organizersCount]="organizers().length"
     (tabChange)="setTab($event)">
   </rpm-admin-header>
 
@@ -19,7 +21,8 @@
       (createRanking)="handleCreateRanking($event)"
       (updateRanking)="handleUpdateRanking($event)"
       (toggleActive)="toggleRankingActive($event)"
-      (selectForMatches)="selectRankingForMatches($event)">
+      (selectForMatches)="selectRankingForMatches($event)"
+      (deleteRanking)="handleDeleteRanking($event)">
     </rpm-admin-rankings>
   }
 
@@ -65,10 +68,19 @@
     </rpm-admin-auxiliary>
   }
 
-  <!-- TAB 6: AUDIT -->
-  @if (activeTab() === 'audit') {
+  <!-- TAB 6: AUDIT (Solo Admin) -->
+  @if (activeTab() === 'audit' && isAdmin()) {
     <rpm-admin-audit
       [logs]="auditLogs()">
     </rpm-admin-audit>
+  }
+
+  <!-- TAB 7: ORGANIZADORES (Solo Admin) -->
+  @if (activeTab() === 'organizers' && isAdmin()) {
+    <rpm-admin-organizers
+      [organizers]="organizers()"
+      (createOrganizer)="handleCreateOrganizer($event)"
+      (deleteOrganizer)="handleDeleteOrganizer($event)">
+    </rpm-admin-organizers>
   }
 </div>

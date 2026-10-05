@@ -31,11 +31,18 @@ function getById(id) {
 
 /**
  * Genera todos los partidos round-robin para un ranking.
- * Se llama cuando el admin asocia equipos al ranking.
+ * Se llama cuando el admin u organizador asocia equipos al ranking.
  */
-async function generateMatchesForRanking(rankingId, teamIds, adminUserId) {
+async function generateMatchesForRanking(rankingId, teamIds, user) {
   const ranking = rankingModel.findById(rankingId);
   if (!ranking) throw createError(404, 'Ranking no encontrado.');
+
+  const userId = typeof user === 'object' ? user.id : user;
+  const userRole = typeof user === 'object' ? user.role : 'ADMIN';
+
+  if (userRole === 'ORGANIZER' && ranking.createdBy !== userId) {
+    throw createError(403, 'No tienes permisos para generar partidos en un ranking que no te pertenece.');
+  }
 
   if (teamIds.length < 4) {
     throw createError(400, 'Un ranking necesita al menos 4 equipos para generar partidos.');
@@ -61,7 +68,7 @@ async function generateMatchesForRanking(rankingId, teamIds, adminUserId) {
   }
 
   await auditService.log({
-    userId: adminUserId,
+    userId,
     action: 'GENERATE_MATCHES',
     entity: 'Ranking',
     entityId: rankingId,
@@ -269,10 +276,17 @@ async function disputeResult(matchId, data, user) {
 }
 
 /**
- * FLUJO: Modificación de resultado por ADMIN (con recálculo de puntos).
+ * FLUJO: Modificación de resultado por ADMIN u ORGANIZER (con recálculo de puntos).
  */
-async function adminUpdateMatch(matchId, data, adminUserId) {
+async function adminUpdateMatch(matchId, data, user) {
   const match = getById(matchId);
+
+  const userId = typeof user === 'object' ? user.id : user;
+  const userRole = typeof user === 'object' ? user.role : 'ADMIN';
+
+  if (userRole === 'ORGANIZER' && match.rankingCreatedBy !== userId) {
+    throw createError(403, 'No tienes permisos para modificar un partido de un ranking que no te pertenece.');
+  }
 
   // Si se modifican juegos o sets, recalcular
   if (data.set1TeamOne !== undefined && data.set1TeamTwo !== undefined) {
@@ -307,7 +321,7 @@ async function adminUpdateMatch(matchId, data, adminUserId) {
   const updated = matchModel.adminUpdate(matchId, data);
 
   await auditService.log({
-    userId: adminUserId,
+    userId,
     action: 'ADMIN_UPDATE_MATCH',
     entity: 'Match',
     entityId: matchId,

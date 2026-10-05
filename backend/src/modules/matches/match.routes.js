@@ -20,8 +20,8 @@ const { validateRequest } = require('../../middleware/validateRequest');
 router.get('/', authenticateOptional, ctrl.getAll);
 router.get('/:id', authenticateOptional, ctrl.getById);
 
-// Generar partidos round-robin (solo ADMIN)
-router.post('/ranking/:rankingId/generate', authenticate, authorize('ADMIN'), [
+// Generar partidos round-robin (ADMIN u ORGANIZER del ranking)
+router.post('/ranking/:rankingId/generate', authenticate, authorize('ADMIN', 'ORGANIZER'), [
   body('teamIds').isArray({ min: 4 }).withMessage('Se necesitan al menos 4 equipos.'),
 ], validateRequest, ctrl.generateMatches);
 
@@ -213,8 +213,8 @@ router.post('/:id/dispute', authenticate, [
  *       200:
  *         description: Acta de partido modificada y clasificación actualizada
  */
-router.put('/:id', authenticate, authorize('ADMIN'), ctrl.adminUpdate);
-router.put('/:id/admin-override', authenticate, authorize('ADMIN'), ctrl.adminUpdate);
+router.put('/:id', authenticate, authorize('ADMIN', 'ORGANIZER'), ctrl.adminUpdate);
+router.put('/:id/admin-override', authenticate, authorize('ADMIN', 'ORGANIZER'), ctrl.adminUpdate);
 
 // ─── PARTIDOS EN TIEMPO REAL / LIVE MATCH TRACKER ─────────────────────────
 const liveCtrl = require('./liveMatch.controller');

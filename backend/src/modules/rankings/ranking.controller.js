@@ -8,29 +8,28 @@ const rankingService = require('./ranking.service');
 
 async function getAll(req, res, next) {
   try {
-    const includeInactive = req.user?.role === 'ADMIN';
-    const rankings = rankingService.getAll({ includeInactive });
+    const rankings = rankingService.getAll({}, req.user);
     res.json({ data: rankings });
   } catch (err) { next(err); }
 }
 
 async function getById(req, res, next) {
   try {
-    const ranking = rankingService.getById(req.params.id);
+    const ranking = rankingService.getById(req.params.id, req.user);
     res.json({ data: ranking });
   } catch (err) { next(err); }
 }
 
 async function create(req, res, next) {
   try {
-    const ranking = await rankingService.create(req.body, req.user.id);
+    const ranking = await rankingService.create(req.body, req.user);
     res.status(201).json({ data: ranking });
   } catch (err) { next(err); }
 }
 
 async function update(req, res, next) {
   try {
-    const ranking = await rankingService.update(req.params.id, req.body, req.user.id);
+    const ranking = await rankingService.update(req.params.id, req.body, req.user);
     res.json({ data: ranking });
   } catch (err) { next(err); }
 }
@@ -38,8 +37,15 @@ async function update(req, res, next) {
 async function toggleActive(req, res, next) {
   try {
     const { active } = req.body;
-    const ranking = await rankingService.toggleActive(req.params.id, active, req.user.id);
+    const ranking = await rankingService.toggleActive(req.params.id, active, req.user);
     res.json({ data: ranking });
+  } catch (err) { next(err); }
+}
+
+async function remove(req, res, next) {
+  try {
+    const result = await rankingService.remove(req.params.id, req.user);
+    res.json({ data: result });
   } catch (err) { next(err); }
 }
 
@@ -57,4 +63,4 @@ async function getSponsors(req, res, next) {
   } catch (err) { next(err); }
 }
 
-module.exports = { getAll, getById, create, update, toggleActive, getTeams, getSponsors };
+module.exports = { getAll, getById, create, update, toggleActive, remove, getTeams, getSponsors };

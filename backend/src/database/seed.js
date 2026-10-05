@@ -84,7 +84,7 @@ async function runSeed() {
       .run(s.id, s.name, s.desc, now, now);
   }
 
-  // ─── 5. USUARIO ADMINISTRADOR ─────────────────────────────────────────────
+  // ─── 5. USUARIOS ADMINISTRADOR Y ORGANIZADORES ───────────────────────────
   const adminId = crypto.randomUUID();
   const adminHash = await bcrypt.hash('Admin123!', BCRYPT_ROUNDS);
   db.prepare(`
@@ -92,18 +92,32 @@ async function runSeed() {
     VALUES (?, ?, ?, 'ADMIN', NULL, 1, ?, ?)
   `).run(adminId, 'admin@padelranking.dev', adminHash, now, now);
 
+  const orgPassword = await bcrypt.hash('Org123!', BCRYPT_ROUNDS);
+  const org1Id = crypto.randomUUID();
+  db.prepare(`
+    INSERT INTO users (id, email, passwordHash, role, teamId, active, createdAt, updatedAt)
+    VALUES (?, ?, ?, 'ORGANIZER', NULL, 1, ?, ?)
+  `).run(org1Id, 'organizador1@padelranking.dev', orgPassword, now, now);
+
+  const org2Id = crypto.randomUUID();
+  db.prepare(`
+    INSERT INTO users (id, email, passwordHash, role, teamId, active, createdAt, updatedAt)
+    VALUES (?, ?, ?, 'ORGANIZER', NULL, 1, ?, ?)
+  `).run(org2Id, 'organizador2@padelranking.dev', orgPassword, now, now);
+
   const teamPassword = await bcrypt.hash('Team123!', BCRYPT_ROUNDS);
 
   // Helper para registrar un ranking con sus equipos y calendario
   function createRankingWithTeams(cfg) {
     const rankingId = crypto.randomUUID();
+    const createdBy = cfg.createdBy || adminId;
     db.prepare(`
-      INSERT INTO rankings (id, name, description, startDate, endDate, regulation, active, locationId, levelId, categoryId, createdAt, updatedAt)
-      VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?)
+      INSERT INTO rankings (id, name, description, startDate, endDate, regulation, active, locationId, levelId, categoryId, createdBy, createdAt, updatedAt)
+      VALUES (?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?)
     `).run(
       rankingId, cfg.name, cfg.description, cfg.startDate, cfg.endDate,
       'Formato todos contra todos (Round-Robin). Victoria 2-0: 5 pts ganador, 1 pt perdedor. Victoria 2-1: 4 pts ganador, 2 pts perdedor. Registro con confirmación obligatoria del equipo rival.',
-      cfg.locationId, cfg.levelId, cfg.categoryId, now, now
+      cfg.locationId, cfg.levelId, cfg.categoryId, createdBy, now, now
     );
 
     const createdTeams = [];
@@ -157,7 +171,7 @@ async function runSeed() {
     return { rankingId, teams: createdTeams, matches };
   }
 
-  // ─── RANKING 1: Otoño 2026 (Masculino Intermedio) ─────────────────────────
+  // ─── RANKING 1: Otoño 2026 (Masculino Intermedio - Creado por ADMIN) ───────
   const r1 = createRankingWithTeams({
     name: 'Ranking de Pádel Otoño 2026',
     description: 'Ranking oficial de la temporada de otoño 2026 en Madrid.',
@@ -166,6 +180,7 @@ async function runSeed() {
     locationId: locations[0].id, // Club Pádel Central
     levelId: levels[1].id,       // Intermedio
     categoryId: categories[0].id,// Masculina
+    createdBy: adminId,
     teams: [
       { name: 'Los Ases', p1n: 'Carlos', p1s: 'García', p2n: 'Miguel', p2s: 'López', rn: 'Javier', rs: 'Martín', email1: 'equipo1@padelranking.dev', email2: 'capitan1@padelranking.dev' },
       { name: 'Smash Bros', p1n: 'David', p1s: 'Fernández', p2n: 'Pablo', p2s: 'Ruiz', email1: 'equipo2@padelranking.dev' },
@@ -177,7 +192,6 @@ async function runSeed() {
   // Resultados para Ranking 1 (demostración de todos los estados)
   {
     // El partido r1.matches[0] (Los Ases vs Smash Bros) queda sin disputar (PENDING_RESULT / Por Jugar)
-
 
     const pts1 = calculatePoints(2, 1);
     db.prepare(`
@@ -234,7 +248,7 @@ async function runSeed() {
     );
   }
 
-  // ─── RANKING 2: Liga Femenina Premier 2026 (Femenina Avanzada) ───────────
+  // ─── RANKING 2: Liga Femenina Premier 2026 (Creado por Organizador 1) ──────
   const r2 = createRankingWithTeams({
     name: 'Liga Femenina Premier 2026',
     description: 'Circuito femenino de alto rendimiento con sede en Mirasierra.',
@@ -243,6 +257,7 @@ async function runSeed() {
     locationId: locations[2].id, // Mirasierra
     levelId: levels[2].id,       // Avanzado
     categoryId: categories[1].id,// Femenina
+    createdBy: org1Id,
     teams: [
       { name: 'Las Voleadoras', p1n: 'Laura', p1s: 'Gómez', p2n: 'Elena', p2s: 'Vázquez', email1: 'fem1@padelranking.dev' },
       { name: 'Drive & Revés', p1n: 'Marta', p1s: 'Navarro', p2n: 'Sara', p2s: 'Iglesias', email1: 'fem2@padelranking.dev' },
@@ -282,7 +297,7 @@ async function runSeed() {
     `).run(ptsB.pointsTeamOne, ptsB.pointsTeamTwo, r2.teams[2].userId, now, r2.teams[3].userId, now, now, r2.matches[5].id);
   }
 
-  // ─── RANKING 3: Torneo Mixto Primavera 2026 (Mixto Iniciación) ───────────
+  // ─── RANKING 3: Torneo Mixto Primavera 2026 (Creado por Organizador 1) ─────
   createRankingWithTeams({
     name: 'Torneo Mixto Primavera 2026',
     description: 'Competición mixta para parejas aficionadas y principiantes en Ciudad de la Raqueta.',
@@ -291,6 +306,7 @@ async function runSeed() {
     locationId: locations[1].id, // Ciudad de la Raqueta
     levelId: levels[0].id,       // Iniciación
     categoryId: categories[2].id,// Mixta
+    createdBy: org1Id,
     teams: [
       { name: 'Dúo Dinámico', p1n: 'Marcos', p1s: 'Sanz', p2n: 'Ana', p2s: 'Reyes', email1: 'mix1@padelranking.dev' },
       { name: 'Top Spinners', p1n: 'Jorge', p1s: 'Blanco', p2n: 'Silvia', p2s: 'Cano', email1: 'mix2@padelranking.dev' },
@@ -299,7 +315,7 @@ async function runSeed() {
     ]
   });
 
-  // ─── RANKING 4: Master Series Primera Categoría (Pro Masculino) ──────────
+  // ─── RANKING 4: Master Series Primera Categoría (Creado por Organizador 2) ─
   const r4 = createRankingWithTeams({
     name: 'Master Series Primera Categoría 2026',
     description: 'El ranking más competitivo de la temporada con los mejores jugadores de la región.',
@@ -308,6 +324,7 @@ async function runSeed() {
     locationId: locations[3].id, // Real Club Pádel Sport
     levelId: levels[3].id,       // Pro
     categoryId: categories[0].id,// Masculina
+    createdBy: org2Id,
     teams: [
       { name: 'Los Bombarderos', p1n: 'Alejandro', p1s: 'Gutiérrez', p2n: 'Gonzalo', p2s: 'Rubio', email1: 'pro1@padelranking.dev' },
       { name: 'Drop Shot Stars', p1n: 'Hugo', p1s: 'Delgado', p2n: 'Adrián', p2s: 'Lozano', email1: 'pro2@padelranking.dev' },
@@ -347,7 +364,7 @@ async function runSeed() {
     `).run(pts2.pointsTeamOne, pts2.pointsTeamTwo, r4.teams[0].userId, now, r4.teams[3].userId, now, now, r4.matches[2].id);
   }
 
-  // ─── RANKING 5: Circuito Senior +45 Invierno (Veteranos) ───────────────────
+  // ─── RANKING 5: Circuito Senior +45 Invierno (Creado por ADMIN) ───────────
   createRankingWithTeams({
     name: 'Circuito Senior +45 Invierno 2026',
     description: 'Torneo social para mayores de 45 años en el Club Deportivo El Tejar.',
@@ -356,6 +373,7 @@ async function runSeed() {
     locationId: locations[4].id, // El Tejar
     levelId: levels[4].id,       // Veteranos
     categoryId: categories[0].id,// Masculina
+    createdBy: adminId,
     teams: [
       { name: 'Leyendas del Cristal', p1n: 'Antonio', p1s: 'Ibáñez', p2n: 'José', p2s: 'Garrido', email1: 'vet1@padelranking.dev' },
       { name: 'Veteranos del Pádel', p1n: 'Francisco', p1s: 'Medina', p2n: 'Ramón', p2s: 'Vicente', email1: 'vet2@padelranking.dev' },
@@ -367,8 +385,10 @@ async function runSeed() {
   console.log('✅ Seed aplicado correctamente.');
   console.log('🏆 5 rankings creados con sedes, niveles, categorías y equipos.');
   console.log('📋 Credenciales:');
-  console.log('   ADMIN:    admin@padelranking.dev / Admin123!');
-  console.log('   Equipos:  equipo1@padelranking.dev / Team123! (hasta equipo4, fem1-4, mix1-4, pro1-4, vet1-4)');
+  console.log('   ADMIN:        admin@padelranking.dev / Admin123!');
+  console.log('   ORGANIZADOR 1: organizador1@padelranking.dev / Org123!');
+  console.log('   ORGANIZADOR 2: organizador2@padelranking.dev / Org123!');
+  console.log('   Equipos:      equipo1@padelranking.dev / Team123! (hasta equipo4, fem1-4, mix1-4, pro1-4, vet1-4)');
 }
 
 module.exports = { runSeed };

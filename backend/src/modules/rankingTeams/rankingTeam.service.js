@@ -25,10 +25,20 @@ function getRegistrations(rankingId) {
   `).all(rankingId);
 }
 
-async function addTeam(rankingId, teamId, adminUserId) {
+function _checkRankingOwnership(ranking, user) {
+  if (!user || user.role === 'ADMIN') return;
+  if (user.role === 'ORGANIZER') {
+    if (ranking.createdBy && ranking.createdBy !== user.id) {
+      throw createError(403, 'No tienes permisos para gestionar este ranking.');
+    }
+  }
+}
+
+async function addTeam(rankingId, teamId, user) {
   const db = getDb();
   const ranking = rankingModel.findById(rankingId);
   if (!ranking) throw createError(404, 'Ranking no encontrado.');
+  _checkRankingOwnership(ranking, user);
 
   // Verificar si ya está registrado
   const existing = db.prepare('SELECT * FROM ranking_teams WHERE rankingId = ? AND teamId = ?').get(rankingId, teamId);
@@ -47,7 +57,7 @@ async function addTeam(rankingId, teamId, adminUserId) {
   `).run(id, rankingId, teamId, now, now);
 
   await auditService.log({
-    userId: adminUserId,
+    userId: user?.id || 'SYSTEM',
     action: 'ADD_TEAM_TO_RANKING',
     entity: 'RankingTeam',
     entityId: id,
@@ -57,8 +67,12 @@ async function addTeam(rankingId, teamId, adminUserId) {
   return db.prepare('SELECT * FROM ranking_teams WHERE id = ?').get(id);
 }
 
-async function removeTeam(rankingId, teamId, adminUserId) {
+async function removeTeam(rankingId, teamId, user) {
   const db = getDb();
+  const ranking = rankingModel.findById(rankingId);
+  if (!ranking) throw createError(404, 'Ranking no encontrado.');
+  _checkRankingOwnership(ranking, user);
+
   const reg = db.prepare('SELECT * FROM ranking_teams WHERE rankingId = ? AND teamId = ?').get(rankingId, teamId);
   if (!reg) throw createError(404, 'El equipo no está registrado en este ranking.');
 
@@ -67,7 +81,7 @@ async function removeTeam(rankingId, teamId, adminUserId) {
   );
 
   await auditService.log({
-    userId: adminUserId,
+    userId: user?.id || 'SYSTEM',
     action: 'REMOVE_TEAM_FROM_RANKING',
     entity: 'RankingTeam',
     entityId: reg.id,
@@ -75,14 +89,18 @@ async function removeTeam(rankingId, teamId, adminUserId) {
   });
 }
 
-async function generateMatches(rankingId, adminUserId) {
+async function generateMatches(rankingId, user) {
   const db = getDb();
+  const ranking = rankingModel.findById(rankingId);
+  if (!ranking) throw createError(404, 'Ranking no encontrado.');
+  _checkRankingOwnership(ranking, user);
+
   const activeTeams = db.prepare(`
     SELECT teamId FROM ranking_teams WHERE rankingId = ? AND status = 'ACTIVE'
   `).all(rankingId);
 
   const teamIds = activeTeams.map(t => t.teamId);
-  const count = await matchService.generateMatchesForRanking(rankingId, teamIds, adminUserId);
+  const count = await matchService.generateMatchesForRanking(rankingId, teamIds, user?.id || 'SYSTEM');
   return count;
 }
 

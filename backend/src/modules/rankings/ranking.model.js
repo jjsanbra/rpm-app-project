@@ -6,22 +6,38 @@ const { getDb } = require('../../database/db');
  * ranking.model.js — Acceso a datos para Rankings.
  */
 
-function findAll({ includeInactive = false } = {}) {
+function findAll({ includeInactive = false, createdBy = null } = {}) {
   const db = getDb();
+  const whereClauses = [];
+  const params = [];
+
+  if (!includeInactive) {
+    whereClauses.push('r.active = 1');
+  }
+
+  if (createdBy) {
+    whereClauses.push('r.createdBy = ?');
+    params.push(createdBy);
+  }
+
+  const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
   const query = `
     SELECT r.*,
            l.name as locationName,
            lv.name as levelName,
            c.name as categoryName,
+           u.email as creatorEmail,
            (SELECT COUNT(*) FROM ranking_teams rt WHERE rt.rankingId = r.id AND rt.status = 'ACTIVE') as teamCount
     FROM rankings r
     LEFT JOIN locations l ON r.locationId = l.id
     LEFT JOIN levels lv ON r.levelId = lv.id
     LEFT JOIN categories c ON r.categoryId = c.id
-    ${includeInactive ? '' : 'WHERE r.active = 1'}
+    LEFT JOIN users u ON r.createdBy = u.id
+    ${whereSql}
     ORDER BY r.createdAt DESC
   `;
-  return db.prepare(query).all();
+  return db.prepare(query).all(...params);
 }
 
 function findById(id) {
@@ -31,11 +47,13 @@ function findById(id) {
            l.name as locationName,
            lv.name as levelName,
            c.name as categoryName,
+           u.email as creatorEmail,
            (SELECT COUNT(*) FROM ranking_teams rt WHERE rt.rankingId = r.id AND rt.status = 'ACTIVE') as teamCount
     FROM rankings r
     LEFT JOIN locations l ON r.locationId = l.id
     LEFT JOIN levels lv ON r.levelId = lv.id
     LEFT JOIN categories c ON r.categoryId = c.id
+    LEFT JOIN users u ON r.createdBy = u.id
     WHERE r.id = ?
   `).get(id);
 }
@@ -43,12 +61,13 @@ function findById(id) {
 function create(data) {
   const db = getDb();
   db.prepare(`
-    INSERT INTO rankings (id, name, description, startDate, endDate, regulation, active, poster, rankingConfig, locationId, levelId, categoryId, createdAt, updatedAt)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO rankings (id, name, description, startDate, endDate, regulation, active, poster, rankingConfig, createdBy, locationId, levelId, categoryId, createdAt, updatedAt)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     data.id, data.name, data.description || null, data.startDate, data.endDate,
     data.regulation || null, data.active ?? 1, data.poster || null,
     data.rankingConfig ? JSON.stringify(data.rankingConfig) : null,
+    data.createdBy || null,
     data.locationId || null, data.levelId || null, data.categoryId || null,
     data.createdAt, data.updatedAt
   );

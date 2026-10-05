@@ -1,4 +1,4 @@
-export type Role = 'ADMIN' | 'TEAM_USER';
+export type Role = 'ADMIN' | 'ORGANIZER' | 'TEAM_USER';
 
 export interface User {
   id: string;
@@ -7,6 +7,8 @@ export interface User {
   teamId?: string | null;
   teamName?: string | null;
   active?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface TeamEmail {
@@ -47,6 +49,8 @@ export interface Ranking {
   levelName?: string | null;
   categoryId?: string | null;
   categoryName?: string | null;
+  createdBy?: string | null;
+  creatorEmail?: string | null;
   createdAt: string;
   updatedAt: string;
 }

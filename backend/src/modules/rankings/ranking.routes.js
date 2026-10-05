@@ -94,7 +94,7 @@ router.get('/:id/sponsors', authenticateOptional, ctrl.getSponsors);
  * @swagger
  * /api/rankings:
  *   post:
- *     summary: Crear un nuevo ranking (solo ADMIN)
+ *     summary: Crear un nuevo ranking (ADMIN u ORGANIZER)
  *     tags: [Rankings]
  *     security:
  *       - bearerAuth: []
@@ -135,15 +135,15 @@ router.get('/:id/sponsors', authenticateOptional, ctrl.getSponsors);
  *       401:
  *         description: No autenticado
  *       403:
- *         description: Requiere rol ADMIN
+ *         description: Requiere rol ADMIN u ORGANIZER
  */
-router.post('/', authenticate, authorize('ADMIN'), rankingValidation, validateRequest, ctrl.create);
+router.post('/', authenticate, authorize('ADMIN', 'ORGANIZER'), rankingValidation, validateRequest, ctrl.create);
 
 /**
  * @swagger
  * /api/rankings/{id}:
  *   put:
- *     summary: Actualizar datos de un ranking (solo ADMIN)
+ *     summary: Actualizar datos de un ranking (ADMIN u ORGANIZER propietario)
  *     tags: [Rankings]
  *     security:
  *       - bearerAuth: []
@@ -181,14 +181,16 @@ router.post('/', authenticate, authorize('ADMIN'), rankingValidation, validateRe
  *     responses:
  *       200:
  *         description: Ranking actualizado
+ *       403:
+ *         description: Sin permisos sobre este ranking
  */
-router.put('/:id', authenticate, authorize('ADMIN'), rankingValidation, validateRequest, ctrl.update);
+router.put('/:id', authenticate, authorize('ADMIN', 'ORGANIZER'), rankingValidation, validateRequest, ctrl.update);
 
 /**
  * @swagger
  * /api/rankings/{id}/active:
  *   patch:
- *     summary: Activar o pausar/desactivar un ranking (solo ADMIN)
+ *     summary: Activar o pausar/desactivar un ranking (ADMIN u ORGANIZER propietario)
  *     tags: [Rankings]
  *     security:
  *       - bearerAuth: []
@@ -211,9 +213,33 @@ router.put('/:id', authenticate, authorize('ADMIN'), rankingValidation, validate
  *     responses:
  *       200:
  *         description: Estado del ranking modificado
+ *       403:
+ *         description: Sin permisos sobre este ranking
  */
-router.patch('/:id/active', authenticate, authorize('ADMIN'), [
+router.patch('/:id/active', authenticate, authorize('ADMIN', 'ORGANIZER'), [
   body('active').isBoolean().withMessage('active debe ser true o false.'),
 ], validateRequest, ctrl.toggleActive);
+
+/**
+ * @swagger
+ * /api/rankings/{id}:
+ *   delete:
+ *     summary: Eliminar un ranking (ADMIN u ORGANIZER propietario)
+ *     tags: [Rankings]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Ranking eliminado
+ *       403:
+ *         description: Sin permisos sobre este ranking
+ */
+router.delete('/:id', authenticate, authorize('ADMIN', 'ORGANIZER'), ctrl.remove);
 
 module.exports = router;

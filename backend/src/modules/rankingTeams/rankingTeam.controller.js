@@ -8,21 +8,21 @@ async function getRegistrations(req, res, next) {
 
 async function addTeam(req, res, next) {
   try {
-    const reg = await svc.addTeam(req.params.rankingId, req.body.teamId, req.user.id);
+    const reg = await svc.addTeam(req.params.rankingId, req.body.teamId, req.user);
     res.status(201).json({ data: reg });
   } catch (err) { next(err); }
 }
 
 async function removeTeam(req, res, next) {
   try {
-    await svc.removeTeam(req.params.rankingId, req.params.teamId, req.user.id);
+    await svc.removeTeam(req.params.rankingId, req.params.teamId, req.user);
     res.json({ data: { message: 'Equipo desvinculado del ranking.' } });
   } catch (err) { next(err); }
 }
 
 async function generateMatches(req, res, next) {
   try {
-    const count = await svc.generateMatches(req.params.rankingId, req.user.id);
+    const count = await svc.generateMatches(req.params.rankingId, req.user);
     res.json({ data: { message: `${count} partidos generados.`, matchesCreated: count } });
   } catch (err) { next(err); }
 }

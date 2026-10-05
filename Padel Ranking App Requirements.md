@@ -48,28 +48,30 @@ El administrador tendrá control total.
 2. ROLES
 ==================================================
 
-Existirán inicialmente únicamente estos roles:
+Existirán los siguientes roles de usuario:
 
 - ADMIN
+- ORGANIZER
 - TEAM_USER
 
 ### ADMIN
 
-Puede:
-- Crear rankings.
-- Editar rankings.
-- Activar/desactivar rankings.
-- Configurar fechas.
-- Configurar reglamento.
+Superusuario de la plataforma. Puede:
+- Crear rankings globales.
+- Editar cualquier ranking.
+- Activar/desactivar cualquier ranking.
+- Eliminar cualquier ranking.
+- Configurar fechas y reglamento.
+- Crear y gestionar usuarios con rol `ORGANIZER`.
 - Crear equipos.
 - Editar equipos.
 - Eliminar/desactivar equipos.
 - Gestionar jugadores.
 - Gestionar emails de los equipos.
 - Crear usuarios.
-- Gestionar partidos.
-- Gestionar resultados.
-- Corregir resultados.
+- Gestionar partidos de cualquier ranking.
+- Gestionar resultados y modificar actas oficiales.
+- Corregir resultados arbitrales.
 - Resolver incidencias.
 - Consultar clasificación.
 - Gestionar patrocinadores.
@@ -77,7 +79,27 @@ Puede:
 - Gestionar niveles/categorías.
 - Gestionar configuración general.
 - Reenviar emails de acceso.
-- Consultar información de auditoría.
+- Consultar información de auditoría global.
+
+### ORGANIZER (Organizador)
+
+Rol intermedio para gestores de competiciones específicas. Su ciclo de vida es gestionado exclusivamente por el `ADMIN`.
+
+Puede:
+- Iniciar sesión en la plataforma y acceder al Panel de Gestión.
+- Crear sus propios rankings (`createdBy = organizer.id`).
+- Modificar, editar, activar/desactivar y eliminar **únicamente sus propios rankings**.
+- Inscribir y gestionar equipos dentro de sus propios rankings.
+- Generar el calendario de partidos round-robin para sus propios rankings.
+- Modificar actas oficiales o corregir resultados de partidos que pertenezcan a sus propios rankings.
+- Resolver incidencias reportadas en partidos de sus rankings.
+- Consultar clasificaciones y estadísticas de sus rankings.
+
+NO puede:
+- Ver, editar ni eliminar rankings creados por el `ADMIN` o por otros `ORGANIZER` (Aislamiento Multi-Tenancy estricto tanto en backend como frontend).
+- Crear, editar o eliminar a otros organizadores (competencia exclusiva del ADMIN).
+- Acceder a los registros globales de auditoría de la plataforma.
+- Modificar configuraciones globales del sistema fuera del ámbito de sus propios torneos.
 
 ### TEAM_USER
 

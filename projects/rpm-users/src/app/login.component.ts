@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, isDevMode } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -39,6 +39,13 @@ export class LoginComponent {
   loading = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
 
+  // Solo activo para entorno local / desarrollo
+  isLocal = isDevMode() || (typeof window !== 'undefined' && (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname.endsWith('.local')
+  ));
+
   onSubmit(): void {
     if (!this.email || !this.password) return;
 
@@ -48,7 +55,7 @@ export class LoginComponent {
     this.authService.login({ email: this.email, password: this.password }).subscribe({
       next: (res) => {
         this.loading.set(false);
-        if (res.data.user.role === 'ADMIN') {
+        if (res.data.user.role === 'ADMIN' || res.data.user.role === 'ORGANIZER') {
           this.router.navigate(['/admin']);
         } else {
           this.router.navigate(['/team']);
@@ -59,5 +66,12 @@ export class LoginComponent {
         this.errorMessage.set(err.error?.error || this.translate.instant('AUTH.INVALID_CREDENTIALS'));
       }
     });
+  }
+
+  quickLogin(email: string, pass: string): void {
+    if (!this.isLocal) return;
+    this.email = email;
+    this.password = pass;
+    this.onSubmit();
   }
 }

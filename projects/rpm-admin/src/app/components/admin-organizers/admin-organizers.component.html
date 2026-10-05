@@ -1,0 +1,98 @@
+<section class="tab-section">
+  <div class="section-actions">
+    <div>
+      <h2>{{ 'ADMIN.ORGANIZERS_HEADING' | translate }}</h2>
+      <p class="section-subtitle">{{ 'ADMIN.ORGANIZERS_SUBTITLE' | translate }}</p>
+    </div>
+    <button type="button" pButton severity="info" size="small" (click)="openCreateModal()">
+      <i class="pi pi-user-plus"></i>
+      <span>{{ 'ADMIN.CREATE_ORGANIZER_BTN' | translate }}</span>
+    </button>
+  </div>
+
+  <div class="table-container glass-panel">
+    <p-table [value]="organizers()" [tableStyle]="{ 'min-width': '40rem' }" responsiveLayout="scroll">
+      <ng-template #header>
+        <tr>
+          <th>{{ 'ADMIN.TH_ORGANIZER_EMAIL' | translate }}</th>
+          <th>{{ 'ADMIN.TH_ROLE' | translate }}</th>
+          <th>{{ 'ADMIN.TH_STATUS' | translate }}</th>
+          <th>{{ 'ADMIN.TH_CREATED_AT' | translate }}</th>
+          <th>{{ 'ADMIN.TH_ACTIONS' | translate }}</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-org>
+        <tr>
+          <td>
+            <div class="user-email-cell">
+              <i class="pi pi-id-card"></i>
+              <strong>{{ org.email }}</strong>
+            </div>
+          </td>
+          <td>
+            <p-tag [value]="'ROLES.ORGANIZER' | translate" severity="info"></p-tag>
+          </td>
+          <td>
+            <p-tag [value]="(org.active ? 'STATUS.ACTIVE' : 'STATUS.INACTIVE') | translate" [severity]="org.active ? 'success' : 'secondary'"></p-tag>
+          </td>
+          <td>
+            <span class="date-txt">{{ org.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button
+                type="button"
+                pButton
+                severity="danger"
+                size="small"
+                [outlined]="true"
+                (click)="deleteOrganizer.emit(org)"
+                [pTooltip]="'COMMON.DELETE' | translate">
+                <i class="pi pi-trash"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5" class="empty-state">
+            <i class="pi pi-users empty-icon"></i>
+            <p>{{ 'ADMIN.NO_ORGANIZERS' | translate }}</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</section>
+
+<!-- MODAL CREAR ORGANIZADOR -->
+<p-dialog
+  [(visible)]="showCreateModal"
+  [modal]="true"
+  [header]="'ADMIN.MODAL_CREATE_ORGANIZER_TITLE' | translate"
+  [style]="{ width: '90vw', maxWidth: '480px' }"
+  styleClass="custom-p-dialog">
+  
+  <form (ngSubmit)="submitCreate()" class="modal-form">
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.ORGANIZER_EMAIL_LABEL' | translate }}</label>
+      <input type="email" class="form-control" [(ngModel)]="newEmail" name="email" required placeholder="organizador@padelranking.dev" />
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">{{ 'ADMIN.ORGANIZER_PASSWORD_LABEL' | translate }}</label>
+      <input type="password" class="form-control" [(ngModel)]="newPassword" name="password" placeholder="{{ 'ADMIN.ORGANIZER_PASSWORD_PLACEHOLDER' | translate }}" />
+      <small class="form-hint">{{ 'ADMIN.ORGANIZER_PASSWORD_HINT' | translate }}</small>
+    </div>
+
+    <div class="modal-actions">
+      <button type="button" pButton severity="secondary" size="small" (click)="showCreateModal = false">
+        {{ 'COMMON.CANCEL' | translate }}
+      </button>
+      <button type="submit" pButton severity="info" size="small" [disabled]="!newEmail.trim()">
+        {{ 'COMMON.CREATE' | translate }}
+      </button>
+    </div>
+  </form>
+</p-dialog>

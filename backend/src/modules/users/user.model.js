@@ -69,4 +69,20 @@ function saveSetupToken(userId, token, expiresAt) {
   `).run(token, expiresAt, new Date().toISOString(), userId);
 }
 
-module.exports = { findByEmail, findById, findAll, create, update, saveSetupToken };
+function findOrganizers() {
+  const db = getDb();
+  return db.prepare(`
+    SELECT u.id, u.email, u.role, u.active, u.createdAt, u.updatedAt,
+           (SELECT COUNT(*) FROM rankings r WHERE r.createdBy = u.id) as rankingCount
+    FROM users u
+    WHERE u.role = 'ORGANIZER'
+    ORDER BY u.createdAt DESC
+  `).all();
+}
+
+function remove(id) {
+  const db = getDb();
+  db.prepare('DELETE FROM users WHERE id = ?').run(id);
+}
+
+module.exports = { findByEmail, findById, findAll, findOrganizers, create, update, remove, saveSetupToken };

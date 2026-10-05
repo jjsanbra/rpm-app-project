@@ -9,10 +9,10 @@ const { authorize } = require('../../middleware/authz.middleware');
 const { validateRequest } = require('../../middleware/validateRequest');
 
 router.get('/:rankingId/teams', authenticate, ctrl.getRegistrations);
-router.post('/:rankingId/teams', authenticate, authorize('ADMIN'), [
+router.post('/:rankingId/teams', authenticate, authorize('ADMIN', 'ORGANIZER'), [
   body('teamId').isUUID().withMessage('teamId inválido.'),
 ], validateRequest, ctrl.addTeam);
-router.delete('/:rankingId/teams/:teamId', authenticate, authorize('ADMIN'), ctrl.removeTeam);
-router.post('/:rankingId/generate-matches', authenticate, authorize('ADMIN'), ctrl.generateMatches);
+router.delete('/:rankingId/teams/:teamId', authenticate, authorize('ADMIN', 'ORGANIZER'), ctrl.removeTeam);
+router.post('/:rankingId/generate-matches', authenticate, authorize('ADMIN', 'ORGANIZER'), ctrl.generateMatches);
 
 module.exports = router;

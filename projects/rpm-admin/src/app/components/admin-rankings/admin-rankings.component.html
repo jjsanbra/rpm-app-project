@@ -21,6 +21,9 @@
           <span class="mini-tag"><i class="pi pi-map-marker"></i> {{ r.locationName || ('ADMIN.DEFAULT_LOCATION' | translate) }}</span>
           <span class="mini-tag"><i class="pi pi-chart-line"></i> {{ r.levelName || ('ADMIN.DEFAULT_LEVEL' | translate) }}</span>
           <span class="mini-tag"><i class="pi pi-users"></i> {{ r.categoryName || ('ADMIN.DEFAULT_CATEGORY' | translate) }}</span>
+          @if (r.creatorEmail) {
+            <span class="mini-tag creator-tag"><i class="pi pi-user"></i> {{ r.creatorEmail }}</span>
+          }
         </div>
 
         <div class="card-foot">
@@ -50,6 +53,16 @@
             (click)="selectForMatches.emit(r)">
             <i class="pi pi-calendar"></i>
             <span>{{ 'ADMIN.MATCHES_BTN' | translate }}</span>
+          </button>
+          <button
+            type="button"
+            pButton
+            severity="danger"
+            size="small"
+            [outlined]="true"
+            (click)="deleteRanking.emit(r)">
+            <i class="pi pi-trash"></i>
+            <span>{{ 'COMMON.DELETE' | translate }}</span>
           </button>
         </div>
       </div>
