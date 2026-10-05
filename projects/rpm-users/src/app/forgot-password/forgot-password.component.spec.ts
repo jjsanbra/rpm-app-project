@@ -4,6 +4,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
+import { MessageService } from 'primeng/api';
 
 describe('ForgotPasswordComponent', () => {
   let component: ForgotPasswordComponent;
@@ -16,7 +17,8 @@ describe('ForgotPasswordComponent', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
-        provideTranslateService()
+        provideTranslateService(),
+        MessageService
       ]
     }).compileComponents();
 
@@ -33,6 +35,5 @@ describe('ForgotPasswordComponent', () => {
     expect(component.email).toBe('');
     expect(component.loading()).toBeFalse();
     expect(component.submitted()).toBeFalse();
-    expect(component.errorMessage()).toBeNull();
   });
 });

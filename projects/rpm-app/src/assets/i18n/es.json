@@ -35,7 +35,7 @@
   },
   "AUTH": {
     "LOGIN_TITLE": "Acceso a la Plataforma",
-    "LOGIN_SUBTITLE": "Ingresa con tus credenciales de Administrador, Organizador o Equipo",
+    "LOGIN_SUBTITLE": "Ingresa con tus credenciales de Administrador,<br> Organizador o Equipo",
     "EMAIL": "Correo Electrónico",
     "EMAIL_PLACEHOLDER": "tu-email@ejemplo.com",
     "PASSWORD": "Contraseña",

@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
+import { filter } from 'rxjs/operators';
 import { AuthService } from '../../../core/services/auth.service';
 
 // PrimeNG
@@ -17,4 +18,23 @@ import { TagModule } from 'primeng/tag';
 })
 export class NavbarComponent {
   authService = inject(AuthService);
+  private router = inject(Router);
+
+  mobileMenuOpen = signal<boolean>(false);
+
+  constructor() {
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe(() => {
+      this.mobileMenuOpen.set(false);
+    });
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen.update(v => !v);
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen.set(false);
+  }
 }

@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-import { AuthService, LiveMatchService, MatchService, LiveMatchSession, Match } from '@core';
+import { AuthService, LiveMatchService, MatchService, LiveMatchSession, Match, extractErrorMessage } from '@core';
 
 @Component({
   selector: 'rpm-live-tracker',
@@ -204,7 +204,7 @@ export class LiveTrackerComponent implements OnInit, OnDestroy {
         this.messageService.add({
           severity: 'error',
           summary: this.translate.instant('COMMON.ERROR'),
-          detail: err?.error?.message || 'Error al solicitar tanteo en vivo'
+          detail: extractErrorMessage(err, 'Error al solicitar tanteo en vivo')
         });
       }
     });
@@ -227,7 +227,7 @@ export class LiveTrackerComponent implements OnInit, OnDestroy {
         this.messageService.add({
           severity: 'error',
           summary: this.translate.instant('COMMON.ERROR'),
-          detail: err?.error?.message || 'Error al aceptar partido'
+          detail: extractErrorMessage(err, 'Error al aceptar partido')
         });
       }
     });
@@ -247,7 +247,7 @@ export class LiveTrackerComponent implements OnInit, OnDestroy {
         this.messageService.add({
           severity: 'error',
           summary: this.translate.instant('COMMON.ERROR'),
-          detail: err?.error?.message || 'Error al registrar punto'
+          detail: extractErrorMessage(err, 'Error al registrar punto')
         });
       }
     });
@@ -272,7 +272,7 @@ export class LiveTrackerComponent implements OnInit, OnDestroy {
         this.messageService.add({
           severity: 'warn',
           summary: this.translate.instant('COMMON.WARNING'),
-          detail: err?.error?.message || 'No hay puntos para deshacer'
+          detail: extractErrorMessage(err, 'No hay puntos para deshacer')
         });
       }
     });
@@ -305,7 +305,7 @@ export class LiveTrackerComponent implements OnInit, OnDestroy {
         this.messageService.add({
           severity: 'error',
           summary: this.translate.instant('COMMON.ERROR'),
-          detail: err?.error?.message || 'Error al firmar acta'
+          detail: extractErrorMessage(err, 'Error al firmar acta')
         });
       }
     });

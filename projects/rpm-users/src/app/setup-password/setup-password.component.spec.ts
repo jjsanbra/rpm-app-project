@@ -4,10 +4,12 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideRouter } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
+import { MessageService } from 'primeng/api';
 
 describe('SetupPasswordComponent', () => {
   let component: SetupPasswordComponent;
   let fixture: ComponentFixture<SetupPasswordComponent>;
+  let messageService: MessageService;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -16,12 +18,14 @@ describe('SetupPasswordComponent', () => {
         provideHttpClient(),
         provideHttpClientTesting(),
         provideRouter([]),
-        provideTranslateService()
+        provideTranslateService(),
+        MessageService
       ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(SetupPasswordComponent);
     component = fixture.componentInstance;
+    messageService = TestBed.inject(MessageService);
     fixture.detectChanges();
   });
 
@@ -30,9 +34,10 @@ describe('SetupPasswordComponent', () => {
   });
 
   it('should validate matching passwords', () => {
+    spyOn(messageService, 'add');
     component.password = 'Password123!';
     component.confirmPassword = 'DifferentPassword!';
     component.onSubmit();
-    expect(component.errorMessage()).toBe('Las contraseñas no coinciden.');
+    expect(messageService.add).toHaveBeenCalled();
   });
 });

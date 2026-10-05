@@ -83,9 +83,9 @@ router.get('/organizers', authenticate, authorize('ADMIN'), ctrl.getOrganizers);
 router.post('/organizers', authenticate, authorize('ADMIN'), [
   body('email').isEmail().withMessage('Email inválido.'),
   body('password').isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres.'),
-  body('firstName').optional().isString().trim(),
-  body('lastName').optional().isString().trim(),
-  body('phone').optional().isString().trim(),
+  body('firstName').optional({ values: 'falsy' }).isString().trim(),
+  body('lastName').optional({ values: 'falsy' }).isString().trim(),
+  body('phone').optional({ values: 'falsy' }).isString().trim(),
 ], validateRequest, ctrl.createOrganizer);
 
 /**
@@ -135,11 +135,11 @@ router.post('/organizers', authenticate, authorize('ADMIN'), [
  *         description: El email ya existe
  */
 router.put('/organizers/:id', authenticate, authorize('ADMIN'), [
-  body('email').optional().isEmail().withMessage('Email inválido.'),
-  body('password').optional().isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres.'),
-  body('firstName').optional().isString().trim(),
-  body('lastName').optional().isString().trim(),
-  body('phone').optional().isString().trim(),
+  body('email').optional({ values: 'falsy' }).isEmail().withMessage('Email inválido.'),
+  body('password').optional({ values: 'falsy' }).isLength({ min: 6 }).withMessage('La contraseña debe tener al menos 6 caracteres.'),
+  body('firstName').optional({ values: 'falsy' }).isString().trim(),
+  body('lastName').optional({ values: 'falsy' }).isString().trim(),
+  body('phone').optional({ values: 'falsy' }).isString().trim(),
   body('active').optional().isBoolean().withMessage('Active debe ser booleano.'),
 ], validateRequest, ctrl.updateOrganizer);
 

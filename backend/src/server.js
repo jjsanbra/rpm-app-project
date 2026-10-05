@@ -7,12 +7,9 @@ const { runSeed } = require('./database/seed');
 
 async function startServer() {
   try {
-    // Inicializar base de datos
-    console.log(`🔌 Inicializando base de datos (${config.database.url})...`);
-    initDb();
-
-    // En desarrollo, aplicar seed si es necesario
-    if (config.env === 'development' || process.env.RUN_SEED === 'true') {
+    // Aplicar seed si no existe usuario ADMIN o si está en desarrollo / RUN_SEED=true
+    const existingAdmin = initDb().prepare("SELECT id FROM users WHERE role = 'ADMIN' LIMIT 1").get();
+    if (!existingAdmin || config.env === 'development' || process.env.RUN_SEED === 'true') {
       await runSeed();
     }
 
