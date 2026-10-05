@@ -23,23 +23,28 @@ Plataforma web completa, modular y escalable para la gestión de **Rankings de P
   - Marcador digital punto a punto (15, 30, 40, AD, Tie-break), alertas automáticas de cambio de lado y función de deshacer punto (`Undo`).
   - **Doble Firma Digital del Acta**: Al finalizar, ambos capitanes validan el resultado, pasando a `CONFIRMED` e impactando de inmediato en la clasificación oficial.
 - **Gestión Multi-Tenant de Rankings con Rol Organizador (`ORGANIZER`)**:
-  - Los usuarios con rol `ORGANIZER` son creados y gestionados de forma centralizada por el `ADMIN`.
+  - Módulo administrativo integral para que el `ADMIN` cree, edite, pause o elimine organizadores con datos personales (Nombre, Apellidos, Teléfono, Email).
   - Cada organizador gestiona sus propios torneos (crear, editar, borrar, pausar/activar, calendario y resultados) con **aislamiento multi-tenancy estricto** en base de datos (`createdBy = organizer.id`).
   - No pueden acceder ni modificar los rankings del Administrador ni de otros organizadores.
 - **Resolución Arbitral y Auditoría**:
   - El administrador puede intervenir en cualquier partido con **Admin Override** (recálculo automático de clasificación y puntos) y resolver disputas con registro de actas y auditoría inmutable.
-- **Gestión Integral de Equipos y Accesos**:
+- **Gestión Integral de Equipos, Teléfonos y Accesos**:
   - Alta y edición completa de datos de equipo (2 titulares obligatorios + 1 reserva opcional).
-  - 1 a 2 emails de contacto con sincronización automática con usuarios `TEAM_USER`, control de activación/desactivación y reenvío de credenciales de bienvenida.
-- **Entidades Maestras Desacopladas**:
-  - Niveles, Categorías, Patrocinadores y Sedes/Ubicaciones gestionados mediante factory CRUD extensible.
+  - Soporte para teléfonos de contacto (`phone` y `phone2`) y sincronización automática con usuarios `TEAM_USER`.
+  - Política de teléfonos en usuarios: todos los usuarios (organizadores y jugadores) disponen de teléfono para agilizar la concertación de partidos (excepto `ADMIN`).
+- **Gestión Completa de Catálogos Maestros (CRUD)**:
+  - Edición, creación y eliminación en tiempo real de **Niveles**, **Categorías**, **Patrocinadores** y **Sedes**.
+  - **Sedes (`locations`) con todos los campos de base de datos**: Nombre, Dirección/Calle (`street`), Ciudad (`city`), Código Postal (`postalCode`) y Descripción.
+- **Acceso Rápido en Desarrollo (Dev Switcher) y Acceso Multidispositivo**:
+  - Selector rápido de usuarios en login para pruebas ágiles en entorno local (`localhost`).
+  - Obligatoriedad estricta de credenciales en entornos remotos y soporte para acceso en red local (`npm run start:network`).
 - **Frontend Multi-Proyecto y Micro-Frontends Reales**:
-  - Estructura **Angular Multi-Project Workspace** (`projects/*`) basada en el estándar industrial.
-  - **Native Federation** (`@angular-architects/native-federation`) con remotos independientes expuestos por puertos dedicados (4200 a 4205).
-  - Componentes divididos en estándar modular de 4 archivos (`.html`, `.scss`, `.ts`, `.spec.ts`).
-  - **PrimeNG** configurado con el tema oficial **Aura en variante clara (Light Mode)** y contraste optimizado.
-  - **Internacionalización (i18n)** con `@ngx-translate/core` (`assets/i18n/es.json`).
-  - Estado reactivo con **Angular Signals** y componentes **Standalone** con control flow nativo (`@if`, `@for`).
+  - Estructura **Angular Multi-Project Workspace** (`projects/*`) con **Native Federation**.
+  - Remotos independientes expuestos por puertos dedicados (4200 a 4205).
+  - Componentes estandarizados en arquitectura de 4 archivos (`.html`, `.scss`, `.ts`, `.spec.ts`).
+  - **PrimeNG Aura Light** unificado en modales, tablas y controles con diseño moderno y responsivo.
+  - **Internacionalización (i18n)** con `@ngx-translate/core`.
+  - Estado reactivo con **Angular Signals** y **Control Flow** nativo.
 
 ---
 
@@ -128,7 +133,7 @@ rpm-app-project/
 │   │   ├── utils/                       # Scoring, validadores de fechas y match generator
 │   │   ├── app.js                       # Configuración Express y Swagger
 │   │   └── server.js                    # Punto de entrada
-│   └── tests/                           # Suites de integración Supertest + Jest (28 tests)
+│   └── tests/                           # Suites de integración Supertest + Jest (35 tests)
 │
 ├── projects/                            # Angular Multi-Project Workspace (Microfrontends)
 │   ├── rpm-app/                         # Shell / Host Application (Puerto 4200)
