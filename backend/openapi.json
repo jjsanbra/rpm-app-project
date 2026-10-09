@@ -1,0 +1,4103 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Padel Ranking API",
+    "version": "1.0.0",
+    "description": "\nAPI REST para gestión de rankings de pádel.\n\n## Autenticación\nUsar JWT Bearer token. Obtener el token mediante POST /api/auth/login.\n      ",
+    "contact": {
+      "name": "Padel Ranking App"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Desarrollo local"
+    },
+    {
+      "url": "/",
+      "description": "Servidor actual"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Role": {
+        "type": "string",
+        "enum": [
+          "ADMIN",
+          "ORGANIZER",
+          "TEAM_USER"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "role"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "role": {
+            "$ref": "#/components/schemas/Role"
+          },
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lastName": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "teamId": {
+            "type": "string",
+            "nullable": true
+          },
+          "teamName": {
+            "type": "string",
+            "nullable": true
+          },
+          "rankingCount": {
+            "type": "integer",
+            "nullable": true
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "required": [
+          "token",
+          "user"
+        ],
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        }
+      },
+      "SetupPasswordRequest": {
+        "type": "object",
+        "required": [
+          "token",
+          "password"
+        ],
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6
+          }
+        }
+      },
+      "ForgotPasswordRequest": {
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        }
+      },
+      "ResetPasswordRequest": {
+        "type": "object",
+        "required": [
+          "token",
+          "password"
+        ],
+        "properties": {
+          "token": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 6
+          }
+        }
+      },
+      "ChangePasswordRequest": {
+        "type": "object",
+        "required": [
+          "currentPassword",
+          "newPassword"
+        ],
+        "properties": {
+          "currentPassword": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string",
+            "minLength": 6
+          }
+        }
+      },
+      "UpdateProfileRequest": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        }
+      },
+      "CreateOrganizerRequest": {
+        "type": "object",
+        "required": [
+          "email"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "password": {
+            "type": "string"
+          },
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateOrganizerRequest": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "TeamEmail": {
+        "type": "object",
+        "required": [
+          "id",
+          "teamId",
+          "email",
+          "isPrimary"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "teamId": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "isPrimary": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Team": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "player1Name",
+          "player1Surname",
+          "player2Name",
+          "player2Surname",
+          "active"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "player1Name": {
+            "type": "string"
+          },
+          "player1Surname": {
+            "type": "string"
+          },
+          "player2Name": {
+            "type": "string"
+          },
+          "player2Surname": {
+            "type": "string"
+          },
+          "reserveName": {
+            "type": "string",
+            "nullable": true
+          },
+          "reserveSurname": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "phone2": {
+            "type": "string",
+            "nullable": true
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "emails": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TeamEmail"
+                },
+                {
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateTeamRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "player1Name",
+          "player1Surname",
+          "player2Name",
+          "player2Surname"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "player1Name": {
+            "type": "string"
+          },
+          "player1Surname": {
+            "type": "string"
+          },
+          "player2Name": {
+            "type": "string"
+          },
+          "player2Surname": {
+            "type": "string"
+          },
+          "reserveName": {
+            "type": "string"
+          },
+          "reserveSurname": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "phone2": {
+            "type": "string"
+          },
+          "emails": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "UpdateTeamRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "player1Name": {
+            "type": "string"
+          },
+          "player1Surname": {
+            "type": "string"
+          },
+          "player2Name": {
+            "type": "string"
+          },
+          "player2Surname": {
+            "type": "string"
+          },
+          "reserveName": {
+            "type": "string"
+          },
+          "reserveSurname": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "phone2": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "emails": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "EnrollTeamRequest": {
+        "type": "object",
+        "required": [
+          "teamId"
+        ],
+        "properties": {
+          "teamId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "Ranking": {
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "startDate",
+          "endDate",
+          "active"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "regulation": {
+            "type": "string",
+            "nullable": true
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "poster": {
+            "type": "string",
+            "nullable": true
+          },
+          "rankingConfig": {
+            "type": "string",
+            "nullable": true
+          },
+          "locationId": {
+            "type": "string",
+            "nullable": true
+          },
+          "locationName": {
+            "type": "string",
+            "nullable": true
+          },
+          "levelId": {
+            "type": "string",
+            "nullable": true
+          },
+          "levelName": {
+            "type": "string",
+            "nullable": true
+          },
+          "categoryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "categoryName": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "creatorEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "teamCount": {
+            "type": "integer",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateRankingRequest": {
+        "type": "object",
+        "required": [
+          "name",
+          "startDate",
+          "endDate"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "regulation": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "levelId": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "poster": {
+            "type": "string"
+          },
+          "rankingConfig": {
+            "type": "string"
+          }
+        }
+      },
+      "UpdateRankingRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "startDate": {
+            "type": "string"
+          },
+          "endDate": {
+            "type": "string"
+          },
+          "regulation": {
+            "type": "string"
+          },
+          "locationId": {
+            "type": "string"
+          },
+          "levelId": {
+            "type": "string"
+          },
+          "categoryId": {
+            "type": "string"
+          },
+          "poster": {
+            "type": "string"
+          },
+          "rankingConfig": {
+            "type": "string"
+          },
+          "active": {
+            "type": "boolean"
+          }
+        }
+      },
+      "MatchStatus": {
+        "type": "string",
+        "enum": [
+          "PENDING_RESULT",
+          "PENDING_CONFIRMATION",
+          "CONFIRMED",
+          "DISPUTED",
+          "CANCELLED"
+        ]
+      },
+      "Match": {
+        "type": "object",
+        "required": [
+          "id",
+          "rankingId",
+          "teamOneId",
+          "teamTwoId",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rankingId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rankingName": {
+            "type": "string",
+            "nullable": true
+          },
+          "rankingStartDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "rankingEndDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "teamOneId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "teamOneName": {
+            "type": "string",
+            "nullable": true
+          },
+          "t1p1Name": {
+            "type": "string",
+            "nullable": true
+          },
+          "t1p1Surname": {
+            "type": "string",
+            "nullable": true
+          },
+          "t1p2Name": {
+            "type": "string",
+            "nullable": true
+          },
+          "t1p2Surname": {
+            "type": "string",
+            "nullable": true
+          },
+          "teamTwoId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "teamTwoName": {
+            "type": "string",
+            "nullable": true
+          },
+          "t2p1Name": {
+            "type": "string",
+            "nullable": true
+          },
+          "t2p1Surname": {
+            "type": "string",
+            "nullable": true
+          },
+          "t2p2Name": {
+            "type": "string",
+            "nullable": true
+          },
+          "t2p2Surname": {
+            "type": "string",
+            "nullable": true
+          },
+          "matchDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "resultSubmittedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "resultSubmittedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "submittedByEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/MatchStatus"
+          },
+          "set1TeamOne": {
+            "type": "integer",
+            "nullable": true
+          },
+          "set1TeamTwo": {
+            "type": "integer",
+            "nullable": true
+          },
+          "set2TeamOne": {
+            "type": "integer",
+            "nullable": true
+          },
+          "set2TeamTwo": {
+            "type": "integer",
+            "nullable": true
+          },
+          "set3TeamOne": {
+            "type": "integer",
+            "nullable": true
+          },
+          "set3TeamTwo": {
+            "type": "integer",
+            "nullable": true
+          },
+          "gamesTeamOne": {
+            "type": "integer",
+            "nullable": true
+          },
+          "gamesTeamTwo": {
+            "type": "integer",
+            "nullable": true
+          },
+          "setsTeamOne": {
+            "type": "integer",
+            "nullable": true
+          },
+          "setsTeamTwo": {
+            "type": "integer",
+            "nullable": true
+          },
+          "pointsTeamOne": {
+            "type": "integer",
+            "nullable": true
+          },
+          "pointsTeamTwo": {
+            "type": "integer",
+            "nullable": true
+          },
+          "confirmedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "confirmedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "confirmedByEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "disputedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "disputedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "disputedByEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "SubmitResultPayload": {
+        "type": "object",
+        "required": [
+          "matchDate"
+        ],
+        "properties": {
+          "matchDate": {
+            "type": "string"
+          },
+          "set1TeamOne": {
+            "type": "integer"
+          },
+          "set1TeamTwo": {
+            "type": "integer"
+          },
+          "set2TeamOne": {
+            "type": "integer"
+          },
+          "set2TeamTwo": {
+            "type": "integer"
+          },
+          "set3TeamOne": {
+            "type": "integer",
+            "nullable": true
+          },
+          "set3TeamTwo": {
+            "type": "integer",
+            "nullable": true
+          },
+          "setsTeamOne": {
+            "type": "integer"
+          },
+          "setsTeamTwo": {
+            "type": "integer"
+          }
+        }
+      },
+      "AdminOverridePayload": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/MatchStatus"
+          },
+          "set1TeamOne": {
+            "type": "integer"
+          },
+          "set1TeamTwo": {
+            "type": "integer"
+          },
+          "set2TeamOne": {
+            "type": "integer"
+          },
+          "set2TeamTwo": {
+            "type": "integer"
+          },
+          "set3TeamOne": {
+            "type": "integer",
+            "nullable": true
+          },
+          "set3TeamTwo": {
+            "type": "integer",
+            "nullable": true
+          },
+          "setsTeamOne": {
+            "type": "integer"
+          },
+          "setsTeamTwo": {
+            "type": "integer"
+          },
+          "reason": {
+            "type": "string"
+          }
+        }
+      },
+      "ClassificationRow": {
+        "type": "object",
+        "required": [
+          "position",
+          "teamId",
+          "teamName",
+          "played",
+          "wins",
+          "losses",
+          "totalPoints"
+        ],
+        "properties": {
+          "position": {
+            "type": "integer"
+          },
+          "teamId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "teamName": {
+            "type": "string"
+          },
+          "player1": {
+            "type": "string"
+          },
+          "player2": {
+            "type": "string"
+          },
+          "played": {
+            "type": "integer"
+          },
+          "wins": {
+            "type": "integer"
+          },
+          "losses": {
+            "type": "integer"
+          },
+          "setsWon": {
+            "type": "integer"
+          },
+          "setsLost": {
+            "type": "integer"
+          },
+          "setsDiff": {
+            "type": "integer"
+          },
+          "gamesWon": {
+            "type": "integer"
+          },
+          "gamesLost": {
+            "type": "integer"
+          },
+          "gamesDiff": {
+            "type": "integer"
+          },
+          "pointsFor": {
+            "type": "integer"
+          },
+          "pointsAgainst": {
+            "type": "integer"
+          },
+          "pointsDiff": {
+            "type": "integer"
+          },
+          "totalPoints": {
+            "type": "integer"
+          }
+        }
+      },
+      "Incident": {
+        "type": "object",
+        "required": [
+          "id",
+          "matchId",
+          "reportedBy",
+          "reportedAt",
+          "description",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "matchId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reportedBy": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "reportedByEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "reportedAt": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "OPEN",
+              "IN_REVIEW",
+              "RESOLVED",
+              "REJECTED"
+            ]
+          },
+          "resolution": {
+            "type": "string",
+            "nullable": true
+          },
+          "resolvedBy": {
+            "type": "string",
+            "nullable": true
+          },
+          "resolvedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AuditLog": {
+        "type": "object",
+        "required": [
+          "id",
+          "action",
+          "entity",
+          "entityId",
+          "createdAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "userId": {
+            "type": "string",
+            "nullable": true
+          },
+          "userEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "action": {
+            "type": "string"
+          },
+          "entity": {
+            "type": "string"
+          },
+          "entityId": {
+            "type": "string"
+          },
+          "data": {
+            "type": "object",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AuxiliaryItem": {
+        "type": "object",
+        "required": [
+          "id",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "logo": {
+            "type": "string",
+            "nullable": true
+          },
+          "street": {
+            "type": "string",
+            "nullable": true
+          },
+          "city": {
+            "type": "string",
+            "nullable": true
+          },
+          "postalCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "state": {
+            "type": "string",
+            "nullable": true
+          },
+          "country": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true
+          }
+        }
+      },
+      "LiveMatchStatus": {
+        "type": "string",
+        "enum": [
+          "REQUESTED",
+          "IN_PROGRESS",
+          "COMPLETED",
+          "CONFIRMED",
+          "CANCELLED"
+        ]
+      },
+      "LiveMatchSession": {
+        "type": "object",
+        "required": [
+          "id",
+          "matchId",
+          "rankingId",
+          "teamOneId",
+          "teamTwoId",
+          "status",
+          "currentSet",
+          "pointsTeamOne",
+          "pointsTeamTwo"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "matchId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rankingId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "rankingName": {
+            "type": "string",
+            "nullable": true
+          },
+          "teamOneId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "teamOneName": {
+            "type": "string",
+            "nullable": true
+          },
+          "teamTwoId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "teamTwoName": {
+            "type": "string",
+            "nullable": true
+          },
+          "requestedBy": {
+            "type": "string"
+          },
+          "requestedByName": {
+            "type": "string",
+            "nullable": true
+          },
+          "requestedByEmail": {
+            "type": "string",
+            "nullable": true
+          },
+          "requestedByTeamId": {
+            "type": "string",
+            "nullable": true
+          },
+          "requestedByTeamName": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "$ref": "#/components/schemas/LiveMatchStatus"
+          },
+          "currentSet": {
+            "type": "integer"
+          },
+          "pointsTeamOne": {
+            "type": "string"
+          },
+          "pointsTeamTwo": {
+            "type": "string"
+          },
+          "set1TeamOne": {
+            "type": "integer"
+          },
+          "set1TeamTwo": {
+            "type": "integer"
+          },
+          "set2TeamOne": {
+            "type": "integer"
+          },
+          "set2TeamTwo": {
+            "type": "integer"
+          },
+          "set3TeamOne": {
+            "type": "integer",
+            "nullable": true
+          },
+          "set3TeamTwo": {
+            "type": "integer",
+            "nullable": true
+          },
+          "setsTeamOne": {
+            "type": "integer"
+          },
+          "setsTeamTwo": {
+            "type": "integer"
+          },
+          "gamesTeamOne": {
+            "type": "integer"
+          },
+          "gamesTeamTwo": {
+            "type": "integer"
+          },
+          "gameMode": {
+            "type": "string",
+            "enum": [
+              "GOLDEN_POINT",
+              "ADVANTAGE"
+            ],
+            "nullable": true
+          },
+          "servingTeam": {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ]
+          },
+          "isTiebreak": {
+            "type": "integer",
+            "enum": [
+              0,
+              1
+            ]
+          },
+          "tiebreakPointsTeamOne": {
+            "type": "integer"
+          },
+          "tiebreakPointsTeamTwo": {
+            "type": "integer"
+          },
+          "confirmedByTeamOne": {
+            "type": "integer"
+          },
+          "confirmedByTeamTwo": {
+            "type": "integer"
+          },
+          "startedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "endedAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "updatedAt": {
+            "type": "string"
+          }
+        }
+      },
+      "LivePointPayload": {
+        "type": "object",
+        "required": [
+          "team"
+        ],
+        "properties": {
+          "team": {
+            "type": "integer",
+            "enum": [
+              1,
+              2
+            ]
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "paths": {
+    "/api/users": {
+      "get": {
+        "summary": "Listar todos los usuarios del sistema (solo ADMIN)",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista completa de usuarios"
+          }
+        }
+      }
+    },
+    "/api/users/organizers": {
+      "get": {
+        "summary": "Listar todos los organizadores y rankings a su cargo (solo ADMIN)",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de organizadores"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear un nuevo usuario ORGANIZER (solo ADMIN)",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "email",
+                  "password"
+                ],
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "minLength": 6
+                  },
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Organizador creado exitosamente"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "409": {
+            "description": "El email ya existe"
+          }
+        }
+      }
+    },
+    "/api/users/organizers/{id}": {
+      "put": {
+        "summary": "Actualizar datos de un usuario ORGANIZER (solo ADMIN)",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  },
+                  "password": {
+                    "type": "string",
+                    "format": "password",
+                    "minLength": 6
+                  },
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "active": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Organizador actualizado exitosamente"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "404": {
+            "description": "Organizador no encontrado"
+          },
+          "409": {
+            "description": "El email ya existe"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar un usuario ORGANIZER (solo ADMIN)",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Organizador eliminado"
+          }
+        }
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "summary": "Obtener detalle de usuario por ID (solo ADMIN)",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle del usuario"
+          }
+        }
+      }
+    },
+    "/api/users/{id}/active": {
+      "patch": {
+        "summary": "Activar o desactivar un usuario (solo ADMIN)",
+        "tags": [
+          "Users"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "active"
+                ],
+                "properties": {
+                  "active": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Estado de activación modificado"
+          }
+        }
+      }
+    },
+    "/api/teams": {
+      "get": {
+        "summary": "Listar todos los equipos",
+        "tags": [
+          "Teams"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de equipos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear un nuevo equipo (solo ADMIN)",
+        "tags": [
+          "Teams"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "player1Name",
+                  "player1Surname",
+                  "player2Name",
+                  "player2Surname",
+                  "emails"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "player1Name": {
+                    "type": "string"
+                  },
+                  "player1Surname": {
+                    "type": "string"
+                  },
+                  "player2Name": {
+                    "type": "string"
+                  },
+                  "player2Surname": {
+                    "type": "string"
+                  },
+                  "reserveName": {
+                    "type": "string"
+                  },
+                  "reserveSurname": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "phone2": {
+                    "type": "string"
+                  },
+                  "emails": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "email"
+                    },
+                    "minItems": 1,
+                    "maxItems": 2
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Equipo creado exitosamente"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          }
+        }
+      }
+    },
+    "/api/teams/{id}": {
+      "get": {
+        "summary": "Obtener información detallada de un equipo",
+        "tags": [
+          "Teams"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle del equipo"
+          },
+          "404": {
+            "description": "Equipo no encontrado"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar datos de un equipo (solo ADMIN)",
+        "tags": [
+          "Teams"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "player1Name": {
+                    "type": "string"
+                  },
+                  "player1Surname": {
+                    "type": "string"
+                  },
+                  "player2Name": {
+                    "type": "string"
+                  },
+                  "player2Surname": {
+                    "type": "string"
+                  },
+                  "reserveName": {
+                    "type": "string"
+                  },
+                  "reserveSurname": {
+                    "type": "string"
+                  },
+                  "phone": {
+                    "type": "string"
+                  },
+                  "phone2": {
+                    "type": "string"
+                  },
+                  "emails": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "email"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Equipo actualizado"
+          }
+        }
+      }
+    },
+    "/api/teams/{id}/active": {
+      "patch": {
+        "summary": "Activar o desactivar un equipo (solo ADMIN)",
+        "tags": [
+          "Teams"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "active"
+                ],
+                "properties": {
+                  "active": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Estado modificado"
+          }
+        }
+      }
+    },
+    "/api/teams/{id}/resend-welcome": {
+      "post": {
+        "summary": "Reenviar email de bienvenida / activación a los contactos del equipo (solo ADMIN)",
+        "tags": [
+          "Teams"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Emails de bienvenida reenviados"
+          }
+        }
+      }
+    },
+    "/api/rankings": {
+      "get": {
+        "summary": "Listar todos los rankings (público / admin)",
+        "tags": [
+          "Rankings"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de rankings disponibles"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear un nuevo ranking (ADMIN u ORGANIZER)",
+        "tags": [
+          "Rankings"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "startDate",
+                  "endDate"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "example": "Ranking de Pádel Otoño 2026"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "startDate": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2026-09-01"
+                  },
+                  "endDate": {
+                    "type": "string",
+                    "format": "date",
+                    "example": "2026-12-15"
+                  },
+                  "rules": {
+                    "type": "string"
+                  },
+                  "locationId": {
+                    "type": "string"
+                  },
+                  "levelId": {
+                    "type": "string"
+                  },
+                  "categoryId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Ranking creado con éxito"
+          },
+          "400": {
+            "description": "Datos inválidos"
+          },
+          "401": {
+            "description": "No autenticado"
+          },
+          "403": {
+            "description": "Requiere rol ADMIN u ORGANIZER"
+          }
+        }
+      }
+    },
+    "/api/rankings/{id}": {
+      "get": {
+        "summary": "Obtener detalle completo de un ranking",
+        "tags": [
+          "Rankings"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Información detallada del ranking"
+          },
+          "404": {
+            "description": "Ranking no encontrado"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar datos de un ranking (ADMIN u ORGANIZER propietario)",
+        "tags": [
+          "Rankings"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "startDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "endDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "rules": {
+                    "type": "string"
+                  },
+                  "locationId": {
+                    "type": "string"
+                  },
+                  "levelId": {
+                    "type": "string"
+                  },
+                  "categoryId": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ranking actualizado"
+          },
+          "403": {
+            "description": "Sin permisos sobre este ranking"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar un ranking (ADMIN u ORGANIZER propietario)",
+        "tags": [
+          "Rankings"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ranking eliminado"
+          },
+          "403": {
+            "description": "Sin permisos sobre este ranking"
+          }
+        }
+      }
+    },
+    "/api/rankings/{id}/teams": {
+      "get": {
+        "summary": "Listar equipos inscritos en el ranking",
+        "tags": [
+          "Rankings"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de equipos inscritos"
+          }
+        }
+      }
+    },
+    "/api/rankings/{id}/sponsors": {
+      "get": {
+        "summary": "Listar patrocinadores asociados al ranking",
+        "tags": [
+          "Rankings"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de patrocinadores"
+          }
+        }
+      }
+    },
+    "/api/rankings/{id}/active": {
+      "patch": {
+        "summary": "Activar o pausar/desactivar un ranking (ADMIN u ORGANIZER propietario)",
+        "tags": [
+          "Rankings"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "active"
+                ],
+                "properties": {
+                  "active": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Estado del ranking modificado"
+          },
+          "403": {
+            "description": "Sin permisos sobre este ranking"
+          }
+        }
+      }
+    },
+    "/api/ranking-team-registrations/{rankingId}/teams": {
+      "get": {
+        "summary": "Listar equipos inscritos en un ranking",
+        "tags": [
+          "RankingTeams"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rankingId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de equipos inscritos"
+          }
+        }
+      },
+      "post": {
+        "summary": "Inscribir un equipo en un ranking (ADMIN u ORGANIZER)",
+        "description": "Inscribe un equipo en el ranking. Si el ranking ya cuenta con calendario generado, sincroniza y regenera automáticamente los partidos pendientes conservando los resultados ya disputados entre equipos activos.",
+        "tags": [
+          "RankingTeams"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rankingId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "teamId"
+                ],
+                "properties": {
+                  "teamId": {
+                    "type": "string",
+                    "format": "uuid"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Equipo inscrito correctamente y calendario sincronizado"
+          },
+          "400": {
+            "description": "El equipo ya está inscrito o datos inválidos"
+          },
+          "403": {
+            "description": "No autorizado"
+          },
+          "404": {
+            "description": "Ranking no encontrado"
+          }
+        }
+      }
+    },
+    "/api/ranking-team-registrations/{rankingId}/teams/{teamId}": {
+      "delete": {
+        "summary": "Desinscribir un equipo de un ranking (ADMIN u ORGANIZER)",
+        "description": "Da de baja a un equipo de un ranking. Elimina los partidos asociados a dicho equipo y, si quedan al menos 4 equipos activos, regenera los partidos pendientes conservando los resultados jugados entre el resto de equipos.",
+        "tags": [
+          "RankingTeams"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rankingId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "teamId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Equipo desinscrito del ranking y calendario sincronizado"
+          },
+          "403": {
+            "description": "No autorizado"
+          },
+          "404": {
+            "description": "El equipo no está registrado en este ranking"
+          }
+        }
+      }
+    },
+    "/api/ranking-team-registrations/{rankingId}/generate-matches": {
+      "post": {
+        "summary": "Generar calendario de partidos Round-Robin para los equipos inscritos (mínimo 4 equipos)",
+        "description": "Genera los partidos round-robin para todos los equipos inscritos activos en el ranking con soporte multivuelta. Preserva resultados disputados existentes.",
+        "tags": [
+          "RankingTeams"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rankingId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rounds": {
+                    "type": "integer",
+                    "default": 1,
+                    "minimum": 1,
+                    "maximum": 10,
+                    "description": "Número de vueltas (1 = Ida, 2 = Ida y Vuelta, etc.)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Partidos generados exitosamente"
+          },
+          "400": {
+            "description": "Menos de 4 equipos inscritos o calendario ya generado previamente con los mismos equipos"
+          }
+        }
+      }
+    },
+    "/api/matches": {
+      "get": {
+        "summary": "Listar partidos con filtros opcionales (rankingId, teamId, status)",
+        "tags": [
+          "Matches"
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "rankingId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filtrar por ID de ranking"
+          },
+          {
+            "in": "query",
+            "name": "teamId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filtrar por ID de equipo"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "PENDING_RESULT",
+                "PENDING_CONFIRMATION",
+                "CONFIRMED",
+                "DISPUTED",
+                "CANCELLED"
+              ]
+            },
+            "description": "Filtrar por estado del partido"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de partidos"
+          }
+        }
+      }
+    },
+    "/api/matches/{id}": {
+      "get": {
+        "summary": "Obtener detalle completo de un partido por ID",
+        "tags": [
+          "Matches"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle del partido"
+          },
+          "404": {
+            "description": "Partido no encontrado"
+          }
+        }
+      }
+    },
+    "/api/matches/ranking/{rankingId}/generate": {
+      "post": {
+        "summary": "Generar o regenerar calendario de partidos (ADMIN u ORGANIZER)",
+        "description": "Genera el fixture Round-Robin para los equipos inscritos en el ranking (mínimo 4). Permite configurar el número de vueltas (rounds). Preserva los partidos ya jugados entre equipos activos y elimina únicamente los partidos de equipos dados de baja y los partidos pendientes anteriores.",
+        "tags": [
+          "Matches"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rankingId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "rounds": {
+                    "type": "integer",
+                    "default": 1,
+                    "minimum": 1,
+                    "maximum": 10,
+                    "description": "Número de vueltas a disputar (1 = Ida, 2 = Ida y Vuelta, etc.)"
+                  },
+                  "teamIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "minItems": 4,
+                    "description": "Lista opcional de IDs de equipos. Si no se indica, se usan los equipos inscritos activos."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Partidos generados o regenerados exitosamente"
+          },
+          "400": {
+            "description": "Menos de 4 equipos inscritos o el calendario ya ha sido generado previamente con estos mismos equipos"
+          },
+          "403": {
+            "description": "No autorizado"
+          },
+          "404": {
+            "description": "Ranking no encontrado"
+          }
+        }
+      }
+    },
+    "/api/matches/{id}/result": {
+      "post": {
+        "summary": "Registrar resultado de un partido (Equipo participante)",
+        "tags": [
+          "Matches"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "matchDate",
+                  "set1TeamOne",
+                  "set1TeamTwo",
+                  "set2TeamOne",
+                  "set2TeamTwo"
+                ],
+                "properties": {
+                  "matchDate": {
+                    "type": "string",
+                    "format": "date",
+                    "description": "Fecha real en que se disputó el partido (YYYY-MM-DD)"
+                  },
+                  "set1TeamOne": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Juegos ganados por Equipo 1 en Set 1"
+                  },
+                  "set1TeamTwo": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Juegos ganados por Equipo 2 en Set 1"
+                  },
+                  "set2TeamOne": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Juegos ganados por Equipo 1 en Set 2"
+                  },
+                  "set2TeamTwo": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Juegos ganados por Equipo 2 en Set 2"
+                  },
+                  "set3TeamOne": {
+                    "type": "integer",
+                    "nullable": true,
+                    "description": "Juegos ganados por Equipo 1 en Set 3 (Desempate si 1-1)"
+                  },
+                  "set3TeamTwo": {
+                    "type": "integer",
+                    "nullable": true,
+                    "description": "Juegos ganados por Equipo 2 en Set 3 (Desempate si 1-1)"
+                  },
+                  "setsTeamOne": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2,
+                    "description": "Sets ganados por Equipo 1 (calculados automáticamente si se omiten)"
+                  },
+                  "setsTeamTwo": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 2,
+                    "description": "Sets ganados por Equipo 2 (calculados automáticamente si se omiten)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Resultado registrado, pendiente de confirmación"
+          },
+          "400": {
+            "description": "Datos inválidos o tanteo no reglamentario"
+          },
+          "403": {
+            "description": "Sin permisos sobre este partido"
+          },
+          "409": {
+            "description": "El partido no está en estado correcto"
+          }
+        }
+      }
+    },
+    "/api/matches/{id}/confirm": {
+      "post": {
+        "summary": "Confirmar resultado de un partido (Equipo rival)",
+        "tags": [
+          "Matches"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado confirmado oficialmente y clasificación recalculada"
+          },
+          "403": {
+            "description": "Solo el equipo rival puede confirmar"
+          }
+        }
+      }
+    },
+    "/api/matches/{id}/dispute": {
+      "post": {
+        "summary": "Comunicar incidencia sobre un resultado (Equipo rival)",
+        "tags": [
+          "Matches"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "description"
+                ],
+                "properties": {
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Incidencia registrada y partido marcado como DISPUTED"
+          }
+        }
+      }
+    },
+    "/api/matches/{id}/admin-override": {
+      "put": {
+        "summary": "Modificación administrativa de acta / resultado (solo ADMIN)",
+        "tags": [
+          "Matches"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "matchDate": {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  "set1TeamOne": {
+                    "type": "integer"
+                  },
+                  "set1TeamTwo": {
+                    "type": "integer"
+                  },
+                  "set2TeamOne": {
+                    "type": "integer"
+                  },
+                  "set2TeamTwo": {
+                    "type": "integer"
+                  },
+                  "set3TeamOne": {
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "set3TeamTwo": {
+                    "type": "integer",
+                    "nullable": true
+                  },
+                  "setsTeamOne": {
+                    "type": "integer"
+                  },
+                  "setsTeamTwo": {
+                    "type": "integer"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "CONFIRMED",
+                      "PENDING_CONFIRMATION",
+                      "PENDING_RESULT",
+                      "DISPUTED",
+                      "CANCELLED"
+                    ]
+                  },
+                  "reason": {
+                    "type": "string",
+                    "description": "Motivo opcional de la resolución auditada"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Acta de partido modificada y clasificación actualizada"
+          }
+        }
+      }
+    },
+    "/api/matches/live/active": {
+      "get": {
+        "summary": "Obtener listado de partidos actualmente en vivo o pendientes de aceptación",
+        "tags": [
+          "Matches"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de partidos activos en vivo"
+          }
+        }
+      }
+    },
+    "/api/matches/live/stream": {
+      "get": {
+        "summary": "Streaming Server-Sent Events (SSE) global para cambios en cualquier partido en vivo",
+        "tags": [
+          "Matches"
+        ],
+        "responses": {
+          "200": {
+            "description": "Conexión SSE establecida (text/event-stream)"
+          }
+        }
+      }
+    },
+    "/api/matches/{id}/live": {
+      "get": {
+        "summary": "Obtener estado actual de la sesión en directo de un partido",
+        "tags": [
+          "Matches"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estado y marcador en tiempo real del partido"
+          },
+          "404": {
+            "description": "No hay sesión en directo activa"
+          }
+        }
+      }
+    },
+    "/api/matches/{id}/live/stream": {
+      "get": {
+        "summary": "Conexión SSE para recibir actualizaciones en tiempo real del partido",
+        "tags": [
+          "Matches"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Flujo de eventos SSE con el marcador sincronizado"
+          }
+        }
+      }
+    },
+    "/api/matches/{id}/live/request": {
+      "post": {
+        "summary": "Solicitar inicio de tanteo en directo en pista (Equipo participante o Admin)",
+        "tags": [
+          "Matches"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "gameMode": {
+                    "type": "string",
+                    "enum": [
+                      "GOLDEN_POINT",
+                      "ADVANTAGE"
+                    ],
+                    "default": "GOLDEN_POINT",
+                    "description": "Modalidad de juego (Punto de Oro o Con Ventajas)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Solicitud creada en estado REQUESTED, esperando aceptación del rival"
+          },
+          "403": {
+            "description": "Usuario no autorizado para este partido"
+          }
+        }
+      }
+    },
+    "/api/matches/{id}/live/accept": {
+      "post": {
+        "summary": "Aceptar invitación de partido en vivo en pista (Equipo rival o Admin)",
+        "tags": [
+          "Matches"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "gameMode": {
+                    "type": "string",
+                    "enum": [
+                      "GOLDEN_POINT",
+                      "ADVANTAGE"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Partido aceptado y comenzado (estado IN_PROGRESS)"
+          },
+          "400": {
+            "description": "El equipo solicitante no puede auto-aprobarse; debe ser el rival"
+          }
+        }
+      }
+    },
+    "/api/matches/{id}/live/point": {
+      "post": {
+        "summary": "Anotar un punto para un equipo en tiempo real",
+        "tags": [
+          "Matches"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "team"
+                ],
+                "properties": {
+                  "team": {
+                    "type": "integer",
+                    "enum": [
+                      1,
+                      2
+                    ],
+                    "description": "1 para Equipo 1, 2 para Equipo 2"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Punto anotado y marcador actualizado y retransmitido"
+          }
+        }
+      }
+    },
+    "/api/matches/{id}/live/undo": {
+      "post": {
+        "summary": "Deshacer el último punto anotado (Undo)",
+        "tags": [
+          "Matches"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Marcador revertido un punto"
+          }
+        }
+      }
+    },
+    "/api/matches/{id}/live/sign": {
+      "post": {
+        "summary": "Firma digital del acta oficial por el capitán de equipo",
+        "tags": [
+          "Matches"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Firma registrada. Si ambos capitanes han firmado, el partido pasa a CONFIRMED y actualiza el ranking"
+          }
+        }
+      }
+    },
+    "/api/incidents": {
+      "get": {
+        "summary": "Listar incidencias (Admin ve todas, equipos ven las de sus partidos)",
+        "tags": [
+          "Incidents"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "matchId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filtrar por ID de partido"
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "OPEN",
+                "IN_REVIEW",
+                "RESOLVED",
+                "REJECTED"
+              ]
+            },
+            "description": "Filtrar por estado"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de incidencias"
+          }
+        }
+      }
+    },
+    "/api/incidents/{id}": {
+      "get": {
+        "summary": "Obtener detalle de una incidencia",
+        "tags": [
+          "Incidents"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle de la incidencia"
+          },
+          "404": {
+            "description": "Incidencia no encontrada"
+          }
+        }
+      }
+    },
+    "/api/incidents/{id}/resolve": {
+      "post": {
+        "summary": "Resolver o rechazar una incidencia arbitral (solo ADMIN)",
+        "tags": [
+          "Incidents"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "resolution",
+                  "status"
+                ],
+                "properties": {
+                  "resolution": {
+                    "type": "string",
+                    "description": "Detalle de la resolución arbitral"
+                  },
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "RESOLVED",
+                      "REJECTED"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Incidencia resuelta"
+          },
+          "403": {
+            "description": "Requiere rol ADMIN"
+          }
+        }
+      }
+    },
+    "/api/incidents/{id}/review": {
+      "patch": {
+        "summary": "Marcar una incidencia en revisión (solo ADMIN)",
+        "tags": [
+          "Incidents"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Estado cambiado a IN_REVIEW"
+          },
+          "403": {
+            "description": "Requiere rol ADMIN"
+          }
+        }
+      }
+    },
+    "/api/classification/{rankingId}/official": {
+      "get": {
+        "summary": "Obtener clasificación oficial (solo partidos confirmados)",
+        "tags": [
+          "Classification"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rankingId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista ordenada de equipos por puntos totales, diferencia de sets, diferencia de juegos y diferencia de puntos."
+          }
+        }
+      }
+    },
+    "/api/classification/{rankingId}/provisional": {
+      "get": {
+        "summary": "Obtener clasificación provisional (incluye partidos pendientes de confirmar)",
+        "tags": [
+          "Classification"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rankingId",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista ordenada provisional de clasificación."
+          }
+        }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "summary": "Iniciar sesión",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login exitoso, devuelve JWT",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Credenciales incorrectas"
+          },
+          "429": {
+            "description": "Demasiados intentos"
+          }
+        }
+      }
+    },
+    "/api/auth/setup-password": {
+      "post": {
+        "summary": "Configurar contraseña inicial mediante token de bienvenida",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetupPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contraseña configurada exitosamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Token inválido o expirado"
+          }
+        }
+      }
+    },
+    "/api/auth/forgot-password": {
+      "post": {
+        "summary": "Solicitar recuperación de contraseña",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Enlace de recuperación enviado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Email inválido"
+          }
+        }
+      }
+    },
+    "/api/auth/reset-password": {
+      "post": {
+        "summary": "Restablecer contraseña con token de recuperación",
+        "tags": [
+          "Auth"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetPasswordRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Contraseña restablecida correctamente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Token inválido o expirado"
+          }
+        }
+      }
+    },
+    "/api/auth/profile": {
+      "get": {
+        "summary": "Obtener perfil del usuario autenticado",
+        "tags": [
+          "Auth"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Perfil del usuario",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "No autenticado"
+          }
+        }
+      }
+    },
+    "/api/health": {
+      "get": {
+        "summary": "Health check del estado del servidor API",
+        "tags": [
+          "System"
+        ],
+        "responses": {
+          "200": {
+            "description": "Servidor en funcionamiento"
+          }
+        }
+      }
+    },
+    "/api/levels": {
+      "get": {
+        "summary": "Listar todos los niveles",
+        "tags": [
+          "Levels"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de niveles"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear un nuevo nivel (solo ADMIN)",
+        "tags": [
+          "Levels"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Nivel creado"
+          }
+        }
+      }
+    },
+    "/api/levels/{id}": {
+      "get": {
+        "summary": "Obtener nivel por ID",
+        "tags": [
+          "Levels"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle del nivel"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar nivel (solo ADMIN)",
+        "tags": [
+          "Levels"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Nivel actualizado"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar nivel (solo ADMIN)",
+        "tags": [
+          "Levels"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Nivel eliminado"
+          }
+        }
+      }
+    },
+    "/api/categories": {
+      "get": {
+        "summary": "Listar todas las categorías",
+        "tags": [
+          "Categories"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de categorías"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear una nueva categoría (solo ADMIN)",
+        "tags": [
+          "Categories"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Categoría creada"
+          }
+        }
+      }
+    },
+    "/api/categories/{id}": {
+      "get": {
+        "summary": "Obtener categoría por ID",
+        "tags": [
+          "Categories"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle de la categoría"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar categoría (solo ADMIN)",
+        "tags": [
+          "Categories"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Categoría actualizada"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar categoría (solo ADMIN)",
+        "tags": [
+          "Categories"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Categoría eliminada"
+          }
+        }
+      }
+    },
+    "/api/sponsors": {
+      "get": {
+        "summary": "Listar todos los patrocinadores",
+        "tags": [
+          "Sponsors"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de patrocinadores"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear un nuevo patrocinador (solo ADMIN)",
+        "tags": [
+          "Sponsors"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "logo": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Patrocinador creado"
+          }
+        }
+      }
+    },
+    "/api/sponsors/{id}": {
+      "get": {
+        "summary": "Obtener patrocinador por ID",
+        "tags": [
+          "Sponsors"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle del patrocinador"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar patrocinador (solo ADMIN)",
+        "tags": [
+          "Sponsors"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "logo": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Patrocinador actualizado"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar patrocinador (solo ADMIN)",
+        "tags": [
+          "Sponsors"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Patrocinador eliminado"
+          }
+        }
+      }
+    },
+    "/api/locations": {
+      "get": {
+        "summary": "Listar todas las sedes / ubicaciones",
+        "tags": [
+          "Locations"
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de sedes"
+          }
+        }
+      },
+      "post": {
+        "summary": "Crear una nueva sede deportiva con todos los datos de dirección (solo ADMIN)",
+        "tags": [
+          "Locations"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "name"
+                ],
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "street": {
+                    "type": "string",
+                    "description": "Dirección o calle y número"
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "Ciudad o municipio"
+                  },
+                  "postalCode": {
+                    "type": "string",
+                    "description": "Código postal"
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "Provincia o comunidad"
+                  },
+                  "country": {
+                    "type": "string",
+                    "default": "España"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Sede creada correctamente"
+          }
+        }
+      }
+    },
+    "/api/locations/{id}": {
+      "get": {
+        "summary": "Obtener sede por ID",
+        "tags": [
+          "Locations"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle de la sede"
+          }
+        }
+      },
+      "put": {
+        "summary": "Actualizar sede deportiva (solo ADMIN)",
+        "tags": [
+          "Locations"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "street": {
+                    "type": "string"
+                  },
+                  "city": {
+                    "type": "string"
+                  },
+                  "postalCode": {
+                    "type": "string"
+                  },
+                  "state": {
+                    "type": "string"
+                  },
+                  "country": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sede actualizada"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Eliminar sede (solo ADMIN)",
+        "tags": [
+          "Locations"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sede eliminada"
+          }
+        }
+      }
+    },
+    "/api/audit-logs": {
+      "get": {
+        "summary": "Consultar registros globales de auditoría de la plataforma (solo ADMIN)",
+        "tags": [
+          "Audit"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "entity",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filtrar por entidad (e.g., Match, Ranking, Team)"
+          },
+          {
+            "in": "query",
+            "name": "entityId",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filtrar por ID de la entidad"
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 50
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de eventos de auditoría"
+          },
+          "403": {
+            "description": "Requiere rol ADMIN"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Users",
+      "description": "Gestión de usuarios y organizadores del sistema"
+    },
+    {
+      "name": "Teams",
+      "description": "Gestión de equipos, jugadores y emails de contacto"
+    },
+    {
+      "name": "Rankings",
+      "description": "Gestión de rankings de pádel"
+    },
+    {
+      "name": "RankingTeams",
+      "description": "Inscripción de equipos en rankings y generación de calendarios"
+    },
+    {
+      "name": "Matches",
+      "description": "Gestión de partidos, resultados y confirmaciones"
+    },
+    {
+      "name": "Incidents",
+      "description": "Comunicación y resolución de incidencias arbitrales"
+    },
+    {
+      "name": "Classification",
+      "description": "Consulta de tablas de clasificación (Oficial y Provisional)"
+    },
+    {
+      "name": "Auth",
+      "description": "Autenticación y gestión de acceso"
+    },
+    {
+      "name": "Levels",
+      "description": "Catálogo maestro de niveles de juego"
+    },
+    {
+      "name": "Categories",
+      "description": "Catálogo maestro de categorías de competición"
+    },
+    {
+      "name": "Sponsors",
+      "description": "Catálogo maestro de patrocinadores oficiales"
+    },
+    {
+      "name": "Locations",
+      "description": "Catálogo maestro de sedes e instalaciones deportivas (con dirección, ciudad y CP)"
+    },
+    {
+      "name": "Audit",
+      "description": "Consulta de pistas de auditoría del sistema (solo ADMIN)"
+    },
+    {
+      "name": "System",
+      "description": "Estado y diagnóstico del sistema"
+    }
+  ]
+}

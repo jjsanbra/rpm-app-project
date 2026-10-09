@@ -5,7 +5,7 @@ import { Subscription } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-import { AuthService, LiveMatchService, MatchService, LiveMatchSession, Match, extractErrorMessage } from '@core';
+import { AuthService, MatchesService, LiveStreamService, LiveMatchSession, Match, extractErrorMessage } from '@core';
 
 @Component({
   selector: 'rpm-live-tracker',
@@ -17,8 +17,8 @@ import { AuthService, LiveMatchService, MatchService, LiveMatchSession, Match, e
 export class LiveTrackerComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
-  private liveMatchService = inject(LiveMatchService);
-  private matchService = inject(MatchService);
+  private liveStreamService = inject(LiveStreamService);
+  private matchesService = inject(MatchesService);
   public authService = inject(AuthService);
   private messageService = inject(MessageService);
   public translate = inject(TranslateService);
@@ -152,13 +152,13 @@ export class LiveTrackerComponent implements OnInit, OnDestroy {
     this.loading.set(true);
     
     // Load match details
-    this.matchService.getById(id).subscribe({
+    this.matchesService.getApiMatchesId<{ data: Match }>(id).subscribe({
       next: (res) => this.match.set(res.data),
       error: () => console.warn('Could not load base match info')
     });
 
     // Load or check live session
-    this.liveMatchService.getLiveSession(id).subscribe({
+    this.matchesService.getApiMatchesIdLive<{ data: LiveMatchSession | null }>(id).subscribe({
       next: (res) => {
         this.session.set(res.data);
         if (res.data?.gameMode) {
@@ -174,7 +174,7 @@ export class LiveTrackerComponent implements OnInit, OnDestroy {
   }
 
   private connectSse(id: string): void {
-    this.sseSub = this.liveMatchService.listenMatchStream(id).subscribe({
+    this.sseSub = this.liveStreamService.listenMatchStream(id).subscribe({
       next: (sessionUpdate) => {
         this.session.set(sessionUpdate);
         if (sessionUpdate?.gameMode) {
@@ -189,7 +189,7 @@ export class LiveTrackerComponent implements OnInit, OnDestroy {
 
   onRequestLive(): void {
     this.actionLoading.set(true);
-    this.liveMatchService.requestLive(this.matchId(), this.selectedGameMode()).subscribe({
+    this.matchesService.postApiMatchesIdLiveRequest<{ data: LiveMatchSession }>(this.matchId(), { gameMode: this.selectedGameMode() }).subscribe({
       next: (res) => {
         this.session.set(res.data);
         this.actionLoading.set(false);
@@ -212,7 +212,7 @@ export class LiveTrackerComponent implements OnInit, OnDestroy {
 
   onAcceptLive(): void {
     this.actionLoading.set(true);
-    this.liveMatchService.acceptLive(this.matchId(), this.selectedGameMode()).subscribe({
+    this.matchesService.postApiMatchesIdLiveAccept<{ data: LiveMatchSession }>(this.matchId(), { gameMode: this.selectedGameMode() }).subscribe({
       next: (res) => {
         this.session.set(res.data);
         this.actionLoading.set(false);
@@ -237,7 +237,7 @@ export class LiveTrackerComponent implements OnInit, OnDestroy {
     if (!this.canScore() || this.actionLoading()) return;
 
     this.actionLoading.set(true);
-    this.liveMatchService.scorePoint(this.matchId(), team).subscribe({
+    this.matchesService.postApiMatchesIdLivePoint<{ data: LiveMatchSession }>(this.matchId(), { team }).subscribe({
       next: (res) => {
         this.session.set(res.data);
         this.actionLoading.set(false);
@@ -257,7 +257,7 @@ export class LiveTrackerComponent implements OnInit, OnDestroy {
     if (this.actionLoading()) return;
 
     this.actionLoading.set(true);
-    this.liveMatchService.undoPoint(this.matchId()).subscribe({
+    this.matchesService.postApiMatchesIdLiveUndo<{ data: LiveMatchSession }>(this.matchId()).subscribe({
       next: (res) => {
         this.session.set(res.data);
         this.actionLoading.set(false);
@@ -282,7 +282,7 @@ export class LiveTrackerComponent implements OnInit, OnDestroy {
     if (!this.canSign() || this.actionLoading()) return;
 
     this.actionLoading.set(true);
-    this.liveMatchService.signLive(this.matchId()).subscribe({
+    this.matchesService.postApiMatchesIdLiveSign<{ data: LiveMatchSession }>(this.matchId()).subscribe({
       next: (res) => {
         this.session.set(res.data);
         this.actionLoading.set(false);
