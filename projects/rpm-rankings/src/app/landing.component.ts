@@ -2,7 +2,7 @@ import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
-import { RankingService, MatchService, ClassificationService, Ranking, Match, ClassificationRow, extractErrorMessage } from '@core';
+import { RankingsService, MatchesService, ClassificationApiService, Ranking, Match, ClassificationRow, extractErrorMessage } from '@core';
 
 import { HeroComponent } from './components/hero/hero.component';
 import { RankingInfoComponent } from './components/ranking-info/ranking-info.component';
@@ -25,9 +25,9 @@ import { RulesComponent } from './components/rules/rules.component';
   styleUrl: './landing.component.scss'
 })
 export class LandingComponent implements OnInit {
-  private rankingService = inject(RankingService);
-  private matchService = inject(MatchService);
-  private classificationService = inject(ClassificationService);
+  private rankingsService = inject(RankingsService);
+  private matchesService = inject(MatchesService);
+  private classificationService = inject(ClassificationApiService);
   private messageService = inject(MessageService);
   private translate = inject(TranslateService);
 
@@ -44,7 +44,7 @@ export class LandingComponent implements OnInit {
   }
 
   loadRankings(): void {
-    this.rankingService.getAll().subscribe({
+    this.rankingsService.getApiRankings<{ data: Ranking[] }>().subscribe({
       next: (res) => {
         this.rankings.set(res.data);
         if (res.data.length > 0) {
@@ -78,8 +78,8 @@ export class LandingComponent implements OnInit {
   loadClassification(rankingId: string): void {
     this.loadingClassification.set(true);
     const obs = this.viewMode() === 'official'
-      ? this.classificationService.getOfficial(rankingId)
-      : this.classificationService.getProvisional(rankingId);
+      ? this.classificationService.getApiClassificationRankingIdOfficial<{ data: ClassificationRow[] }>(rankingId)
+      : this.classificationService.getApiClassificationRankingIdProvisional<{ data: ClassificationRow[] }>(rankingId);
 
     obs.subscribe({
       next: (res) => {
@@ -98,7 +98,7 @@ export class LandingComponent implements OnInit {
   }
 
   loadMatches(rankingId: string): void {
-    this.matchService.getAll({ rankingId }).subscribe({
+    this.matchesService.getApiMatches<{ data: Match[] }>({ rankingId }).subscribe({
       next: (res) => {
         this.matches.set(res.data);
       }

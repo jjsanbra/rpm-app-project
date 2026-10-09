@@ -1,248 +1,275 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Ranking, Team, Match, ClassificationRow, Incident, AuditLog, AuxiliaryItem, SubmitResultPayload, LiveMatchSession, LivePointPayload, User } from '../api/model';
+import {
+  Ranking,
+  Team,
+  Match,
+  ClassificationRow,
+  Incident,
+  AuditLog,
+  AuxiliaryItem,
+  LiveMatchSession,
+  User
+} from '../api/model';
+import {
+  RankingsService,
+  TeamsService,
+  MatchesService,
+  IncidentsService,
+  UsersService,
+  AuditService as OrvalAuditService,
+  ClassificationService as OrvalClassificationService,
+  CategoriesService,
+  LevelsService,
+  LocationsService,
+  SponsorsService,
+  RankingTeamsService
+} from '../api/endpoints';
 
 @Injectable({ providedIn: 'root' })
 export class RankingService {
-  private http = inject(HttpClient);
-  private apiUrl = '/api/rankings';
+  private orval = inject(RankingsService);
+  private rankingTeams = inject(RankingTeamsService);
 
   getAll(): Observable<{ data: Ranking[] }> {
-    return this.http.get<{ data: Ranking[] }>(this.apiUrl);
+    return this.orval.getApiRankings();
   }
 
   getById(id: string): Observable<{ data: Ranking }> {
-    return this.http.get<{ data: Ranking }>(`${this.apiUrl}/${id}`);
+    return this.orval.getApiRankingsId(id);
   }
 
-  create(data: Partial<Ranking>): Observable<{ data: Ranking }> {
-    return this.http.post<{ data: Ranking }>(this.apiUrl, data);
+  create(data: any): Observable<{ data: Ranking }> {
+    return this.orval.postApiRankings(data);
   }
 
-  update(id: string, data: Partial<Ranking>): Observable<{ data: Ranking }> {
-    return this.http.put<{ data: Ranking }>(`${this.apiUrl}/${id}`, data);
+  update(id: string, data: any): Observable<{ data: Ranking }> {
+    return this.orval.putApiRankingsId(id, data);
   }
 
   toggleActive(id: string, active: boolean): Observable<{ data: Ranking }> {
-    return this.http.patch<{ data: Ranking }>(`${this.apiUrl}/${id}/active`, { active });
+    return this.orval.patchApiRankingsIdActive(id, { active });
   }
 
   getTeams(rankingId: string): Observable<{ data: Team[] }> {
-    return this.http.get<{ data: Team[] }>(`${this.apiUrl}/${rankingId}/teams`);
+    return this.orval.getApiRankingsIdTeams(rankingId);
   }
 
   enrollTeam(rankingId: string, teamId: string): Observable<any> {
-    return this.http.post(`/api/ranking-team-registrations/${rankingId}/teams`, { teamId });
+    return this.rankingTeams.postApiRankingTeamRegistrationsRankingIdTeams(rankingId, { teamId });
   }
 
   unenrollTeam(rankingId: string, teamId: string): Observable<any> {
-    return this.http.delete(`/api/ranking-team-registrations/${rankingId}/teams/${teamId}`);
+    return this.rankingTeams.deleteApiRankingTeamRegistrationsRankingIdTeamsTeamId(rankingId, teamId);
   }
 
   delete(id: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+    return this.orval.deleteApiRankingsId(id);
   }
 }
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  private http = inject(HttpClient);
-  private apiUrl = '/api/users';
+  private orval = inject(UsersService);
 
   getOrganizers(): Observable<{ data: User[] }> {
-    return this.http.get<{ data: User[] }>(`${this.apiUrl}/organizers`);
+    return this.orval.getApiUsersOrganizers();
   }
 
-  createOrganizer(data: { email: string; password?: string; firstName?: string; lastName?: string; phone?: string }): Observable<{ data: User; message: string }> {
-    return this.http.post<{ data: User; message: string }>(`${this.apiUrl}/organizers`, data);
+  createOrganizer(data: any): Observable<{ data: User; message: string }> {
+    return this.orval.postApiUsersOrganizers(data);
   }
 
-  updateOrganizer(id: string, data: { email?: string; password?: string; firstName?: string; lastName?: string; phone?: string; active?: boolean }): Observable<{ data: User }> {
-    return this.http.put<{ data: User }>(`${this.apiUrl}/organizers/${id}`, data);
+  updateOrganizer(id: string, data: any): Observable<{ data: User }> {
+    return this.orval.putApiUsersOrganizersId(id, data);
   }
 
   deleteOrganizer(id: string): Observable<{ message: string }> {
-    return this.http.delete<{ message: string }>(`${this.apiUrl}/organizers/${id}`);
+    return this.orval.deleteApiUsersOrganizersId(id);
   }
 }
 
 @Injectable({ providedIn: 'root' })
 export class TeamService {
-  private http = inject(HttpClient);
-  private apiUrl = '/api/teams';
+  private orval = inject(TeamsService);
 
   getAll(): Observable<{ data: Team[] }> {
-    return this.http.get<{ data: Team[] }>(this.apiUrl);
+    return this.orval.getApiTeams();
   }
 
   getById(id: string): Observable<{ data: Team }> {
-    return this.http.get<{ data: Team }>(`${this.apiUrl}/${id}`);
+    return this.orval.getApiTeamsId(id);
   }
 
   create(data: any): Observable<{ data: Team }> {
-    return this.http.post<{ data: Team }>(this.apiUrl, data);
+    return this.orval.postApiTeams(data);
   }
 
   update(id: string, data: any): Observable<{ data: Team }> {
-    return this.http.put<{ data: Team }>(`${this.apiUrl}/${id}`, data);
+    return this.orval.putApiTeamsId(id, data);
   }
 
   toggleActive(id: string, active: boolean): Observable<{ data: Team }> {
-    return this.http.patch<{ data: Team }>(`${this.apiUrl}/${id}/active`, { active });
+    return this.orval.patchApiTeamsIdActive(id, { active });
   }
 
   resendWelcome(id: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${id}/resend-welcome`, {});
+    return this.orval.postApiTeamsIdResendWelcome(id);
   }
 }
 
 @Injectable({ providedIn: 'root' })
 export class MatchService {
-  private http = inject(HttpClient);
-  private apiUrl = '/api/matches';
+  private orval = inject(MatchesService);
+  private rankingTeams = inject(RankingTeamsService);
 
-  getAll(filters?: { rankingId?: string; teamId?: string; status?: string }): Observable<{ data: Match[] }> {
-    let url = this.apiUrl;
-    if (filters) {
-      const params = new URLSearchParams();
-      if (filters.rankingId) params.append('rankingId', filters.rankingId);
-      if (filters.teamId) params.append('teamId', filters.teamId);
-      if (filters.status) params.append('status', filters.status);
-      url += `?${params.toString()}`;
-    }
-    return this.http.get<{ data: Match[] }>(url);
+  getAll(params?: any): Observable<{ data: Match[] }> {
+    return this.orval.getApiMatches(params);
   }
 
   getById(id: string): Observable<{ data: Match }> {
-    return this.http.get<{ data: Match }>(`${this.apiUrl}/${id}`);
+    return this.orval.getApiMatchesId(id);
   }
 
-  submitResult(id: string, data: SubmitResultPayload): Observable<{ data: Match; message: string }> {
-    return this.http.post<{ data: Match; message: string }>(`${this.apiUrl}/${id}/result`, data);
+  submitResult(id: string, data: any): Observable<{ data: Match }> {
+    return this.orval.postApiMatchesIdResult(id, data);
   }
 
-  confirmResult(id: string): Observable<{ data: Match; message: string }> {
-    return this.http.post<{ data: Match; message: string }>(`${this.apiUrl}/${id}/confirm`, {});
+  confirmResult(id: string): Observable<{ data: Match }> {
+    return this.orval.postApiMatchesIdConfirm(id);
   }
 
-  disputeResult(id: string, description: string): Observable<{ data: any; message: string }> {
-    return this.http.post<{ data: any; message: string }>(`${this.apiUrl}/${id}/dispute`, { description });
-  }
-
-  generateMatches(rankingId: string, rounds = 1, teamIds?: string[]): Observable<any> {
-    return this.http.post(`${this.apiUrl}/ranking/${rankingId}/generate`, { rounds, teamIds });
+  disputeResult(id: string, description: string): Observable<{ data: Match }> {
+    return this.orval.postApiMatchesIdDispute(id, { description });
   }
 
   adminOverride(id: string, data: any): Observable<{ data: Match }> {
-    return this.http.put<{ data: Match }>(`${this.apiUrl}/${id}/admin-override`, data);
+    return this.orval.putApiMatchesIdAdminOverride(id, data);
+  }
+
+  generateMatches(rankingId: string, rounds = 1, _teamIds?: string[]): Observable<{ data: { message: string; matchesCreated: number } }> {
+    return this.rankingTeams.postApiRankingTeamRegistrationsRankingIdGenerateMatches<{ data: { message: string; matchesCreated: number } }>(rankingId, { rounds });
   }
 }
 
 @Injectable({ providedIn: 'root' })
 export class ClassificationService {
-  private http = inject(HttpClient);
-  private apiUrl = '/api/classification';
+  private orval = inject(OrvalClassificationService);
 
   getOfficial(rankingId: string): Observable<{ data: ClassificationRow[] }> {
-    return this.http.get<{ data: ClassificationRow[] }>(`${this.apiUrl}/${rankingId}/official`);
+    return this.orval.getApiClassificationRankingIdOfficial<{ data: ClassificationRow[] }>(rankingId);
   }
 
   getProvisional(rankingId: string): Observable<{ data: ClassificationRow[] }> {
-    return this.http.get<{ data: ClassificationRow[] }>(`${this.apiUrl}/${rankingId}/provisional`);
+    return this.orval.getApiClassificationRankingIdProvisional<{ data: ClassificationRow[] }>(rankingId);
   }
 }
 
 @Injectable({ providedIn: 'root' })
 export class IncidentService {
-  private http = inject(HttpClient);
-  private apiUrl = '/api/incidents';
+  private orval = inject(IncidentsService);
 
-  getAll(filters?: { matchId?: string; status?: string }): Observable<{ data: Incident[] }> {
-    let url = this.apiUrl;
-    if (filters) {
-      const params = new URLSearchParams();
-      if (filters.matchId) params.append('matchId', filters.matchId);
-      if (filters.status) params.append('status', filters.status);
-      url += `?${params.toString()}`;
-    }
-    return this.http.get<{ data: Incident[] }>(url);
+  getAll(params?: any): Observable<{ data: Incident[] }> {
+    return this.orval.getApiIncidents(params);
   }
 
-  resolve(id: string, data: { status: string; resolution: string }): Observable<{ data: Incident }> {
-    return this.http.patch<{ data: Incident }>(`${this.apiUrl}/${id}/resolve`, data);
+  getById(id: string): Observable<{ data: Incident }> {
+    return this.orval.getApiIncidentsId(id);
+  }
+
+  resolve(id: string, payload: any): Observable<{ data: Incident }> {
+    const resolution = typeof payload === 'string' ? payload : (payload.resolution || '');
+    const status = payload.status || 'RESOLVED';
+    return this.orval.postApiIncidentsIdResolve(id, { resolution, status });
   }
 }
 
 @Injectable({ providedIn: 'root' })
 export class AuditService {
-  private http = inject(HttpClient);
-  private apiUrl = '/api/audit-logs';
+  private orval = inject(OrvalAuditService);
 
-  getLogs(filters?: { entity?: string; entityId?: string }): Observable<{ data: AuditLog[] }> {
-    let url = this.apiUrl;
-    if (filters) {
-      const params = new URLSearchParams();
-      if (filters.entity) params.append('entity', filters.entity);
-      if (filters.entityId) params.append('entityId', filters.entityId);
-      url += `?${params.toString()}`;
-    }
-    return this.http.get<{ data: AuditLog[] }>(url);
+  getLogs(params?: any): Observable<{ data: AuditLog[] }> {
+    return this.orval.getApiAuditLogs<{ data: AuditLog[] }>(params);
   }
 }
 
 @Injectable({ providedIn: 'root' })
 export class AuxiliaryService {
-  private http = inject(HttpClient);
+  private levels = inject(LevelsService);
+  private categories = inject(CategoriesService);
+  private locations = inject(LocationsService);
+  private sponsors = inject(SponsorsService);
 
   getItems(type: 'levels' | 'categories' | 'sponsors' | 'locations'): Observable<{ data: AuxiliaryItem[] }> {
-    return this.http.get<{ data: AuxiliaryItem[] }>(`/api/${type}`);
+    switch (type) {
+      case 'levels': return this.levels.getApiLevels();
+      case 'categories': return this.categories.getApiCategories();
+      case 'locations': return this.locations.getApiLocations();
+      case 'sponsors': return this.sponsors.getApiSponsors();
+    }
   }
 
-  createItem(type: string, data: any): Observable<{ data: AuxiliaryItem }> {
-    return this.http.post<{ data: AuxiliaryItem }>(`/api/${type}`, data);
+  createItem(type: 'levels' | 'categories' | 'sponsors' | 'locations', data: any): Observable<{ data: AuxiliaryItem }> {
+    switch (type) {
+      case 'levels': return this.levels.postApiLevels(data);
+      case 'categories': return this.categories.postApiCategories(data);
+      case 'locations': return this.locations.postApiLocations(data);
+      case 'sponsors': return this.sponsors.postApiSponsors(data);
+    }
   }
 
-  updateItem(type: string, id: string, data: any): Observable<{ data: AuxiliaryItem }> {
-    return this.http.put<{ data: AuxiliaryItem }>(`/api/${type}/${id}`, data);
+  updateItem(type: 'levels' | 'categories' | 'sponsors' | 'locations', id: string, data: any): Observable<{ data: AuxiliaryItem }> {
+    switch (type) {
+      case 'levels': return this.levels.putApiLevelsId(id, data);
+      case 'categories': return this.categories.putApiCategoriesId(id, data);
+      case 'locations': return this.locations.putApiLocationsId(id, data);
+      case 'sponsors': return this.sponsors.putApiSponsorsId(id, data);
+    }
   }
 
-  deleteItem(type: string, id: string): Observable<any> {
-    return this.http.delete(`/api/${type}/${id}`);
+  deleteItem(type: 'levels' | 'categories' | 'sponsors' | 'locations', id: string): Observable<any> {
+    switch (type) {
+      case 'levels': return this.levels.deleteApiLevelsId(id);
+      case 'categories': return this.categories.deleteApiCategoriesId(id);
+      case 'locations': return this.locations.deleteApiLocationsId(id);
+      case 'sponsors': return this.sponsors.deleteApiSponsorsId(id);
+    }
   }
 }
 
 @Injectable({ providedIn: 'root' })
 export class LiveMatchService {
+  private matches = inject(MatchesService);
   private http = inject(HttpClient);
   private apiUrl = '/api/matches';
 
   getActiveLiveMatches(): Observable<{ data: LiveMatchSession[] }> {
-    return this.http.get<{ data: LiveMatchSession[] }>(`${this.apiUrl}/live/active`);
+    return this.matches.getApiMatchesLiveActive();
   }
 
   getLiveSession(matchId: string): Observable<{ data: LiveMatchSession | null }> {
-    return this.http.get<{ data: LiveMatchSession | null }>(`${this.apiUrl}/${matchId}/live`);
+    return this.matches.getApiMatchesIdLive(matchId);
   }
 
   requestLive(matchId: string, gameMode?: 'GOLDEN_POINT' | 'ADVANTAGE'): Observable<{ data: LiveMatchSession }> {
-    return this.http.post<{ data: LiveMatchSession }>(`${this.apiUrl}/${matchId}/live/request`, { gameMode });
+    return this.matches.postApiMatchesIdLiveRequest(matchId, { gameMode });
   }
 
   acceptLive(matchId: string, gameMode?: 'GOLDEN_POINT' | 'ADVANTAGE'): Observable<{ data: LiveMatchSession }> {
-    return this.http.post<{ data: LiveMatchSession }>(`${this.apiUrl}/${matchId}/live/accept`, { gameMode });
+    return this.matches.postApiMatchesIdLiveAccept(matchId, { gameMode });
   }
 
   scorePoint(matchId: string, team: 1 | 2): Observable<{ data: LiveMatchSession }> {
-    return this.http.post<{ data: LiveMatchSession }>(`${this.apiUrl}/${matchId}/live/point`, { team });
+    return this.matches.postApiMatchesIdLivePoint(matchId, { team });
   }
 
   undoPoint(matchId: string): Observable<{ data: LiveMatchSession }> {
-    return this.http.post<{ data: LiveMatchSession }>(`${this.apiUrl}/${matchId}/live/undo`, {});
+    return this.matches.postApiMatchesIdLiveUndo(matchId);
   }
 
   signLive(matchId: string): Observable<{ data: LiveMatchSession }> {
-    return this.http.post<{ data: LiveMatchSession }>(`${this.apiUrl}/${matchId}/live/sign`, {});
+    return this.matches.postApiMatchesIdLiveSign(matchId);
   }
 
   listenMatchStream(matchId: string): Observable<LiveMatchSession> {
@@ -259,7 +286,6 @@ export class LiveMatchService {
       };
 
       eventSource.onerror = (error) => {
-        // SSE automatically attempts reconnection; emit error or handle
         console.warn('SSE connection warning on live match', error);
       };
 
@@ -292,4 +318,3 @@ export class LiveMatchService {
     });
   }
 }
-
