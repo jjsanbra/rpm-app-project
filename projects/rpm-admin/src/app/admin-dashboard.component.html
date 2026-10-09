@@ -33,6 +33,7 @@
       [teams]="teams()"
       (createTeam)="handleCreateTeam($event)"
       (updateTeam)="handleUpdateTeam($event)"
+      (deleteTeam)="handleDeleteTeam($event)"
       (toggleActive)="toggleTeamActive($event)"
       (resendWelcome)="resendTeamWelcome($event)">
     </rpm-admin-teams>

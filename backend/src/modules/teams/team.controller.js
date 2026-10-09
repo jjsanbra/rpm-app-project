@@ -47,4 +47,11 @@ async function resendWelcomeEmail(req, res, next) {
   } catch (err) { next(err); }
 }
 
-module.exports = { getAll, getById, create, update, toggleActive, resendWelcomeEmail };
+async function remove(req, res, next) {
+  try {
+    const result = await teamService.remove(req.params.id, req.user.id);
+    res.json({ data: result });
+  } catch (err) { next(err); }
+}
+
+module.exports = { getAll, getById, create, update, toggleActive, resendWelcomeEmail, remove };

@@ -1727,6 +1727,38 @@
             "description": "Equipo actualizado"
           }
         }
+      },
+      "delete": {
+        "summary": "Eliminar un equipo (ADMIN y ORGANIZER)",
+        "tags": [
+          "Teams"
+        ],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Equipo eliminado exitosamente"
+          },
+          "404": {
+            "description": "Equipo no encontrado"
+          },
+          "409": {
+            "description": "Conflicto (el equipo tiene partidos asignados o disputados)"
+          }
+        }
       }
     },
     "/api/teams/{id}/active": {

@@ -109,6 +109,24 @@ function getEmails(teamId) {
   return db.prepare('SELECT * FROM team_emails WHERE teamId = ? ORDER BY isPrimary DESC').all(teamId);
 }
 
+function hasMatches(teamId) {
+  const db = getDb();
+  const row = db.prepare('SELECT COUNT(*) as count FROM matches WHERE teamOneId = ? OR teamTwoId = ?').get(teamId, teamId);
+  return (row?.count || 0) > 0;
+}
+
+function remove(id) {
+  const db = getDb();
+  const deleteTx = db.transaction(() => {
+    db.prepare('DELETE FROM team_emails WHERE teamId = ?').run(id);
+    db.prepare('DELETE FROM ranking_teams WHERE teamId = ?').run(id);
+    db.prepare('UPDATE users SET teamId = NULL WHERE teamId = ?').run(id);
+    const result = db.prepare('DELETE FROM teams WHERE id = ?').run(id);
+    return result.changes > 0;
+  });
+  return deleteTx();
+}
+
 function _parseTeam(team) {
   const parsed = { ...team };
   parsed.emails = team.emailsRaw ? team.emailsRaw.split('|') : [];
@@ -116,4 +134,4 @@ function _parseTeam(team) {
   return parsed;
 }
 
-module.exports = { findAll, findById, findByEmail, create, update, setEmails, getEmails };
+module.exports = { findAll, findById, findByEmail, create, update, setEmails, getEmails, hasMatches, remove };
