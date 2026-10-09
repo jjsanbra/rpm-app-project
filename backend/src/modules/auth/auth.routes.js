@@ -27,17 +27,14 @@ const { validateRequest } = require('../../middleware/validateRequest');
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required: [email, password]
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *               password:
- *                 type: string
+ *             $ref: '#/components/schemas/LoginRequest'
  *     responses:
  *       200:
  *         description: Login exitoso, devuelve JWT
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/LoginResponse'
  *       401:
  *         description: Credenciales incorrectas
  *       429:
@@ -65,17 +62,19 @@ router.post(
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required: [token, password]
- *             properties:
- *               token:
- *                 type: string
- *               password:
- *                 type: string
- *                 minLength: 8
+ *             $ref: '#/components/schemas/SetupPasswordRequest'
  *     responses:
  *       200:
- *         description: Contraseña configurada
+ *         description: Contraseña configurada exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                 user:
+ *                   $ref: '#/components/schemas/User'
  *       400:
  *         description: Token inválido o expirado
  */
@@ -95,6 +94,24 @@ router.post(
  *   post:
  *     summary: Solicitar recuperación de contraseña
  *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ForgotPasswordRequest'
+ *     responses:
+ *       200:
+ *         description: Enlace de recuperación enviado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Email inválido
  */
 router.post(
   '/forgot-password',
@@ -112,6 +129,24 @@ router.post(
  *   post:
  *     summary: Restablecer contraseña con token de recuperación
  *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/ResetPasswordRequest'
+ *     responses:
+ *       200:
+ *         description: Contraseña restablecida correctamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *       400:
+ *         description: Token inválido o expirado
  */
 router.post(
   '/reset-password',
@@ -134,6 +169,13 @@ router.post(
  *     responses:
  *       200:
  *         description: Perfil del usuario
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   $ref: '#/components/schemas/User'
  *       401:
  *         description: No autenticado
  */
@@ -141,3 +183,4 @@ router.get('/profile', authenticate, authController.getProfile);
 router.get('/me', authenticate, authController.getProfile);
 
 module.exports = router;
+

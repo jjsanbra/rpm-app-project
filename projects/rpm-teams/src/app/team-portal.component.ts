@@ -1,6 +1,6 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { AuthService, MatchService, TeamService, Match, Team, extractErrorMessage } from '@core';
+import { AuthService, MatchesService, TeamsService, Match, Team, extractErrorMessage } from '@core';
 import { MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -24,8 +24,8 @@ import { DisputeModalComponent, DisputeData } from './components/dispute-modal/d
 })
 export class TeamPortalComponent implements OnInit {
   authService = inject(AuthService);
-  private matchService = inject(MatchService);
-  private teamService = inject(TeamService);
+  private matchesService = inject(MatchesService);
+  private teamsService = inject(TeamsService);
   private messageService = inject(MessageService);
   private translate = inject(TranslateService);
 
@@ -51,13 +51,13 @@ export class TeamPortalComponent implements OnInit {
     if (!user?.teamId) return;
 
     this.loading.set(true);
-    this.teamService.getById(user.teamId).subscribe({
+    this.teamsService.getApiTeamsId<{ data: Team }>(user.teamId).subscribe({
       next: (res) => {
         this.team.set(res.data);
       }
     });
 
-    this.matchService.getAll({ teamId: user.teamId }).subscribe({
+    this.matchesService.getApiMatches<{ data: Match[] }>({ teamId: user.teamId }).subscribe({
       next: (res) => {
         this.matches.set(res.data);
         this.loading.set(false);
@@ -86,7 +86,7 @@ export class TeamPortalComponent implements OnInit {
 
   handleSubmitResult(data: SubmitResultData): void {
     this.submitting.set(true);
-    this.matchService.submitResult(data.matchId, {
+    this.matchesService.postApiMatchesIdResult(data.matchId, {
       matchDate: data.matchDate,
       set1TeamOne: data.set1TeamOne,
       set1TeamTwo: data.set1TeamTwo,
@@ -119,7 +119,7 @@ export class TeamPortalComponent implements OnInit {
   }
 
   confirmMatch(m: Match): void {
-    this.matchService.confirmResult(m.id).subscribe({
+    this.matchesService.postApiMatchesIdConfirm(m.id).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
@@ -150,7 +150,7 @@ export class TeamPortalComponent implements OnInit {
 
   handleSubmitDispute(data: DisputeData): void {
     this.submitting.set(true);
-    this.matchService.disputeResult(data.matchId, data.description).subscribe({
+    this.matchesService.postApiMatchesIdDispute(data.matchId, { description: data.description }).subscribe({
       next: () => {
         this.submitting.set(false);
         this.closeDisputeModal();

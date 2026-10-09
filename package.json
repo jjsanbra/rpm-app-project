@@ -14,7 +14,11 @@
     "build:all": "npx ng build rpm-admin && npx ng build rpm-rankings && npx ng build rpm-teams && npx ng build rpm-users && npx ng build rpm-live && npx ng build rpm-app",
     "build:prod": "npm run build:all",
     "start:prod": "cd backend && NODE_ENV=production node src/server.js",
-    "test": "ng test"
+    "test": "ng test",
+    "spec:check": "node scripts/validate-specs.js",
+    "api:export": "npm run swagger:export --prefix backend",
+    "api:generate": "npm run api:export && orval",
+    "api:sync": "npm run spec:check && npm run api:generate"
   },
   "keywords": [
     "padel",
@@ -54,5 +58,9 @@
     "typescript": "~6.0.2",
     "zone.js": "~0.16.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "@faker-js/faker": "^10.6.0",
+    "msw": "^3.0.2",
+    "orval": "^8.41.0"
+  }
 }
