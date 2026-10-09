@@ -58,6 +58,7 @@ export class AdminTeamsComponent {
 
   createTeam = output<CreateTeamPayload>();
   updateTeam = output<UpdateTeamPayload>();
+  deleteTeam = output<Team>();
   toggleActive = output<Team>();
   resendWelcome = output<Team>();
 
@@ -77,6 +78,7 @@ export class AdminTeamsComponent {
 
   // Edit Modal state
   showEditModal = false;
+  currentEditingTeam: Team | null = null;
   editTeamId = '';
   editTeamName = '';
   editTeamP1N = '';
@@ -132,6 +134,7 @@ export class AdminTeamsComponent {
   }
 
   openEditModal(t: Team): void {
+    this.currentEditingTeam = t;
     this.editTeamId = t.id;
     this.editTeamName = t.name;
     this.editTeamP1N = t.player1Name;
@@ -167,5 +170,16 @@ export class AdminTeamsComponent {
       emails
     });
     this.showEditModal = false;
+  }
+
+  confirmDeleteTeam(t: Team): void {
+    this.deleteTeam.emit(t);
+  }
+
+  confirmDeleteFromModal(): void {
+    if (this.currentEditingTeam) {
+      this.deleteTeam.emit(this.currentEditingTeam);
+      this.showEditModal = false;
+    }
   }
 }

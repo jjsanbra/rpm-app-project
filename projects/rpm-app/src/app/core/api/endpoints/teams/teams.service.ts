@@ -230,6 +230,39 @@ export class TeamsService {
     );
   }
 /**
+ * @summary Eliminar un equipo (ADMIN y ORGANIZER)
+ */
+ deleteApiTeamsId<TData = void>(id: string, options?: HttpClientBodyOptions): Observable<TData>;
+ deleteApiTeamsId<TData = void>(id: string, options?: HttpClientEventOptions): Observable<HttpEvent<TData>>;
+ deleteApiTeamsId<TData = void>(id: string, options?: HttpClientResponseOptions): Observable<AngularHttpResponse<TData>>;
+  deleteApiTeamsId<TData = void>(
+    id: string, options?: HttpClientObserveOptions): Observable<TData | HttpEvent<TData> | AngularHttpResponse<TData>> {
+    if (options?.observe === 'events') {
+      return this.http.delete<TData>(
+      `/api/teams/${id}`,{
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'events',
+      }
+    );
+    }
+
+    if (options?.observe === 'response') {
+      return this.http.delete<TData>(
+      `/api/teams/${id}`,{
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'response',
+      }
+    );
+    }
+
+    return this.http.delete<TData>(
+      `/api/teams/${id}`,{
+        ...(options as Omit<NonNullable<typeof options>, 'observe'>),
+        observe: 'body',
+      }
+    );
+  }
+/**
  * @summary Activar o desactivar un equipo (solo ADMIN)
  */
  patchApiTeamsIdActive<TData = void>(id: string,

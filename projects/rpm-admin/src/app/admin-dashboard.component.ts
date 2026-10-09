@@ -1,7 +1,8 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MessageService } from 'primeng/api';
+import { Observable } from 'rxjs';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonDirective } from 'primeng/button';
@@ -78,6 +79,7 @@ export class AdminDashboardComponent implements OnInit {
   private rankingTeamsService = inject(RankingTeamsService);
   private authService = inject(AuthService);
   private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
   private translate = inject(TranslateService);
 
   isAdmin = this.authService.isAdmin;
@@ -192,40 +194,60 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   handleDeleteOrganizer(user: User): void {
-    if (!confirm(`¿Eliminar organizador ${user.email}?`)) return;
-    this.usersService.deleteApiUsersOrganizersId(user.id).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'info',
-          summary: this.translate.instant('ADMIN.ORGANIZER_DELETED_INFO'),
-          detail: this.translate.instant('ADMIN.ORGANIZER_DELETED_DETAIL')
+    this.confirmationService.confirm({
+      header: this.translate.instant('ADMIN.CONFIRM_DELETE_ORGANIZER_TITLE'),
+      message: this.translate.instant('ADMIN.CONFIRM_DELETE_ORGANIZER_MSG', { email: user.email }),
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger p-button-sm',
+      rejectButtonStyleClass: 'p-button-secondary p-button-outlined p-button-sm',
+      acceptLabel: this.translate.instant('COMMON.DELETE'),
+      rejectLabel: this.translate.instant('COMMON.CANCEL'),
+      accept: () => {
+        this.usersService.deleteApiUsersOrganizersId(user.id).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'info',
+              summary: this.translate.instant('ADMIN.ORGANIZER_DELETED_INFO'),
+              detail: this.translate.instant('ADMIN.ORGANIZER_DELETED_DETAIL')
+            });
+            this.loadOrganizers();
+          },
+          error: (err: any) => this.messageService.add({
+            severity: 'error',
+            summary: this.translate.instant('COMMON.ERROR'),
+            detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
+          })
         });
-        this.loadOrganizers();
-      },
-      error: (err) => this.messageService.add({
-        severity: 'error',
-        summary: this.translate.instant('COMMON.ERROR'),
-        detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
-      })
+      }
     });
   }
 
   handleDeleteRanking(ranking: Ranking): void {
-    if (!confirm(`¿Estás seguro de que deseas eliminar el ranking "${ranking.name}"?`)) return;
-    this.rankingsService.deleteApiRankingsId(ranking.id).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'info',
-          summary: this.translate.instant('ADMIN.RANKING_DELETED_INFO'),
-          detail: this.translate.instant('ADMIN.RANKING_DELETED_DETAIL')
+    this.confirmationService.confirm({
+      header: this.translate.instant('ADMIN.CONFIRM_DELETE_RANKING_TITLE'),
+      message: this.translate.instant('ADMIN.CONFIRM_DELETE_RANKING_MSG', { name: ranking.name }),
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger p-button-sm',
+      rejectButtonStyleClass: 'p-button-secondary p-button-outlined p-button-sm',
+      acceptLabel: this.translate.instant('COMMON.DELETE'),
+      rejectLabel: this.translate.instant('COMMON.CANCEL'),
+      accept: () => {
+        this.rankingsService.deleteApiRankingsId(ranking.id).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'info',
+              summary: this.translate.instant('ADMIN.RANKING_DELETED_INFO'),
+              detail: this.translate.instant('ADMIN.RANKING_DELETED_DETAIL')
+            });
+            this.loadRankings();
+          },
+          error: (err: any) => this.messageService.add({
+            severity: 'error',
+            summary: this.translate.instant('COMMON.ERROR'),
+            detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
+          })
         });
-        this.loadRankings();
-      },
-      error: (err) => this.messageService.add({
-        severity: 'error',
-        summary: this.translate.instant('COMMON.ERROR'),
-        detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
-      })
+      }
     });
   }
 
@@ -448,24 +470,35 @@ export class AdminDashboardComponent implements OnInit {
     const ranking = this.manageTeamsRanking();
     if (!ranking) return;
 
-    this.rankingTeamsService.deleteApiRankingTeamRegistrationsRankingIdTeamsTeamId(ranking.id, team.id).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'info',
-          summary: this.translate.instant('ADMIN.TEAM_UNENROLLED_SUCCESS'),
-          detail: this.translate.instant('ADMIN.TEAM_UNENROLLED_DETAIL')
-        });
-        this.loadRankingTeams(ranking.id);
-        this.loadRankings();
-        if (this.selectedRankingId() === ranking.id) {
-          this.loadMatchesForSelectedRanking();
-        }
-      },
-      error: (err) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translate.instant('COMMON.ERROR'),
-          detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
+    this.confirmationService.confirm({
+      header: this.translate.instant('ADMIN.CONFIRM_UNENROLL_TEAM_TITLE'),
+      message: this.translate.instant('ADMIN.CONFIRM_UNENROLL_TEAM_MSG', { name: team.name }),
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger p-button-sm',
+      rejectButtonStyleClass: 'p-button-secondary p-button-outlined p-button-sm',
+      acceptLabel: this.translate.instant('COMMON.DELETE'),
+      rejectLabel: this.translate.instant('COMMON.CANCEL'),
+      accept: () => {
+        this.rankingTeamsService.deleteApiRankingTeamRegistrationsRankingIdTeamsTeamId(ranking.id, team.id).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'info',
+              summary: this.translate.instant('ADMIN.TEAM_UNENROLLED_SUCCESS'),
+              detail: this.translate.instant('ADMIN.TEAM_UNENROLLED_DETAIL')
+            });
+            this.loadRankingTeams(ranking.id);
+            this.loadRankings();
+            if (this.selectedRankingId() === ranking.id) {
+              this.loadMatchesForSelectedRanking();
+            }
+          },
+          error: (err: any) => {
+            this.messageService.add({
+              severity: 'error',
+              summary: this.translate.instant('COMMON.ERROR'),
+              detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
+            });
+          }
         });
       }
     });
@@ -565,6 +598,35 @@ export class AdminDashboardComponent implements OnInit {
     });
   }
 
+  handleDeleteTeam(t: Team): void {
+    this.confirmationService.confirm({
+      header: this.translate.instant('ADMIN.CONFIRM_DELETE_TEAM_TITLE'),
+      message: this.translate.instant('ADMIN.CONFIRM_DELETE_TEAM_MSG', { name: t.name }),
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger p-button-sm',
+      rejectButtonStyleClass: 'p-button-secondary p-button-outlined p-button-sm',
+      acceptLabel: this.translate.instant('COMMON.DELETE'),
+      rejectLabel: this.translate.instant('COMMON.CANCEL'),
+      accept: () => {
+        this.teamsService.deleteApiTeamsId<{ data: { message: string } }>(t.id).subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: this.translate.instant('ADMIN.TEAM_DELETED_SUCCESS'),
+              detail: this.translate.instant('ADMIN.TEAM_DELETED_DETAIL')
+            });
+            this.loadTeams();
+          },
+          error: (err: any) => this.messageService.add({
+            severity: 'error',
+            summary: this.translate.instant('COMMON.ERROR'),
+            detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
+          })
+        });
+      }
+    });
+  }
+
   // Matches actions
   onRankingSelectChange(rankingId: string): void {
     this.selectedRankingId.set(rankingId);
@@ -632,7 +694,7 @@ export class AdminDashboardComponent implements OnInit {
     const rounds = this.generateRounds();
 
     this.rankingTeamsService.postApiRankingTeamRegistrationsRankingIdGenerateMatches<{ data: { message: string; matchesCreated: number } }>(rankingId, { rounds }).subscribe({
-      next: (res) => {
+      next: (res: any) => {
         this.showGenerateModal.set(false);
         this.messageService.add({
           severity: 'success',
@@ -641,7 +703,7 @@ export class AdminDashboardComponent implements OnInit {
         });
         this.loadMatchesForSelectedRanking();
       },
-      error: (err) => this.messageService.add({
+      error: (err: any) => this.messageService.add({
         severity: 'error',
         summary: this.translate.instant('COMMON.ERROR'),
         detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
@@ -671,7 +733,7 @@ export class AdminDashboardComponent implements OnInit {
         });
         this.loadMatchesForSelectedRanking();
       },
-      error: (err) => this.messageService.add({
+      error: (err: any) => this.messageService.add({
         severity: 'error',
         summary: this.translate.instant('COMMON.ERROR'),
         detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
@@ -693,7 +755,7 @@ export class AdminDashboardComponent implements OnInit {
         });
         this.loadIncidents();
       },
-      error: (err) => this.messageService.add({
+      error: (err: any) => this.messageService.add({
         severity: 'error',
         summary: this.translate.instant('COMMON.ERROR'),
         detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
@@ -704,7 +766,7 @@ export class AdminDashboardComponent implements OnInit {
   // Auxiliary actions
   handleCreateAuxItem(payload: any): void {
     const type = this.auxType();
-    let obs$;
+    let obs$: Observable<any> | undefined;
     switch (type) {
       case 'levels': obs$ = this.levelsService.postApiLevels<{ data: AuxiliaryItem }>(payload); break;
       case 'categories': obs$ = this.categoriesService.postApiCategories<{ data: AuxiliaryItem }>(payload); break;
@@ -720,7 +782,7 @@ export class AdminDashboardComponent implements OnInit {
         });
         this.loadAuxItems();
       },
-      error: (err) => this.messageService.add({
+      error: (err: any) => this.messageService.add({
         severity: 'error',
         summary: this.translate.instant('COMMON.ERROR'),
         detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
@@ -730,7 +792,7 @@ export class AdminDashboardComponent implements OnInit {
 
   handleUpdateAuxItem(payload: { id: string; data: any }): void {
     const type = this.auxType();
-    let obs$;
+    let obs$: Observable<any> | undefined;
     switch (type) {
       case 'levels': obs$ = this.levelsService.putApiLevelsId<{ data: AuxiliaryItem }>(payload.id, payload.data); break;
       case 'categories': obs$ = this.categoriesService.putApiCategoriesId<{ data: AuxiliaryItem }>(payload.id, payload.data); break;
@@ -746,7 +808,7 @@ export class AdminDashboardComponent implements OnInit {
         });
         this.loadAuxItems();
       },
-      error: (err) => this.messageService.add({
+      error: (err: any) => this.messageService.add({
         severity: 'error',
         summary: this.translate.instant('COMMON.ERROR'),
         detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
@@ -755,22 +817,38 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   handleDeleteAuxItem(id: string): void {
-    const type = this.auxType();
-    let obs$;
-    switch (type) {
-      case 'levels': obs$ = this.levelsService.deleteApiLevelsId(id); break;
-      case 'categories': obs$ = this.categoriesService.deleteApiCategoriesId(id); break;
-      case 'locations': obs$ = this.locationsService.deleteApiLocationsId(id); break;
-      case 'sponsors': obs$ = this.sponsorsService.deleteApiSponsorsId(id); break;
-    }
-    obs$?.subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'info',
-          summary: this.translate.instant('ADMIN.AUX_DELETED_INFO'),
-          detail: this.translate.instant('ADMIN.AUX_DELETED_DETAIL')
+    this.confirmationService.confirm({
+      header: this.translate.instant('ADMIN.CONFIRM_DELETE_AUX_TITLE'),
+      message: this.translate.instant('ADMIN.CONFIRM_DELETE_AUX_MSG'),
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger p-button-sm',
+      rejectButtonStyleClass: 'p-button-secondary p-button-outlined p-button-sm',
+      acceptLabel: this.translate.instant('COMMON.DELETE'),
+      rejectLabel: this.translate.instant('COMMON.CANCEL'),
+      accept: () => {
+        const type = this.auxType();
+        let obs$: Observable<any> | undefined;
+        switch (type) {
+          case 'levels': obs$ = this.levelsService.deleteApiLevelsId(id); break;
+          case 'categories': obs$ = this.categoriesService.deleteApiCategoriesId(id); break;
+          case 'locations': obs$ = this.locationsService.deleteApiLocationsId(id); break;
+          case 'sponsors': obs$ = this.sponsorsService.deleteApiSponsorsId(id); break;
+        }
+        obs$?.subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'info',
+              summary: this.translate.instant('ADMIN.AUX_DELETED_INFO'),
+              detail: this.translate.instant('ADMIN.AUX_DELETED_DETAIL')
+            });
+            this.loadAuxItems();
+          },
+          error: (err: any) => this.messageService.add({
+            severity: 'error',
+            summary: this.translate.instant('COMMON.ERROR'),
+            detail: extractErrorMessage(err, this.translate.instant('COMMON.ERROR'))
+          })
         });
-        this.loadAuxItems();
       }
     });
   }
