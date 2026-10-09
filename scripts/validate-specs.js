@@ -15,7 +15,7 @@ if (!fs.existsSync(configPath)) {
 }
 
 const configContent = fs.readFileSync(configPath, 'utf-8');
-const specMatches = [...configContent.matchAll(/spec:\s*([^\s]+)/g)].map(m => m[1]);
+const specMatches = [...configContent.matchAll(/^\s+spec:\s*(specs\/[^\s]+)/gm)].map(m => m[1]);
 
 let hasError = false;
 
