@@ -51,7 +51,7 @@ El comportamiento de la plataforma está gobernado por las siguientes especifica
 | `PATCH` | `/api/users/{id}/active` | Activar o desactivar un usuario (solo ADMIN) |
 
 
-### 🏷️ Dominio: Teams (6 operaciones)
+### 🏷️ Dominio: Teams (7 operaciones)
 
 | Método | Endpoint | Resumen |
 | :--- | :--- | :--- |
@@ -59,6 +59,7 @@ El comportamiento de la plataforma está gobernado por las siguientes especifica
 | `POST` | `/api/teams` | Crear un nuevo equipo (solo ADMIN) |
 | `GET` | `/api/teams/{id}` | Obtener información detallada de un equipo |
 | `PUT` | `/api/teams/{id}` | Actualizar datos de un equipo (solo ADMIN) |
+| `DELETE` | `/api/teams/{id}` | Eliminar un equipo (ADMIN y ORGANIZER) |
 | `PATCH` | `/api/teams/{id}/active` | Activar o desactivar un equipo (solo ADMIN) |
 | `POST` | `/api/teams/{id}/resend-welcome` | Reenviar email de bienvenida / activación a los contactos del equipo (solo ADMIN) |
 
