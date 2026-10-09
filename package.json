@@ -16,6 +16,10 @@
     "start:prod": "cd backend && NODE_ENV=production node src/server.js",
     "test": "ng test",
     "spec:check": "node scripts/validate-specs.js",
+    "spec:audit": "node scripts/spec-audit.js",
+    "spec:docs": "node scripts/spec-docgen.js",
+    "spec:new": "node scripts/spec-new-change.js",
+    "spec:archive": "node scripts/spec-archive.js",
     "api:export": "npm run swagger:export --prefix backend",
     "api:generate": "npm run api:export && orval",
     "api:sync": "npm run spec:check && npm run api:generate"
