@@ -1,13 +1,18 @@
 name: rpm-app-project
 version: 1.0.0
 description: "Plataforma Integral de Gestión de Rankings de Pádel — Monorepo Angular Microfrontends & Express API"
-standard: openspec-v1
+schema: spec-driven-delivery
 
-context:
+context: |
+  Ecosistema: Monorepo Angular 22 con Native Federation (6 aplicaciones) + Backend Node.js / Express con SQLite.
+  Arquitectura: Spec-Driven Development (SDD) con especificaciones OpenSpec, contratos OpenAPI 3.0 y generación automática de tipos y clientes con Orval en la capa compartida (@core).
+  Idioma: Todos los artefactos generados (propuestas, diseños técnicos, especificaciones y tareas) deben estar redactados en español.
+
+tech_stack:
   backend:
     framework: express
-    runtime: node
-    database: sqlite
+    runtime: node-v22
+    database: sqlite3
     documentation: openapi-3.0
     swagger_path: ./backend/src/app.js
     spec_export: ./backend/openapi.json
@@ -17,6 +22,51 @@ context:
     ui_library: primeng-v21
     shared_core: ./projects/rpm-app/src/app/core
     code_generator: orval
+
+# Estrategia de actualización de documentación al archivar cambios
+doc_refresh:
+  strategy: docs-dir
+  output_dir: docs/
+  catalog_file: docs/architecture-capabilities.md
+
+# Reglas operativas para los artefactos generados por la IA
+rules:
+  proposal:
+    - Describir claramente el problema de negocio y la solución funcional propuesta
+    - Incluir criterios de aceptación medibles y numerados (AC-1, AC-2, etc.)
+    - Redactar siempre en español
+  design:
+    - Detallar los contratos de datos y endpoints nuevos o modificados en OpenAPI 3.0
+    - Especificar qué microfrontends y componentes se ven afectados
+    - Documentar decisiones técnicas clave y patrones arquitectónicos aplicados
+    - Redactar siempre en español
+  specs:
+    - Describir el comportamiento funcional desde la perspectiva del usuario o sistema
+    - Cada requerimiento debe incluir al menos un escenario de prueba BDD (Dado / Cuando / Entonces)
+    - Redactar siempre en español
+  tasks:
+    - Ordenar las tareas secuencialmente por dependencias técnicas (Backend/Swagger -> api:sync -> Frontend)
+    - Cada tarea debe referenciar el requerimiento o criterio de aceptación que implementa
+    - Las tareas deben ser atómicas y verificables
+
+# Guía operativa para agentes de IA durante el ciclo de vida de un cambio
+operations:
+  planning:
+    guidance:
+      - Al solicitar "planifica: [requisito]", crear la carpeta `.openspec/changes/<kebab-name>/`
+      - Generar `proposal.md`, `design.md`, `tasks.md` y `specs/<modulo>.spec.md`
+      - Presentar el plan al usuario y solicitar confirmación antes de modificar código
+  apply:
+    guidance:
+      - Ejecutar las tareas de `tasks.md` en orden secuencial en la conversación
+      - Paso obligatorio tras cambios en endpoints: ejecutar `npm run api:sync` para regenerar tipos y servicios de Orval
+      - Marcar tareas completadas en `tasks.md` conforme se van finalizando
+  archive:
+    guidance:
+      - Verificar que todas las tareas estén completadas y la compilación (`npm run build:all`) pase con 0 errores
+      - Mover la carpeta de cambio de `.openspec/changes/<kebab-name>/` a `.openspec/archive/<kebab-name>/`
+      - Consolidar las especificaciones definitivas en `.openspec/specs/`
+      - Ejecutar `npm run spec:docs` para refrescar la documentación del proyecto
 
 modules:
   - id: auth
