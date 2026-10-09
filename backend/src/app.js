@@ -580,22 +580,37 @@ app.get('/api/audit-logs', require('./middleware/auth.middleware').authenticate,
 const distRoot = path.join(__dirname, '../../dist');
 const rpmAppDist = path.join(distRoot, 'rpm-app/browser');
 
-app.use('/remotes/rpm-admin', express.static(path.join(distRoot, 'rpm-admin/browser')));
-app.use('/remotes/rpm-rankings', express.static(path.join(distRoot, 'rpm-rankings/browser')));
-app.use('/remotes/rpm-teams', express.static(path.join(distRoot, 'rpm-teams/browser')));
-app.use('/remotes/rpm-users', express.static(path.join(distRoot, 'rpm-users/browser')));
-app.use('/remotes/rpm-live', express.static(path.join(distRoot, 'rpm-live/browser')));
+const staticOptions = {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('remoteEntry.json') || filePath.endsWith('index.html') || filePath.endsWith('importmap.json')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+  }
+};
 
-app.use(express.static(rpmAppDist));
+app.use('/remotes/rpm-admin', express.static(path.join(distRoot, 'rpm-admin/browser'), staticOptions));
+app.use('/remotes/rpm-rankings', express.static(path.join(distRoot, 'rpm-rankings/browser'), staticOptions));
+app.use('/remotes/rpm-teams', express.static(path.join(distRoot, 'rpm-teams/browser'), staticOptions));
+app.use('/remotes/rpm-users', express.static(path.join(distRoot, 'rpm-users/browser'), staticOptions));
+app.use('/remotes/rpm-live', express.static(path.join(distRoot, 'rpm-live/browser'), staticOptions));
 
-// SPA Fallback para el enrutador de Angular
+app.use(express.static(rpmAppDist, staticOptions));
+
+// SPA Fallback para el enrutador de Angular (excluyendo API, remotes y archivos con extensión)
 app.use((req, res, next) => {
-  if (req.method !== 'GET' || req.path.startsWith('/api') || req.path.startsWith('/api-docs')) {
+  if (
+    req.method !== 'GET' ||
+    req.path.startsWith('/api') ||
+    req.path.startsWith('/api-docs') ||
+    req.path.startsWith('/remotes') ||
+    req.path.includes('.')
+  ) {
     return next();
   }
   const fs = require('fs');
   const indexPath = path.join(rpmAppDist, 'index.html');
   if (fs.existsSync(indexPath)) {
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     return res.sendFile(indexPath);
   }
   next();
