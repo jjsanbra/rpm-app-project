@@ -1,5 +1,12 @@
 /* Section Headers */
-.section { margin-top: 4rem; }
+.section {
+  margin-top: 4.5rem;
+  scroll-margin-top: 11rem;
+
+  @media (max-width: 768px) {
+    scroll-margin-top: 8.5rem;
+  }
+}
 
 .section-header {
   display: flex;

@@ -58,6 +58,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/', generalRateLimiter);
 
 // ─── Swagger ─────────────────────────────────────────────────────────────────
+const { schemas } = require('./docs/schemas');
+
 const swaggerSpec = swaggerJsdoc({
   definition: {
     openapi: '3.0.0',
@@ -76,6 +78,7 @@ Usar JWT Bearer token. Obtener el token mediante POST /api/auth/login.
     },
     servers: [
       { url: `http://localhost:${config.port}`, description: 'Desarrollo local' },
+      { url: '/', description: 'Servidor actual' },
     ],
     components: {
       securitySchemes: {
@@ -85,6 +88,7 @@ Usar JWT Bearer token. Obtener el token mediante POST /api/auth/login.
           bearerFormat: 'JWT',
         },
       },
+      schemas,
     },
     security: [{ bearerAuth: [] }],
   },
@@ -601,5 +605,6 @@ app.use((req, res, next) => {
 app.use(notFoundHandler);
 app.use(errorHandler);
 
+app.swaggerSpec = swaggerSpec;
 module.exports = app;
 

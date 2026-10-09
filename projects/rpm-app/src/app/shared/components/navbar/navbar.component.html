@@ -11,16 +11,28 @@
 
     <!-- Desktop Links -->
     <div class="nav-links">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">
+      <a 
+        class="nav-link" 
+        [class.active]="isHomeRoute() && activeSection() === 'inicio'" 
+        (click)="navigateToSection(undefined, $event)">
         <i class="pi pi-home"></i> {{ 'NAV.HOME' | translate }}
       </a>
-      <a routerLink="/" fragment="clasificacion" class="nav-link">
+      <a 
+        class="nav-link" 
+        [class.active]="isHomeRoute() && activeSection() === 'clasificacion'" 
+        (click)="navigateToSection('clasificacion', $event)">
         <i class="pi pi-chart-bar"></i> {{ 'NAV.STANDINGS' | translate }}
       </a>
-      <a routerLink="/" fragment="partidos" class="nav-link">
+      <a 
+        class="nav-link" 
+        [class.active]="isHomeRoute() && activeSection() === 'partidos'" 
+        (click)="navigateToSection('partidos', $event)">
         <i class="pi pi-calendar"></i> {{ 'NAV.MATCHES' | translate }}
       </a>
-      <a routerLink="/" fragment="reglamento" class="nav-link">
+      <a 
+        class="nav-link" 
+        [class.active]="isHomeRoute() && activeSection() === 'reglamento'" 
+        (click)="navigateToSection('reglamento', $event)">
         <i class="pi pi-book"></i> {{ 'NAV.RULES' | translate }}
       </a>
 
@@ -88,16 +100,28 @@
   <!-- Mobile Navigation Dropdown -->
   @if (mobileMenuOpen()) {
     <div class="mobile-nav-menu">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="mobile-nav-link" (click)="closeMobileMenu()">
+      <a 
+        class="mobile-nav-link" 
+        [class.active]="isHomeRoute() && activeSection() === 'inicio'" 
+        (click)="navigateToSection(undefined, $event)">
         <i class="pi pi-home"></i> {{ 'NAV.HOME' | translate }}
       </a>
-      <a routerLink="/" fragment="clasificacion" class="mobile-nav-link" (click)="closeMobileMenu()">
+      <a 
+        class="mobile-nav-link" 
+        [class.active]="isHomeRoute() && activeSection() === 'clasificacion'" 
+        (click)="navigateToSection('clasificacion', $event)">
         <i class="pi pi-chart-bar"></i> {{ 'NAV.STANDINGS' | translate }}
       </a>
-      <a routerLink="/" fragment="partidos" class="mobile-nav-link" (click)="closeMobileMenu()">
+      <a 
+        class="mobile-nav-link" 
+        [class.active]="isHomeRoute() && activeSection() === 'partidos'" 
+        (click)="navigateToSection('partidos', $event)">
         <i class="pi pi-calendar"></i> {{ 'NAV.MATCHES' | translate }}
       </a>
-      <a routerLink="/" fragment="reglamento" class="mobile-nav-link" (click)="closeMobileMenu()">
+      <a 
+        class="mobile-nav-link" 
+        [class.active]="isHomeRoute() && activeSection() === 'reglamento'" 
+        (click)="navigateToSection('reglamento', $event)">
         <i class="pi pi-book"></i> {{ 'NAV.RULES' | translate }}
       </a>
 
