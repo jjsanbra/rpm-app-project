@@ -16,10 +16,10 @@ Actualmente en la plataforma, los equipos pueden crearse, editarse y activarse/d
   - Sincronización de modelos y servicios Angular mediante `npm run api:sync`.
 
 ## 3. Criterios de Aceptación
-- [ ] `DELETE /api/teams/:id` retorna `200` y elimina el equipo si no tiene partidos vinculados.
-- [ ] `DELETE /api/teams/:id` retorna `409` con mensaje explicativo si el equipo tiene partidos en la base de datos.
-- [ ] Los roles `ADMIN` y `ORGANIZER` están autorizados para ejecutar la eliminación.
-- [ ] Usuarios con rol `TEAM_USER` reciben `403 Forbidden`.
-- [ ] La tabla de equipos en `rpm-admin` muestra el botón de borrado con confirmación.
-- [ ] La modal de edición de equipo en `rpm-admin` incluye el botón de borrado con confirmación.
-- [ ] Tras el borrado exitoso, la lista de equipos se actualiza automáticamente y se muestra un Toast de confirmación.
+- [x] `DELETE /api/teams/:id` retorna `200` y elimina el equipo si no tiene partidos vinculados.
+- [x] `DELETE /api/teams/:id` retorna `409` con mensaje explicativo si el equipo tiene partidos en la base de datos.
+- [x] Los roles `ADMIN` y `ORGANIZER` están autorizados para ejecutar la eliminación.
+- [x] Usuarios con rol `TEAM_USER` reciben `403 Forbidden`.
+- [x] La tabla de equipos en `rpm-admin` muestra el botón de borrado con confirmación.
+- [x] La modal de edición de equipo en `rpm-admin` incluye el botón de borrado con confirmación.
+- [x] Tras el borrado exitoso, la lista de equipos se actualiza automáticamente y se muestra un Toast de confirmación.
