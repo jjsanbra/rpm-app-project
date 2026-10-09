@@ -1,10 +1,9 @@
-/* Section Headers */
 .section {
   margin-top: 4.5rem;
-  scroll-margin-top: 11rem;
+  scroll-margin-top: 8rem;
 
   @media (max-width: 768px) {
-    scroll-margin-top: 8.5rem;
+    scroll-margin-top: 6rem;
   }
 }
 
@@ -18,16 +17,23 @@
 }
 
 .section-tag {
+  font-family: var(--font-heading);
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--primary);
+  color: var(--primary-turf, #059669);
   font-weight: 700;
   display: block;
   margin-bottom: 0.25rem;
 }
 
-.section-title { font-size: 1.8rem; }
+.section-title {
+  font-family: var(--font-heading);
+  font-size: 1.85rem;
+  font-weight: 700;
+  color: var(--text-slate, #0f172a);
+  letter-spacing: -0.02em;
+}
 
 .table-switcher {
   display: flex;
@@ -35,57 +41,108 @@
   flex-wrap: wrap;
 }
 
-/* Table custom stylings */
+/* Custom PrimeNG Table Styling */
+::ng-deep .p-datatable {
+  .p-datatable-header,
+  .p-datatable-thead > tr > th {
+    background: #f8fafc !important;
+    border-bottom: 1px solid var(--border-subtle, #e2e8f0) !important;
+    color: var(--text-dim, #64748b) !important;
+    font-family: var(--font-heading) !important;
+    font-weight: 700 !important;
+    font-size: 0.75rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    padding: 0.85rem 1rem !important;
+  }
+
+  .p-datatable-tbody > tr {
+    transition: background-color 0.15s ease;
+    height: 56px;
+
+    &:hover {
+      background-color: #f8fafc !important;
+    }
+
+    > td {
+      border-bottom: 1px solid var(--border-subtle, #e2e8f0) !important;
+      padding: 0.75rem 1rem !important;
+      vertical-align: middle;
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+    }
+  }
+}
+
 .pos-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 28px;
   height: 28px;
-  border-radius: 50%;
+  border-radius: var(--radius-full, 9999px);
   font-weight: 800;
   font-family: var(--font-heading);
-  background: #f1f5f9;
-  color: var(--text-main);
-  border: 1px solid #e2e8f0;
+  font-size: 0.85rem;
+  background: var(--surface-muted, #f1f5f9);
+  color: var(--text-muted, #475569);
+  border: 1px solid var(--border-subtle, #e2e8f0);
 
-  &.gold { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; border: none; }
-  &.silver { background: linear-gradient(135deg, #94a3b8, #64748b); color: #fff; border: none; }
-  &.bronze { background: linear-gradient(135deg, #b45309, #78350f); color: #fff; border: none; }
+  &.gold {
+    background: var(--podium-gold, linear-gradient(135deg, #f59e0b, #d97706));
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+  }
+  &.silver {
+    background: var(--podium-silver, linear-gradient(135deg, #94a3b8, #64748b));
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 2px 8px rgba(148, 163, 184, 0.35);
+  }
+  &.bronze {
+    background: var(--podium-bronze, linear-gradient(135deg, #b45309, #78350f));
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 2px 8px rgba(180, 83, 9, 0.35);
+  }
 }
 
 .team-name {
   font-family: var(--font-heading);
   font-weight: 700;
-  color: var(--text-main);
+  color: var(--text-slate, #0f172a);
   font-size: 1rem;
 }
 
 .player-names {
+  font-family: var(--font-body);
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: var(--text-dim, #64748b);
+  margin-top: 0.1rem;
 }
 
 .diff-tag {
   font-size: 0.75rem;
   color: var(--text-dim);
   margin-left: 0.25rem;
+  font-weight: 600;
 
-  &.pos { color: #059669; }
-  &.neg { color: #dc2626; }
+  &.pos { color: var(--status-confirmed-text, #047857); }
+  &.neg { color: var(--status-disputed-text, #b91c1c); }
 }
 
 .points-val {
   font-family: var(--font-heading);
   font-weight: 900;
   font-size: 1.25rem;
-  color: var(--primary);
+  color: var(--primary-turf, #059669);
 }
 
 .text-center { text-align: center; }
 .text-right { text-align: right; }
 .font-bold { font-weight: 700; }
-.text-green { color: #059669; }
-.text-red { color: #dc2626; }
+.text-green { color: var(--status-confirmed-text, #047857); }
+.text-red { color: var(--status-disputed-text, #b91c1c); }
 .text-muted { color: var(--text-muted); }
 .p-3 { padding: 0.75rem; }

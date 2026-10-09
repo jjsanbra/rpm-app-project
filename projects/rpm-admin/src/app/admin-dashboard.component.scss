@@ -47,7 +47,7 @@
       gap: 0.4rem;
 
       i {
-        color: var(--primary-color, #2563eb);
+        color: var(--primary, #059669);
       }
     }
   }
@@ -60,25 +60,25 @@
     overflow-y: auto;
     padding: 0.75rem;
     background: var(--surface-50, #f8fafc);
-    border: 1px solid var(--surface-200, #e2e8f0);
-    border-radius: 8px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: var(--radius-sm, 8px);
 
     .team-chip {
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
-      background: var(--surface-card, #ffffff);
-      border: 1px solid var(--surface-300, #cbd5e1);
+      background: var(--bg-card, #ffffff);
+      border: 1px solid var(--border-color, #cbd5e1);
       padding: 0.25rem 0.6rem;
       border-radius: 20px;
       font-size: 0.8rem;
       font-weight: 500;
-      color: var(--text-color, #334155);
+      color: var(--text-main, #334155);
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
 
       i {
         font-size: 0.75rem;
-        color: var(--primary-color, #2563eb);
+        color: var(--primary, #059669);
       }
     }
   }
@@ -88,47 +88,48 @@
     align-items: center;
     gap: 1rem;
     padding: 0.85rem 1rem;
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.06) 0%, rgba(59, 130, 246, 0.12) 100%);
-    border: 1px solid rgba(37, 99, 235, 0.2);
-    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(5, 150, 105, 0.08) 0%, rgba(6, 182, 212, 0.12) 100%);
+    border: 1px solid rgba(5, 150, 105, 0.25);
+    border-radius: var(--radius-sm, 8px);
 
     .calc-icon-wrapper {
       width: 40px;
       height: 40px;
-      border-radius: 8px;
-      background: var(--primary-color, #2563eb);
+      border-radius: var(--radius-sm, 8px);
+      background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
       color: #ffffff;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.2rem;
       flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
     }
 
     .calc-details {
       flex: 1;
 
       .calc-title {
-        font-weight: 600;
+        font-weight: 700;
         font-size: 0.875rem;
-        color: var(--text-color, #1e293b);
+        color: var(--text-main, #0f172a);
       }
 
       .calc-formula {
         font-size: 0.775rem;
-        color: var(--text-color-secondary, #64748b);
+        color: var(--text-muted, #64748b);
         margin-top: 0.1rem;
       }
     }
 
     .calc-total-badge {
       font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--primary-color, #2563eb);
+      font-weight: 800;
+      color: var(--primary, #059669);
       background: #ffffff;
       padding: 0.35rem 0.75rem;
       border-radius: 6px;
-      border: 1px solid rgba(37, 99, 235, 0.25);
+      border: 1px solid rgba(5, 150, 105, 0.25);
       white-space: nowrap;
     }
   }
@@ -149,8 +150,8 @@
 
   .ranking-header-card {
     background: var(--surface-50, #f8fafc);
-    border: 1px solid var(--surface-200, #e2e8f0);
-    border-radius: 8px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: var(--radius-sm, 8px);
     padding: 0.875rem 1rem;
     display: flex;
     flex-direction: column;
@@ -167,7 +168,7 @@
         gap: 0.5rem;
 
         .trophy-icon {
-          color: var(--primary-color, #2563eb);
+          color: var(--primary, #059669);
           font-size: 1.1rem;
         }
 
@@ -175,14 +176,14 @@
           margin: 0;
           font-size: 1.1rem;
           font-weight: 700;
-          color: var(--text-color, #1e293b);
+          color: var(--text-main, #0f172a);
         }
       }
 
       .modal-subtext {
         margin: 0;
         font-size: 0.85rem;
-        color: var(--text-color-secondary, #64748b);
+        color: var(--text-muted, #64748b);
       }
     }
 
@@ -196,14 +197,14 @@
         align-items: center;
         gap: 0.3rem;
         background: #ffffff;
-        border: 1px solid var(--surface-300, #cbd5e1);
+        border: 1px solid var(--border-color, #cbd5e1);
         padding: 0.2rem 0.6rem;
         border-radius: 16px;
         font-size: 0.775rem;
-        color: var(--text-color, #475569);
+        color: var(--text-muted, #475569);
 
         i {
-          color: var(--primary-color, #2563eb);
+          color: var(--primary, #059669);
           font-size: 0.75rem;
         }
       }
@@ -212,8 +213,8 @@
 
   .enroll-form-card {
     background: #ffffff;
-    border: 1px solid var(--surface-200, #e2e8f0);
-    border-radius: 8px;
+    border: 1px solid var(--border-color, #e2e8f0);
+    border-radius: var(--radius-sm, 8px);
     padding: 0.875rem 1rem;
     display: flex;
     flex-direction: column;
@@ -222,13 +223,13 @@
     .section-label {
       font-size: 0.875rem;
       font-weight: 600;
-      color: var(--text-color, #1e293b);
+      color: var(--text-main, #0f172a);
       display: flex;
       align-items: center;
       gap: 0.4rem;
 
       i {
-        color: var(--primary-color, #2563eb);
+        color: var(--primary, #059669);
       }
     }
 
@@ -249,7 +250,7 @@
 
       .team-option-players {
         font-size: 0.75rem;
-        color: var(--text-color-secondary, #64748b);
+        color: var(--text-muted, #64748b);
       }
     }
   }
@@ -271,10 +272,11 @@
         align-items: center;
         gap: 0.5rem;
         font-size: 0.95rem;
-        color: var(--text-color, #1e293b);
+        font-weight: 700;
+        color: var(--text-main, #0f172a);
 
         .count-badge {
-          background: var(--primary-color, #2563eb);
+          background: var(--primary, #059669);
           color: #ffffff;
           padding: 0.15rem 0.55rem;
           border-radius: 12px;
@@ -285,7 +287,7 @@
 
       .text-warn {
         color: #d97706;
-        font-weight: 500;
+        font-weight: 600;
         font-size: 0.8rem;
         display: flex;
         align-items: center;
@@ -296,8 +298,8 @@
     .enrolled-teams-table-wrap {
       max-height: 280px;
       overflow-y: auto;
-      border: 1px solid var(--surface-200, #e2e8f0);
-      border-radius: 8px;
+      border: 1px solid var(--border-color, #e2e8f0);
+      border-radius: var(--radius-sm, 8px);
       background: var(--surface-50, #f8fafc);
       padding: 0.75rem;
 
@@ -308,7 +310,7 @@
         justify-content: center;
         padding: 2rem 1rem;
         text-align: center;
-        color: var(--text-color-secondary, #64748b);
+        color: var(--text-muted, #64748b);
 
         .empty-icon {
           font-size: 2.25rem;
@@ -319,7 +321,7 @@
         p {
           margin: 0 0 0.25rem;
           font-weight: 600;
-          color: var(--text-color, #475569);
+          color: var(--text-main, #475569);
         }
       }
 
@@ -330,25 +332,26 @@
 
         .enrolled-team-card {
           background: #ffffff;
-          border: 1px solid var(--surface-200, #e2e8f0);
-          border-radius: 8px;
+          border: 1px solid var(--border-color, #e2e8f0);
+          border-radius: var(--radius-sm, 8px);
           padding: 0.65rem 0.85rem;
           display: flex;
           align-items: center;
           gap: 0.75rem;
           box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-          transition: border-color 0.2s;
+          transition: border-color 0.2s, transform 0.2s;
 
           &:hover {
-            border-color: var(--surface-300, #cbd5e1);
+            border-color: var(--primary, #059669);
+            transform: translateY(-1px);
           }
 
           .team-avatar {
             width: 34px;
             height: 34px;
             border-radius: 6px;
-            background: rgba(37, 99, 235, 0.08);
-            color: var(--primary-color, #2563eb);
+            background: rgba(5, 150, 105, 0.1);
+            color: var(--primary, #059669);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -363,7 +366,7 @@
             .team-name {
               font-weight: 600;
               font-size: 0.875rem;
-              color: var(--text-color, #1e293b);
+              color: var(--text-main, #0f172a);
               white-space: nowrap;
               overflow: hidden;
               text-overflow: ellipsis;
@@ -371,7 +374,7 @@
 
             .team-players {
               font-size: 0.75rem;
-              color: var(--text-color-secondary, #64748b);
+              color: var(--text-muted, #64748b);
               white-space: nowrap;
               overflow: hidden;
               text-overflow: ellipsis;
@@ -387,7 +390,7 @@
 
             .team-contact {
               font-size: 0.725rem;
-              color: var(--text-color-secondary, #94a3b8);
+              color: var(--text-dim, #94a3b8);
               margin-top: 0.1rem;
               display: flex;
               align-items: center;

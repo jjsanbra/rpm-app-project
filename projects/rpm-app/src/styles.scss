@@ -1,60 +1,92 @@
 @import "primeicons/primeicons.css";
 
 /* ==========================================================================
-   PADEL RANKING — GLOBAL DESIGN SYSTEM & THEME (AURA LIGHT PRESET)
+   PADEL COURT ATHLETIC LUXURY — GLOBAL DESIGN SYSTEM (docs/DESIGN.md)
    ========================================================================== */
 
 :root {
-  /* Color Palette - Light Theme */
-  --bg-main: #f8fafc;
-  --bg-surface: #ffffff;
-  --bg-card: rgba(255, 255, 255, 0.95);
-  --bg-card-hover: #ffffff;
-  --bg-glass: rgba(255, 255, 255, 0.85);
-  
-  --border-color: #e2e8f0;
-  --border-glow: rgba(16, 185, 129, 0.35);
+  /* Surface & Canvas System */
+  --bg-canvas: #F8FAFC;
+  --surface-pure: #FFFFFF;
+  --surface-card: rgba(255, 255, 255, 0.95);
+  --surface-glass: rgba(255, 255, 255, 0.85);
+  --surface-muted: #F1F5F9;
 
-  /* Primary Accent: Emerald & Padel Green */
+  /* Borders & Dividers */
+  --border-subtle: #E2E8F0;
+  --border-input: #CBD5E1;
+  --border-glass: rgba(226, 232, 240, 0.8);
+
+  /* Primary Turf & Kinetic Gradients */
   --primary: #059669;
   --primary-hover: #047857;
-  --primary-glow: rgba(5, 150, 105, 0.2);
-  --primary-text: #ffffff;
+  --primary-turf: #059669;
+  --primary-gradient: linear-gradient(135deg, #10B981 0%, #06B6D4 100%);
+  --primary-gradient-hover: linear-gradient(135deg, #059669 0%, #0891B2 100%);
+  --cyan-pulse: #0891B2;
+  --court-blue: #2563EB;
+  --accent-purple: #7C3AED;
 
-  /* Secondary Accent: Cyan & Sky */
-  --accent-cyan: #0891b2;
-  --accent-blue: #2563eb;
-  --accent-orange: #ea580c;
-  --accent-purple: #7c3aed;
+  /* Semantic Match & Lifecycle States */
+  --status-confirmed: #10B981;
+  --status-confirmed-bg: rgba(16, 185, 129, 0.12);
+  --status-confirmed-border: rgba(16, 185, 129, 0.25);
+  --status-confirmed-text: #047857;
 
-  /* Status Colors */
-  --status-confirmed: #10b981;
-  --status-pending: #d97706;
-  --status-disputed: #dc2626;
-  --status-cancelled: #64748b;
+  --status-pending: #D97706;
+  --status-pending-bg: rgba(245, 158, 11, 0.12);
+  --status-pending-border: rgba(245, 158, 11, 0.25);
+  --status-pending-text: #B45309;
 
-  /* Text Colors */
-  --text-main: #0f172a;
+  --status-disputed: #DC2626;
+  --status-disputed-bg: rgba(239, 68, 68, 0.12);
+  --status-disputed-border: rgba(239, 68, 68, 0.25);
+  --status-disputed-text: #B91C1C;
+
+  --status-cancelled: #64748B;
+  --status-cancelled-bg: rgba(100, 116, 139, 0.12);
+  --status-cancelled-border: rgba(100, 116, 139, 0.25);
+  --status-cancelled-text: #475569;
+
+  /* Podium Rank Medals */
+  --podium-gold: linear-gradient(135deg, #F59E0B, #D97706);
+  --podium-silver: linear-gradient(135deg, #94A3B8, #64748B);
+  --podium-bronze: linear-gradient(135deg, #B45309, #78350F);
+
+  /* Typography System */
+  --text-slate: #0F172A;
+  --text-main: #0F172A;
+  --text-secondary: #1E293B;
   --text-muted: #475569;
-  --text-dim: #64748b;
+  --text-dim: #64748B;
 
-  /* Typography */
   --font-heading: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-  /* Radius & Shadows */
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
+  /* Shapes & Radii */
+  --radius-sm: 0.5rem;    /* 8px */
+  --radius-md: 1rem;      /* 16px */
+  --radius-lg: 1.5rem;    /* 24px */
   --radius-full: 9999px;
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
-  --shadow-glow: 0 0 18px var(--primary-glow);
-  --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+  /* 4-Tier Elevation System */
+  --shadow-tier1: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 4px 12px 0 rgba(15, 23, 42, 0.03);
+  --shadow-tier2: 0 8px 24px -4px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.03);
+  --shadow-tier3: 0 12px 32px -4px rgba(15, 23, 42, 0.08);
+  --shadow-tier4: 0 20px 40px -8px rgba(15, 23, 42, 0.16);
+  --shadow-glow-emerald: 0 0 20px rgba(16, 185, 129, 0.20);
+  --shadow-glow-ball: 0 0 14px rgba(16, 185, 129, 0.50);
+
+  /* PrimeNG Token Alignments */
+  --p-primary-color: var(--primary-turf);
+  --p-primary-hover-color: var(--primary-hover);
+  --p-focus-ring-color: rgba(16, 185, 129, 0.20);
 }
 
-/* Base resets & layout */
+/* ==========================================================================
+   BASE RESETS & LAYOUT
+   ========================================================================== */
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -66,19 +98,19 @@ html {
 }
 
 [id] {
-  scroll-margin-top: 11rem;
+  scroll-margin-top: 6rem;
 }
 
 body {
   font-family: var(--font-body);
-  background-color: var(--bg-main);
+  background-color: var(--bg-canvas);
   color: var(--text-main);
   min-height: 100vh;
   line-height: 1.6;
   background-image: 
-    radial-gradient(at 0% 0%, rgba(8, 145, 178, 0.06) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.07) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(124, 58, 237, 0.04) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, rgba(8, 145, 178, 0.05) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(16, 185, 129, 0.06) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(124, 58, 237, 0.03) 0px, transparent 50%);
   background-attachment: fixed;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
@@ -87,90 +119,121 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-heading);
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-slate);
   letter-spacing: -0.02em;
 }
 
 a {
-  color: var(--primary);
+  color: var(--primary-turf);
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: color 0.2s ease;
 }
 
 a:hover {
   color: var(--primary-hover);
 }
 
-/* Glassmorphism containers - Light */
+/* ==========================================================================
+   CONTAINERS & CARDS (ELEVATION & GLASSMORPHISM)
+   ========================================================================== */
+
+.container {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+.surface-card {
+  background: var(--surface-pure);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-tier1);
+}
+
 .glass-panel {
-  background: var(--bg-card);
+  background: var(--surface-glass);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--border-glass);
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--shadow-tier3);
 }
 
-.glass-panel-glow {
-  background: var(--bg-card);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(16, 185, 129, 0.35);
-  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.12);
-  border-radius: var(--radius-md);
+.interactive-card {
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Modern Buttons */
+.interactive-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-tier2);
+}
+
+/* ==========================================================================
+   BUTTONS (MODERN ATHLETIC LUXURY)
+   ========================================================================== */
+
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  font-family: var(--font-heading);
+  font-family: var(--font-body);
   font-weight: 600;
   font-size: 0.95rem;
   padding: 0.65rem 1.35rem;
   border-radius: var(--radius-sm);
   border: none;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
-  color: #ffffff;
-  font-weight: 700;
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+.btn:active {
+  transform: scale(0.98);
 }
 
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
-  color: #ffffff;
+.btn-primary,
+.p-button.p-button-primary:not(.p-button-outlined):not(.p-button-text) {
+  background: var(--primary-gradient) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
+  border: none !important;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25) !important;
 }
 
-.btn-secondary {
-  background: #ffffff;
-  color: #334155;
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
+.btn-primary:hover,
+.p-button.p-button-primary:not(.p-button-outlined):not(.p-button-text):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.35) !important;
+  background: var(--primary-gradient-hover) !important;
 }
 
-.btn-secondary:hover {
-  background: #f1f5f9;
-  color: #0f172a;
-  transform: translateY(-2px);
+.btn-secondary,
+.p-button.p-button-secondary.p-button-outlined {
+  background: #ffffff !important;
+  color: #334155 !important;
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: var(--shadow-tier1) !important;
 }
 
-.btn-danger {
-  background: rgba(239, 68, 68, 0.1);
-  color: #dc2626;
-  border: 1px solid rgba(239, 68, 68, 0.25);
+.btn-secondary:hover,
+.p-button.p-button-secondary.p-button-outlined:hover {
+  background: var(--surface-muted) !important;
+  color: var(--text-slate) !important;
+  transform: translateY(-1px);
 }
 
-.btn-danger:hover {
-  background: #dc2626;
-  color: #ffffff;
+.btn-danger,
+.p-button.p-button-danger {
+  background: rgba(239, 68, 68, 0.10) !important;
+  color: #dc2626 !important;
+  border: 1px solid rgba(239, 68, 68, 0.25) !important;
+}
+
+.btn-danger:hover,
+.p-button.p-button-danger:hover {
+  background: #dc2626 !important;
+  color: #ffffff !important;
 }
 
 .btn-sm {
@@ -178,12 +241,15 @@ a:hover {
   font-size: 0.85rem;
 }
 
-/* Badges */
+/* ==========================================================================
+   BADGES & PODIUM MEDALS
+   ========================================================================== */
+
 .badge {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  padding: 0.3rem 0.75rem;
+  padding: 0.25rem 0.75rem;
   font-size: 0.75rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -192,30 +258,64 @@ a:hover {
 }
 
 .badge-confirmed {
-  background: rgba(16, 185, 129, 0.12);
-  color: #047857;
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: var(--status-confirmed-bg);
+  color: var(--status-confirmed-text);
+  border: 1px solid var(--status-confirmed-border);
 }
 
-.badge-pending-confirmation {
-  background: rgba(245, 158, 11, 0.12);
-  color: #b45309;
-  border: 1px solid rgba(245, 158, 11, 0.25);
-}
-
+.badge-pending,
+.badge-pending-confirmation,
 .badge-pending-result {
-  background: rgba(100, 116, 139, 0.12);
-  color: #475569;
-  border: 1px solid rgba(100, 116, 139, 0.25);
+  background: var(--status-pending-bg);
+  color: var(--status-pending-text);
+  border: 1px solid var(--status-pending-border);
 }
 
 .badge-disputed {
-  background: rgba(239, 68, 68, 0.12);
-  color: #b91c1c;
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  background: var(--status-disputed-bg);
+  color: var(--status-disputed-text);
+  border: 1px solid var(--status-disputed-border);
 }
 
-/* Form inputs */
+/* Podium circles */
+.podium-medal {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: #ffffff;
+}
+
+.podium-medal.gold {
+  background: var(--podium-gold);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.35);
+}
+
+.podium-medal.silver {
+  background: var(--podium-silver);
+  box-shadow: 0 2px 8px rgba(148, 163, 184, 0.35);
+}
+
+.podium-medal.bronze {
+  background: var(--podium-bronze);
+  box-shadow: 0 2px 8px rgba(180, 83, 9, 0.35);
+}
+
+.podium-medal.standard {
+  background: var(--surface-muted);
+  color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
+}
+
+/* ==========================================================================
+   FORMS & INPUTS
+   ========================================================================== */
+
 .form-group {
   margin-bottom: 1.25rem;
 }
@@ -228,54 +328,30 @@ a:hover {
   margin-bottom: 0.45rem;
 }
 
-.form-control {
+.form-control,
+.p-inputtext {
   width: 100%;
   padding: 0.75rem 1rem;
   font-family: var(--font-body);
   font-size: 0.95rem;
   background: #ffffff;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--border-input);
   border-radius: var(--radius-sm);
   color: var(--text-main);
   outline: none;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.form-control:focus {
-  border-color: var(--primary);
+.form-control:focus,
+.p-inputtext:focus {
+  border-color: var(--primary-turf);
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
 }
 
-/* Utility classes */
-.container {
-  max-width: 1240px;
-  margin: 0 auto;
-  padding: 0 1.25rem;
-}
+/* ==========================================================================
+   SCROLLBAR & UTILITY
+   ========================================================================== */
 
-.flex { display: flex; }
-.flex-col { flex-direction: column; }
-.items-center { align-items: center; }
-.justify-between { justify-content: space-between; }
-.justify-center { justify-content: center; }
-.gap-2 { gap: 0.5rem; }
-.gap-4 { gap: 1rem; }
-.gap-6 { gap: 1.5rem; }
-.gap-8 { gap: 2rem; }
-
-.grid { display: grid; }
-.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
-
-@media (min-width: 640px) {
-  .sm\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-}
-
-@media (min-width: 1024px) {
-  .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .lg\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-}
-
-/* Custom Scrollbars */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

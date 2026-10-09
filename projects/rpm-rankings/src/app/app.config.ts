@@ -6,7 +6,7 @@ import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
 
 import { routes } from './app.routes';
-import { provideDefaultDateFormat } from '@core';
+import { provideDefaultDateFormat, PadelThemePreset } from '@core';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -15,7 +15,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideDefaultDateFormat(),
     providePrimeNG({
-      theme: { preset: Aura, options: { darkModeSelector: false } }
+      theme: { preset: PadelThemePreset, options: { darkModeSelector: false, cssLayer: false } }
     })
   ]
 };

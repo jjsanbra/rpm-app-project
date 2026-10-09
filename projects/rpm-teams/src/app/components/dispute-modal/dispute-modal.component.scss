@@ -1,7 +1,9 @@
 .modal-sub {
-  font-size: 0.85rem;
-  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  color: var(--text-muted, #475569);
   margin-bottom: 1.25rem;
+  line-height: 1.5;
 }
 
 .modal-form {
@@ -17,21 +19,29 @@
 }
 
 .form-label {
-  font-size: 0.8rem;
+  font-family: var(--font-heading);
+  font-size: 0.82rem;
   font-weight: 700;
-  color: var(--text-main);
+  color: var(--text-slate, #0f172a);
 }
 
 .form-control {
   width: 100%;
-  padding: 0.6rem 0.8rem;
-  border: 1px solid #cbd5e1;
-  border-radius: var(--radius-sm);
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--border-input, #cbd5e1);
+  border-radius: var(--radius-sm, 8px);
   background: #ffffff;
-  color: var(--text-main);
-  font-family: inherit;
+  color: var(--text-slate, #0f172a);
+  font-family: var(--font-body);
   font-size: 0.9rem;
   resize: vertical;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &:focus {
+    border-color: var(--primary-turf, #059669);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  }
 }
 
 .modal-actions {

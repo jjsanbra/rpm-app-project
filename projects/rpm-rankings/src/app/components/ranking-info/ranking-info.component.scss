@@ -1,10 +1,22 @@
-/* Info Strip */
 .info-strip {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
-  margin-top: 1.5rem;
+  gap: 1.25rem;
+  margin-top: 2rem;
   margin-bottom: 4rem;
+}
+
+::ng-deep .info-card-p.p-card {
+  border-radius: var(--radius-md, 16px);
+  border: 1px solid var(--border-subtle, #e2e8f0);
+  background: var(--surface-pure, #ffffff);
+  box-shadow: var(--shadow-tier1);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-tier2);
+  }
 }
 
 .info-card-inner {
@@ -13,25 +25,31 @@
   gap: 1rem;
 
   .icon {
-    font-size: 1.5rem;
-    color: var(--primary);
+    font-size: 1.35rem;
+    color: var(--primary-turf, #059669);
     background: rgba(16, 185, 129, 0.12);
-    padding: 0.75rem;
-    border-radius: var(--radius-sm);
+    padding: 0.85rem;
+    border-radius: var(--radius-sm, 8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .info-label {
     display: block;
-    font-size: 0.7rem;
+    font-family: var(--font-heading);
+    font-size: 0.72rem;
     text-transform: uppercase;
-    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    color: var(--text-dim, #64748b);
     font-weight: 700;
   }
 
   .info-val {
     font-family: var(--font-heading);
     font-weight: 700;
-    font-size: 1rem;
-    color: var(--text-main);
+    font-size: 1.05rem;
+    color: var(--text-slate, #0f172a);
+    margin-top: 0.1rem;
   }
 }

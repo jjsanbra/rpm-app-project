@@ -8,8 +8,9 @@
 }
 
 .help-text {
-  font-size: 0.8rem;
-  color: var(--text-dim);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--text-dim, #64748b);
   display: flex;
   align-items: center;
   gap: 0.35rem;
@@ -26,15 +27,25 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  border-radius: var(--radius-md, 16px);
+  background: var(--surface-pure, #ffffff);
+  border: 1px solid var(--border-subtle, #e2e8f0);
+  box-shadow: var(--shadow-tier1);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-tier2);
+  }
 
   &.confirmed {
-    border-left: 4px solid var(--status-confirmed);
+    border-left: 4px solid var(--status-confirmed, #10b981);
   }
   &.pending-conf {
-    border-left: 4px solid var(--status-pending);
+    border-left: 4px solid var(--status-pending, #d97706);
   }
   &.disputed {
-    border-left: 4px solid var(--status-disputed);
+    border-left: 4px solid var(--status-disputed, #dc2626);
   }
 }
 
@@ -46,16 +57,17 @@
 
 .m-date {
   font-size: 0.8rem;
-  color: var(--text-muted);
+  color: var(--text-muted, #475569);
+  font-weight: 500;
 }
 
 .versus-layout {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: var(--radius-sm);
+  background: var(--bg-canvas, #f8fafc);
+  border: 1px solid var(--border-subtle, #e2e8f0);
+  border-radius: var(--radius-sm, 8px);
   padding: 1rem;
   gap: 0.5rem;
 }
@@ -67,22 +79,25 @@
   gap: 0.2rem;
 
   &.my-team .name {
-    color: var(--primary);
+    color: var(--primary-turf, #059669);
     font-weight: 800;
   }
   .name {
     font-family: var(--font-heading);
     font-size: 0.95rem;
     font-weight: 700;
-    color: var(--text-main);
+    color: var(--text-slate, #0f172a);
   }
   .you-tag {
+    font-family: var(--font-heading);
     font-size: 0.7rem;
-    color: var(--primary);
+    font-weight: 800;
+    color: var(--primary-turf, #059669);
   }
   .sub {
+    font-family: var(--font-body);
     font-size: 0.75rem;
-    color: var(--text-muted);
+    color: var(--text-dim, #64748b);
   }
 }
 
@@ -93,17 +108,18 @@
   margin-top: 0.35rem;
 
   .sets {
-    font-size: 0.8rem;
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
     font-weight: 800;
-    color: var(--text-main);
+    color: var(--text-slate, #0f172a);
   }
 }
 
 .games-breakdown-pill {
-  background: #f1f5f9;
-  border: 1px dashed #cbd5e1;
+  background: var(--surface-muted, #f1f5f9);
+  border: 1px dashed var(--border-input, #cbd5e1);
   padding: 0.4rem 0.75rem;
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-sm, 8px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -111,18 +127,18 @@
   font-size: 0.8rem;
 
   .pill-label {
-    color: #64748b;
+    color: var(--text-dim, #64748b);
     font-size: 0.75rem;
     text-transform: uppercase;
-    font-weight: 600;
+    font-weight: 700;
   }
   .pill-score {
-    color: #0f172a;
+    color: var(--text-slate, #0f172a);
     font-weight: 700;
     font-size: 0.85rem;
   }
   .pill-games {
-    color: #64748b;
+    color: var(--text-dim, #64748b);
     font-size: 0.75rem;
   }
 }
@@ -130,11 +146,11 @@
 .vs-circle {
   font-size: 0.7rem;
   font-weight: 900;
-  color: var(--text-dim);
+  color: var(--text-dim, #64748b);
   background: #e2e8f0;
   width: 28px;
   height: 28px;
-  border-radius: 50%;
+  border-radius: var(--radius-full, 9999px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -154,7 +170,7 @@
   .live-start-btn {
     background: linear-gradient(135deg, #0891b2 0%, #059669 100%) !important;
     border: none !important;
-    color: #fff !important;
+    color: #ffffff !important;
     font-weight: 700 !important;
 
     &:hover {
@@ -169,60 +185,50 @@
   gap: 0.5rem;
 }
 
-.flex-1 {
-  flex: 1;
-}
-
-.w-full {
-  width: 100%;
-}
+.flex-1 { flex: 1; }
+.w-full { width: 100%; }
 
 .small-hint {
   font-size: 0.75rem;
-  color: var(--text-muted);
+  color: var(--text-dim, #64748b);
   text-align: center;
 }
 
 .waiting-box,
 .confirmed-box,
 .disputed-box {
-  font-size: 0.8rem;
-  padding: 0.6rem 0.8rem;
-  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: var(--radius-sm, 8px);
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
 .waiting-box {
-  background: rgba(245, 158, 11, 0.12);
-  color: #b45309;
-  border: 1px solid rgba(245, 158, 11, 0.25);
+  background: var(--status-pending-bg, rgba(245, 158, 11, 0.12));
+  color: var(--status-pending-text, #b45309);
+  border: 1px solid var(--status-pending-border, rgba(245, 158, 11, 0.25));
 }
 
 .confirmed-box {
-  background: rgba(16, 185, 129, 0.12);
-  color: #047857;
-  border: 1px solid rgba(16, 185, 129, 0.25);
+  background: var(--status-confirmed-bg, rgba(16, 185, 129, 0.12));
+  color: var(--status-confirmed-text, #047857);
+  border: 1px solid var(--status-confirmed-border, rgba(16, 185, 129, 0.25));
 }
 
 .disputed-box {
-  background: rgba(239, 68, 68, 0.12);
-  color: #b91c1c;
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  background: var(--status-disputed-bg, rgba(239, 68, 68, 0.12));
+  color: var(--status-disputed-text, #b91c1c);
+  border: 1px solid var(--status-disputed-border, rgba(239, 68, 68, 0.25));
 }
 
-.text-green {
-  color: var(--primary) !important;
-}
-
-.text-red {
-  color: var(--status-disputed) !important;
-}
+.text-green { color: var(--status-confirmed-text, #047857) !important; }
+.text-red { color: var(--status-disputed-text, #b91c1c) !important; }
 
 .empty-box,
 .loading-box {
-  padding: 3rem;
+  padding: 3.5rem 1rem;
   text-align: center;
-  color: var(--text-muted);
+  color: var(--text-muted, #475569);
 }

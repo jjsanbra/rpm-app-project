@@ -7,7 +7,7 @@ import Aura from '@primeng/themes/aura';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
 import { routes } from './app.routes';
-import { authInterceptor, provideDefaultDateFormat } from '@core';
+import { authInterceptor, provideDefaultDateFormat, PadelThemePreset } from '@core';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -16,7 +16,7 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     provideDefaultDateFormat(),
     providePrimeNG({
-      theme: { preset: Aura, options: { darkModeSelector: false } }
+      theme: { preset: PadelThemePreset, options: { darkModeSelector: false, cssLayer: false } }
     }),
     MessageService,
     ConfirmationService

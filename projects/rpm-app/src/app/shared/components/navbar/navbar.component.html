@@ -78,7 +78,7 @@
           pButton
           severity="success"
           size="small"
-          class="btn-login"
+          class="btn-login btn-primary"
           routerLink="/auth/login">
           <i class="pi pi-user"></i>
           <span>{{ 'NAV.LOGIN' | translate }}</span>
@@ -96,6 +96,27 @@
       </button>
     </div>
   </div>
+
+  <!-- Dev Quick Account Switcher Sub-bar -->
+  @if (isLocal) {
+    <div class="dev-quick-bar">
+      <span class="dev-label"><i class="pi pi-bolt"></i> DEV SWITCH:</span>
+      <div class="dev-chips">
+        <button type="button" class="dev-chip admin-chip" (click)="quickSwitch('admin@padelranking.dev', 'Admin123!')" title="Cambiar a Administrador">
+          👑 Admin
+        </button>
+        <button type="button" class="dev-chip org-chip" (click)="quickSwitch('organizador1@padelranking.dev', 'Org123!')" title="Cambiar a Organizador 1">
+          🏆 Org 1
+        </button>
+        <button type="button" class="dev-chip team-chip" (click)="quickSwitch('equipo1@padelranking.dev', 'Team123!')" title="Cambiar a Los Ases">
+          🎾 Los Ases (T1)
+        </button>
+        <button type="button" class="dev-chip team-chip" (click)="quickSwitch('equipo2@padelranking.dev', 'Team123!')" title="Cambiar a Smash Bros">
+          🎾 Smash Bros (T2)
+        </button>
+      </div>
+    </div>
+  }
 
   <!-- Mobile Navigation Dropdown -->
   @if (mobileMenuOpen()) {

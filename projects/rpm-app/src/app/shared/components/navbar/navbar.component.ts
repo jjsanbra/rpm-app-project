@@ -1,4 +1,4 @@
-import { Component, HostListener, inject, signal } from '@angular/core';
+import { Component, HostListener, inject, signal, isDevMode } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -22,6 +22,25 @@ export class NavbarComponent {
 
   mobileMenuOpen = signal<boolean>(false);
   activeSection = signal<string>('inicio');
+
+  // Solo activo para entorno local / desarrollo
+  isLocal = isDevMode() || (typeof window !== 'undefined' && (
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1' ||
+    window.location.hostname.endsWith('.local')
+  ));
+
+  quickSwitch(email: string, pass: string): void {
+    this.authService.login({ email, password: pass }).subscribe({
+      next: (res) => {
+        if (res.data.user.role === 'ADMIN' || res.data.user.role === 'ORGANIZER') {
+          this.router.navigate(['/admin']);
+        } else {
+          this.router.navigate(['/team']);
+        }
+      }
+    });
+  }
 
   constructor() {
     this.router.events.pipe(
