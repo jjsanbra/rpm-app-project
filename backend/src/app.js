@@ -582,8 +582,26 @@ const rpmAppDist = path.join(distRoot, 'rpm-app/browser');
 
 const staticOptions = {
   setHeaders: (res, filePath) => {
-    if (filePath.endsWith('remoteEntry.json') || filePath.endsWith('index.html') || filePath.endsWith('importmap.json')) {
+    // 1. Manifiestos y puntos de entrada: SIEMPRE frescos (sin caché)
+    if (
+      filePath.endsWith('remoteEntry.json') ||
+      filePath.endsWith('index.html') ||
+      filePath.endsWith('importmap.json') ||
+      filePath.endsWith('federation.manifest.json')
+    ) {
       res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    }
+    // 2. Chunks de JS/CSS y assets con hash: Inmutables durante 1 año
+    else if (
+      /[-.][A-Za-z0-9_-]{6,}\.(js|css|wasm)$/i.test(filePath) ||
+      filePath.includes('/media/') ||
+      filePath.includes('/assets/')
+    ) {
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    }
+    // 3. Resto de estáticos generales
+    else {
+      res.setHeader('Cache-Control', 'public, max-age=3600');
     }
   }
 };
