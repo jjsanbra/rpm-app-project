@@ -10,7 +10,7 @@ export default defineConfig({
       target: './projects/rpm-app/src/app/core/api/endpoints',
       schemas: './projects/rpm-app/src/app/core/api/model',
       client: 'angular',
-      mock: true,
+      mock: false,
       clean: true,
       prettier: false,
     },
