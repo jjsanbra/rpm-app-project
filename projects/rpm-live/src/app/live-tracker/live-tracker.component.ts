@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { AuthService, MatchesService, LiveStreamService, LiveMatchSession, Match, extractErrorMessage } from '@core';
 
@@ -21,6 +21,7 @@ export class LiveTrackerComponent implements OnInit, OnDestroy {
   private matchesService = inject(MatchesService);
   public authService = inject(AuthService);
   private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
   public translate = inject(TranslateService);
 
   matchId = signal<string>('');
@@ -281,31 +282,42 @@ export class LiveTrackerComponent implements OnInit, OnDestroy {
   onSign(): void {
     if (!this.canSign() || this.actionLoading()) return;
 
-    this.actionLoading.set(true);
-    this.matchesService.postApiMatchesIdLiveSign<{ data: LiveMatchSession }>(this.matchId()).subscribe({
-      next: (res) => {
-        this.session.set(res.data);
-        this.actionLoading.set(false);
-        if (res.data.status === 'CONFIRMED') {
-          this.messageService.add({
-            severity: 'success',
-            summary: this.translate.instant('LIVE.SIGNED_AND_CONFIRMED_TITLE'),
-            detail: this.translate.instant('LIVE.SIGNED_AND_CONFIRMED_DETAIL')
-          });
-        } else {
-          this.messageService.add({
-            severity: 'success',
-            summary: this.translate.instant('LIVE.SIGNED_TITLE'),
-            detail: this.translate.instant('LIVE.SIGNED_DETAIL')
-          });
-        }
-      },
-      error: (err) => {
-        this.actionLoading.set(false);
-        this.messageService.add({
-          severity: 'error',
-          summary: this.translate.instant('COMMON.ERROR'),
-          detail: extractErrorMessage(err, 'Error al firmar acta')
+    this.confirmationService.confirm({
+      header: this.translate.instant('LIVE.CONFIRM_SIGN_TITLE'),
+      message: this.translate.instant('LIVE.CONFIRM_SIGN_MSG'),
+      icon: 'pi pi-check-circle text-primary',
+      acceptButtonStyleClass: 'p-button-primary p-button-sm',
+      rejectButtonStyleClass: 'p-button-secondary p-button-outlined p-button-sm',
+      acceptLabel: this.translate.instant('LIVE.SIGN_BTN'),
+      rejectLabel: this.translate.instant('COMMON.CANCEL'),
+      accept: () => {
+        this.actionLoading.set(true);
+        this.matchesService.postApiMatchesIdLiveSign<{ data: LiveMatchSession }>(this.matchId()).subscribe({
+          next: (res) => {
+            this.session.set(res.data);
+            this.actionLoading.set(false);
+            if (res.data.status === 'CONFIRMED') {
+              this.messageService.add({
+                severity: 'success',
+                summary: this.translate.instant('LIVE.SIGNED_AND_CONFIRMED_TITLE'),
+                detail: this.translate.instant('LIVE.SIGNED_AND_CONFIRMED_DETAIL')
+              });
+            } else {
+              this.messageService.add({
+                severity: 'success',
+                summary: this.translate.instant('LIVE.SIGNED_TITLE'),
+                detail: this.translate.instant('LIVE.SIGNED_DETAIL')
+              });
+            }
+          },
+          error: (err) => {
+            this.actionLoading.set(false);
+            this.messageService.add({
+              severity: 'error',
+              summary: this.translate.instant('COMMON.ERROR'),
+              detail: extractErrorMessage(err, 'Error al firmar acta')
+            });
+          }
         });
       }
     });
