@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Ranking, Team, Match, ClassificationRow, Incident, AuditLog, AuxiliaryItem, SubmitResultPayload, LiveMatchSession, LivePointPayload, User } from '../models';
+import { Ranking, Team, Match, ClassificationRow, Incident, AuditLog, AuxiliaryItem, SubmitResultPayload, LiveMatchSession, LivePointPayload, User } from '../api/model';
 
 @Injectable({ providedIn: 'root' })
 export class RankingService {
