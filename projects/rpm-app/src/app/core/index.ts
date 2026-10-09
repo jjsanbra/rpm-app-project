@@ -5,7 +5,7 @@
 // Modelos de datos generados automáticamente por Orval / OpenAPI
 export * from './api/model';
 
-// Servicios de API generados por Orval
+// Servicios de API generados por Orval (100% tipados a partir del contrato OpenAPI)
 export {
   RankingsService,
   TeamsService,
@@ -23,9 +23,9 @@ export {
   AuthService as AuthApiService,
 } from './api/endpoints';
 
-// Servicios de aplicación y compatibilidad
-export * from './services/api.services';
+// Servicios de aplicación compartidos
 export * from './services/auth.service';
+export * from './services/live-stream.service';
 
 // Seguridad, Guards e Interceptores
 export * from './guards/auth.guard';
