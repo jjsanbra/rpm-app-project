@@ -9,13 +9,17 @@ import { SelectModule } from 'primeng/select';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import {
-  RankingService,
-  TeamService,
-  MatchService,
-  IncidentService,
-  AuditService,
-  AuxiliaryService,
-  UserService,
+  RankingsService,
+  TeamsService,
+  MatchesService,
+  IncidentsService,
+  AuditApiService,
+  UsersService,
+  LevelsService,
+  CategoriesService,
+  LocationsService,
+  SponsorsService,
+  RankingTeamsService,
   AuthService,
   Ranking,
   Team,
@@ -61,13 +65,17 @@ import { AdminOrganizersComponent, CreateOrganizerPayload, UpdateOrganizerPayloa
   styleUrl: './admin-dashboard.component.scss'
 })
 export class AdminDashboardComponent implements OnInit {
-  private rankingService = inject(RankingService);
-  private teamService = inject(TeamService);
-  private matchService = inject(MatchService);
-  private incidentService = inject(IncidentService);
-  private auditService = inject(AuditService);
-  private auxService = inject(AuxiliaryService);
-  private userService = inject(UserService);
+  private rankingsService = inject(RankingsService);
+  private teamsService = inject(TeamsService);
+  private matchesService = inject(MatchesService);
+  private incidentsService = inject(IncidentsService);
+  private auditApiService = inject(AuditApiService);
+  private usersService = inject(UsersService);
+  private levelsService = inject(LevelsService);
+  private categoriesService = inject(CategoriesService);
+  private locationsService = inject(LocationsService);
+  private sponsorsService = inject(SponsorsService);
+  private rankingTeamsService = inject(RankingTeamsService);
   private authService = inject(AuthService);
   private messageService = inject(MessageService);
   private translate = inject(TranslateService);
@@ -128,14 +136,20 @@ export class AdminDashboardComponent implements OnInit {
 
   loadOrganizers(): void {
     if (!this.isAdmin()) return;
-    this.userService.getOrganizers().subscribe({
+    this.usersService.getApiUsersOrganizers<{ data: User[] }>().subscribe({
       next: (res) => this.organizers.set(res.data),
       error: () => {}
     });
   }
 
   handleCreateOrganizer(payload: CreateOrganizerPayload): void {
-    this.userService.createOrganizer(payload).subscribe({
+    this.usersService.postApiUsersOrganizers<{ data: User }>({
+      email: payload.email,
+      password: payload.password || '',
+      firstName: payload.firstName,
+      lastName: payload.lastName,
+      phone: payload.phone
+    }).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
@@ -153,7 +167,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   handleUpdateOrganizer(payload: UpdateOrganizerPayload): void {
-    this.userService.updateOrganizer(payload.id, {
+    this.usersService.putApiUsersOrganizersId<{ data: User }>(payload.id, {
       email: payload.email,
       password: payload.password,
       firstName: payload.firstName,
@@ -179,7 +193,7 @@ export class AdminDashboardComponent implements OnInit {
 
   handleDeleteOrganizer(user: User): void {
     if (!confirm(`¿Eliminar organizador ${user.email}?`)) return;
-    this.userService.deleteOrganizer(user.id).subscribe({
+    this.usersService.deleteApiUsersOrganizersId(user.id).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'info',
@@ -198,7 +212,7 @@ export class AdminDashboardComponent implements OnInit {
 
   handleDeleteRanking(ranking: Ranking): void {
     if (!confirm(`¿Estás seguro de que deseas eliminar el ranking "${ranking.name}"?`)) return;
-    this.rankingService.delete(ranking.id).subscribe({
+    this.rankingsService.deleteApiRankingsId(ranking.id).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'info',
@@ -216,13 +230,13 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadAllAuxCatalogs(): void {
-    this.auxService.getItems('levels').subscribe({
+    this.levelsService.getApiLevels<{ data: AuxiliaryItem[] }>().subscribe({
       next: (res) => this.levelsList.set(res.data)
     });
-    this.auxService.getItems('categories').subscribe({
+    this.categoriesService.getApiCategories<{ data: AuxiliaryItem[] }>().subscribe({
       next: (res) => this.categoriesList.set(res.data)
     });
-    this.auxService.getItems('locations').subscribe({
+    this.locationsService.getApiLocations<{ data: AuxiliaryItem[] }>().subscribe({
       next: (res) => this.locationsList.set(res.data)
     });
   }
@@ -238,7 +252,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadRankings(): void {
-    this.rankingService.getAll().subscribe({
+    this.rankingsService.getApiRankings<{ data: Ranking[] }>().subscribe({
       next: (res) => {
         this.rankings.set(res.data);
         if (res.data.length > 0 && !this.selectedRankingId()) {
@@ -250,7 +264,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadTeams(): void {
-    this.teamService.getAll().subscribe({
+    this.teamsService.getApiTeams<{ data: Team[] }>().subscribe({
       next: (res) => this.teams.set(res.data)
     });
   }
@@ -258,25 +272,33 @@ export class AdminDashboardComponent implements OnInit {
   loadMatchesForSelectedRanking(): void {
     const rankingId = this.selectedRankingId();
     if (!rankingId) return;
-    this.matchService.getAll({ rankingId }).subscribe({
+    this.matchesService.getApiMatches<{ data: Match[] }>({ rankingId }).subscribe({
       next: (res) => this.matches.set(res.data)
     });
   }
 
   loadIncidents(): void {
-    this.incidentService.getAll().subscribe({
+    this.incidentsService.getApiIncidents<{ data: Incident[] }>().subscribe({
       next: (res) => this.incidents.set(res.data)
     });
   }
 
   loadAuditLogs(): void {
-    this.auditService.getLogs().subscribe({
+    this.auditApiService.getApiAuditLogs<{ data: AuditLog[] }>().subscribe({
       next: (res) => this.auditLogs.set(res.data)
     });
   }
 
   loadAuxItems(): void {
-    this.auxService.getItems(this.auxType()).subscribe({
+    const type = this.auxType();
+    let obs$;
+    switch (type) {
+      case 'levels': obs$ = this.levelsService.getApiLevels<{ data: AuxiliaryItem[] }>(); break;
+      case 'categories': obs$ = this.categoriesService.getApiCategories<{ data: AuxiliaryItem[] }>(); break;
+      case 'locations': obs$ = this.locationsService.getApiLocations<{ data: AuxiliaryItem[] }>(); break;
+      case 'sponsors': obs$ = this.sponsorsService.getApiSponsors<{ data: AuxiliaryItem[] }>(); break;
+    }
+    obs$?.subscribe({
       next: (res) => {
         this.auxItems.set(res.data);
         this.loadAllAuxCatalogs();
@@ -295,7 +317,7 @@ export class AdminDashboardComponent implements OnInit {
 
   // Ranking actions
   handleCreateRanking(payload: CreateRankingPayload): void {
-    this.rankingService.create({
+    this.rankingsService.postApiRankings<{ data: Ranking }>({
       name: payload.name,
       description: payload.description,
       startDate: payload.startDate,
@@ -303,7 +325,6 @@ export class AdminDashboardComponent implements OnInit {
       locationId: payload.locationId,
       levelId: payload.levelId,
       categoryId: payload.categoryId,
-      active: true,
     }).subscribe({
       next: () => {
         this.messageService.add({
@@ -322,14 +343,14 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   handleUpdateRanking(payload: UpdateRankingPayload): void {
-    this.rankingService.update(payload.id, {
+    this.rankingsService.putApiRankingsId<{ data: Ranking }>(payload.id, {
       name: payload.name,
       description: payload.description,
       startDate: payload.startDate,
       endDate: payload.endDate,
-      locationId: payload.locationId || null as any,
-      levelId: payload.levelId || null as any,
-      categoryId: payload.categoryId || null as any,
+      locationId: payload.locationId || undefined,
+      levelId: payload.levelId || undefined,
+      categoryId: payload.categoryId || undefined,
     }).subscribe({
       next: () => {
         this.messageService.add({
@@ -348,7 +369,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   toggleRankingActive(r: Ranking): void {
-    this.rankingService.toggleActive(r.id, !r.active).subscribe({
+    this.rankingsService.patchApiRankingsIdActive<{ data: Ranking }>(r.id, { active: !r.active }).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'info',
@@ -378,7 +399,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   loadRankingTeams(rankingId: string): void {
-    this.rankingService.getTeams(rankingId).subscribe({
+    this.rankingTeamsService.getApiRankingTeamRegistrationsRankingIdTeams<{ data: Team[] }>(rankingId).subscribe({
       next: (res) => {
         this.rankingEnrolledTeams.set(res.data || []);
         this.loadingRankingTeams.set(false);
@@ -399,7 +420,7 @@ export class AdminDashboardComponent implements OnInit {
     const teamId = this.selectedTeamToEnroll();
     if (!ranking || !teamId) return;
 
-    this.rankingService.enrollTeam(ranking.id, teamId).subscribe({
+    this.rankingTeamsService.postApiRankingTeamRegistrationsRankingIdTeams<{ data: any }>(ranking.id, { teamId }).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
@@ -427,7 +448,7 @@ export class AdminDashboardComponent implements OnInit {
     const ranking = this.manageTeamsRanking();
     if (!ranking) return;
 
-    this.rankingService.unenrollTeam(ranking.id, team.id).subscribe({
+    this.rankingTeamsService.deleteApiRankingTeamRegistrationsRankingIdTeamsTeamId(ranking.id, team.id).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'info',
@@ -452,16 +473,16 @@ export class AdminDashboardComponent implements OnInit {
 
   // Team actions
   handleCreateTeam(payload: CreateTeamPayload): void {
-    this.teamService.create({
+    this.teamsService.postApiTeams<{ data: Team }>({
       name: payload.name,
       player1Name: payload.player1Name,
       player1Surname: payload.player1Surname,
       player2Name: payload.player2Name,
       player2Surname: payload.player2Surname,
-      reserveName: payload.reserveName,
-      reserveSurname: payload.reserveSurname,
-      phone: payload.phone,
-      phone2: payload.phone2,
+      reserveName: payload.reserveName || undefined,
+      reserveSurname: payload.reserveSurname || undefined,
+      phone: payload.phone || undefined,
+      phone2: payload.phone2 || undefined,
       emails: payload.emails,
     }).subscribe({
       next: () => {
@@ -481,16 +502,16 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   handleUpdateTeam(payload: UpdateTeamPayload): void {
-    this.teamService.update(payload.id, {
+    this.teamsService.putApiTeamsId<{ data: Team }>(payload.id, {
       name: payload.name,
       player1Name: payload.player1Name,
       player1Surname: payload.player1Surname,
       player2Name: payload.player2Name,
       player2Surname: payload.player2Surname,
-      reserveName: payload.reserveName,
-      reserveSurname: payload.reserveSurname,
-      phone: payload.phone,
-      phone2: payload.phone2,
+      reserveName: payload.reserveName || undefined,
+      reserveSurname: payload.reserveSurname || undefined,
+      phone: payload.phone || undefined,
+      phone2: payload.phone2 || undefined,
       emails: payload.emails,
     }).subscribe({
       next: () => {
@@ -510,7 +531,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   toggleTeamActive(t: Team): void {
-    this.teamService.toggleActive(t.id, !t.active).subscribe({
+    this.teamsService.patchApiTeamsIdActive<{ data: Team }>(t.id, { active: !t.active }).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'info',
@@ -530,7 +551,7 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   resendTeamWelcome(t: Team): void {
-    this.teamService.resendWelcome(t.id).subscribe({
+    this.teamsService.postApiTeamsIdResendWelcome(t.id).subscribe({
       next: () => this.messageService.add({
         severity: 'success',
         summary: this.translate.instant('ADMIN.EMAIL_SENT_SUCCESS'),
@@ -557,7 +578,7 @@ export class AdminDashboardComponent implements OnInit {
     const ranking = this.rankings().find(r => r.id === rankingId);
     this.generateRankingName.set(ranking ? ranking.name : '');
 
-    this.rankingService.getTeams(rankingId).subscribe({
+    this.rankingTeamsService.getApiRankingTeamRegistrationsRankingIdTeams<{ data: Team[] }>(rankingId).subscribe({
       next: (res) => {
         const enrolled = res.data || [];
         if (enrolled.length < 4) {
@@ -609,9 +630,8 @@ export class AdminDashboardComponent implements OnInit {
     if (!rankingId) return;
 
     const rounds = this.generateRounds();
-    const teamIds = this.generateEnrolledTeams().map(t => t.id);
 
-    this.matchService.generateMatches(rankingId, rounds, teamIds).subscribe({
+    this.rankingTeamsService.postApiRankingTeamRegistrationsRankingIdGenerateMatches<{ data: { message: string; matchesCreated: number } }>(rankingId, { rounds }).subscribe({
       next: (res) => {
         this.showGenerateModal.set(false);
         this.messageService.add({
@@ -630,18 +650,18 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   handleAdminOverride(payload: AdminOverridePayload): void {
-    this.matchService.adminOverride(payload.matchId, {
-      set1TeamOne: payload.set1TeamOne,
-      set1TeamTwo: payload.set1TeamTwo,
-      set2TeamOne: payload.set2TeamOne,
-      set2TeamTwo: payload.set2TeamTwo,
+    this.matchesService.putApiMatchesIdAdminOverride<{ data: Match }>(payload.matchId, {
+      set1TeamOne: payload.set1TeamOne ?? undefined,
+      set1TeamTwo: payload.set1TeamTwo ?? undefined,
+      set2TeamOne: payload.set2TeamOne ?? undefined,
+      set2TeamTwo: payload.set2TeamTwo ?? undefined,
       set3TeamOne: payload.set3TeamOne,
       set3TeamTwo: payload.set3TeamTwo,
-      setsTeamOne: payload.setsTeamOne,
-      setsTeamTwo: payload.setsTeamTwo,
-      status: payload.status,
-      matchDate: payload.matchDate,
-      reason: payload.reason,
+      setsTeamOne: payload.setsTeamOne ?? undefined,
+      setsTeamTwo: payload.setsTeamTwo ?? undefined,
+      status: payload.status as any,
+      matchDate: payload.matchDate ?? undefined,
+      reason: payload.reason ?? undefined,
     }).subscribe({
       next: () => {
         this.messageService.add({
@@ -661,8 +681,8 @@ export class AdminDashboardComponent implements OnInit {
 
   // Incidents actions
   handleResolveIncident(payload: ResolveIncidentPayload): void {
-    this.incidentService.resolve(payload.incidentId, {
-      status: payload.status,
+    this.incidentsService.postApiIncidentsIdResolve<{ data: Incident }>(payload.incidentId, {
+      status: payload.status as any,
       resolution: payload.resolution,
     }).subscribe({
       next: () => {
@@ -683,7 +703,15 @@ export class AdminDashboardComponent implements OnInit {
 
   // Auxiliary actions
   handleCreateAuxItem(payload: any): void {
-    this.auxService.createItem(this.auxType(), payload).subscribe({
+    const type = this.auxType();
+    let obs$;
+    switch (type) {
+      case 'levels': obs$ = this.levelsService.postApiLevels<{ data: AuxiliaryItem }>(payload); break;
+      case 'categories': obs$ = this.categoriesService.postApiCategories<{ data: AuxiliaryItem }>(payload); break;
+      case 'locations': obs$ = this.locationsService.postApiLocations<{ data: AuxiliaryItem }>(payload); break;
+      case 'sponsors': obs$ = this.sponsorsService.postApiSponsors<{ data: AuxiliaryItem }>(payload); break;
+    }
+    obs$?.subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
@@ -701,7 +729,15 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   handleUpdateAuxItem(payload: { id: string; data: any }): void {
-    this.auxService.updateItem(this.auxType(), payload.id, payload.data).subscribe({
+    const type = this.auxType();
+    let obs$;
+    switch (type) {
+      case 'levels': obs$ = this.levelsService.putApiLevelsId<{ data: AuxiliaryItem }>(payload.id, payload.data); break;
+      case 'categories': obs$ = this.categoriesService.putApiCategoriesId<{ data: AuxiliaryItem }>(payload.id, payload.data); break;
+      case 'locations': obs$ = this.locationsService.putApiLocationsId<{ data: AuxiliaryItem }>(payload.id, payload.data); break;
+      case 'sponsors': obs$ = this.sponsorsService.putApiSponsorsId<{ data: AuxiliaryItem }>(payload.id, payload.data); break;
+    }
+    obs$?.subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
@@ -719,7 +755,15 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   handleDeleteAuxItem(id: string): void {
-    this.auxService.deleteItem(this.auxType(), id).subscribe({
+    const type = this.auxType();
+    let obs$;
+    switch (type) {
+      case 'levels': obs$ = this.levelsService.deleteApiLevelsId(id); break;
+      case 'categories': obs$ = this.categoriesService.deleteApiCategoriesId(id); break;
+      case 'locations': obs$ = this.locationsService.deleteApiLocationsId(id); break;
+      case 'sponsors': obs$ = this.sponsorsService.deleteApiSponsorsId(id); break;
+    }
+    obs$?.subscribe({
       next: () => {
         this.messageService.add({
           severity: 'info',

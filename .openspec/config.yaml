@@ -1,0 +1,56 @@
+name: rpm-app-project
+version: 1.0.0
+description: "Plataforma Integral de Gestión de Rankings de Pádel — Monorepo Angular Microfrontends & Express API"
+standard: openspec-v1
+
+context:
+  backend:
+    framework: express
+    runtime: node
+    database: sqlite
+    documentation: openapi-3.0
+    swagger_path: ./backend/src/app.js
+    spec_export: ./backend/openapi.json
+  frontend:
+    framework: angular-22
+    architecture: microfrontends-native-federation
+    ui_library: primeng-v21
+    shared_core: ./projects/rpm-app/src/app/core
+    code_generator: orval
+
+modules:
+  - id: auth
+    name: "Autenticación & Autorización"
+    spec: specs/auth.spec.md
+    mfe: projects/rpm-users
+    backend_routes: backend/src/modules/auth
+  - id: rankings
+    name: "Gestión de Rankings & Competiciones"
+    spec: specs/rankings.spec.md
+    mfe: projects/rpm-rankings
+    backend_routes: backend/src/modules/rankings
+  - id: teams
+    name: "Gestión de Equipos & Parejas"
+    spec: specs/teams.spec.md
+    mfe: projects/rpm-teams
+    backend_routes: backend/src/modules/teams
+  - id: matches
+    name: "Partidos & Resultados"
+    spec: specs/matches.spec.md
+    mfe: projects/rpm-rankings
+    backend_routes: backend/src/modules/matches
+  - id: live
+    name: "Marcador en Directo (Live Match)"
+    spec: specs/live.spec.md
+    mfe: projects/rpm-live
+    backend_routes: backend/src/modules/matches
+  - id: incidents
+    name: "Incidencias & Disputas"
+    spec: specs/incidents.spec.md
+    mfe: projects/rpm-admin
+    backend_routes: backend/src/modules/incidents
+  - id: admin
+    name: "Panel de Administración & Catálogos"
+    spec: specs/admin.spec.md
+    mfe: projects/rpm-admin
+    backend_routes: backend/src/modules/users
