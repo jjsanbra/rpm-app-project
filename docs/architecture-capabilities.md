@@ -32,6 +32,7 @@ El comportamiento de la plataforma está gobernado por las siguientes especifica
 | **Especificación: Partidos y Resultados (Matches)** | [`matches.spec.md`](file:////Users/jjsanquisb/Labs/rpm-app-project/.openspec/specs/matches.spec.md) | `1 Requerimientos` | Especificación funcional del dominio especificación: partidos y resultados (matches). |
 | **Especificación: Gestión de Rankings y Competiciones** | [`rankings.spec.md`](file:////Users/jjsanquisb/Labs/rpm-app-project/.openspec/specs/rankings.spec.md) | `1 Requerimientos` | Especificación funcional del dominio especificación: gestión de rankings y competiciones. |
 | **Especificación: Equipos y Parejas (Teams)** | [`teams.spec.md`](file:////Users/jjsanquisb/Labs/rpm-app-project/.openspec/specs/teams.spec.md) | `1 Requerimientos` | Especificación funcional del dominio especificación: equipos y parejas (teams). |
+| **Especificación: Diálogos de Confirmación UI (PrimeNG)** | [`ui-confirmations.spec.md`](file:////Users/jjsanquisb/Labs/rpm-app-project/.openspec/specs/ui-confirmations.spec.md) | `1 Requerimientos` | Especificación funcional del dominio especificación: diálogos de confirmación ui (primeng). |
 
 ---
 
