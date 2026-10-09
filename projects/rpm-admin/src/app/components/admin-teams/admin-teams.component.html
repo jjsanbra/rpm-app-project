@@ -86,6 +86,16 @@
                 [pTooltip]="'ADMIN.RESEND_EMAIL_BTN' | translate">
                 <i class="pi pi-send"></i>
               </button>
+              <button
+                type="button"
+                pButton
+                severity="danger"
+                size="small"
+                [outlined]="true"
+                (click)="confirmDeleteTeam(t)"
+                [pTooltip]="'ADMIN.DELETE_TEAM_BTN' | translate">
+                <i class="pi pi-trash"></i>
+              </button>
             </div>
           </td>
         </tr>
@@ -244,14 +254,20 @@
       </div>
     </div>
 
-    <div class="modal-actions">
-      <button type="button" pButton severity="secondary" (click)="showEditModal = false">
-        <span>{{ 'COMMON.CANCEL' | translate }}</span>
+    <div class="modal-actions modal-actions--between">
+      <button type="button" pButton severity="danger" size="small" [outlined]="true" (click)="confirmDeleteFromModal()">
+        <i class="pi pi-trash"></i>
+        <span>{{ 'ADMIN.DELETE_TEAM_BTN' | translate }}</span>
       </button>
-      <button type="submit" pButton severity="success">
-        <i class="pi pi-check"></i>
-        <span>{{ 'COMMON.SAVE' | translate }}</span>
-      </button>
+      <div class="right-actions">
+        <button type="button" pButton severity="secondary" size="small" (click)="showEditModal = false">
+          <span>{{ 'COMMON.CANCEL' | translate }}</span>
+        </button>
+        <button type="submit" pButton severity="success" size="small">
+          <i class="pi pi-check"></i>
+          <span>{{ 'COMMON.SAVE' | translate }}</span>
+        </button>
+      </div>
     </div>
   </form>
 </p-dialog>
