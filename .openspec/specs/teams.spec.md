@@ -11,6 +11,7 @@
 * `GET /api/teams/:id`: Detalle del equipo y estadísticas históricas.
 * `POST /api/teams`: Registrar nueva pareja.
 * `PUT /api/teams/:id`: Editar información de la pareja.
+* `DELETE /api/teams/:id`: Eliminar pareja (roles ADMIN y ORGANIZER; bloqueado si tiene partidos).
 * `POST /api/ranking-team-registrations/:rankingId/teams`: Inscribir equipo en un ranking.
 * `DELETE /api/ranking-team-registrations/:rankingId/teams/:teamId`: Desinscribir equipo de un ranking.
 

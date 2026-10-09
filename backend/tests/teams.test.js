@@ -98,4 +98,58 @@ describe('Teams Module Integration Tests', () => {
 
     expect(res.status).toBe(400);
   });
+
+  it('un ADMIN o ORGANIZER puede eliminar un equipo que no tenga partidos vinculados', async () => {
+    // 1. Crear equipo sin partidos
+    const createRes = await request(app)
+      .post('/api/teams')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        name: 'Equipo Para Borrar',
+        player1Name: 'Test1',
+        player1Surname: 'Apellido1',
+        player2Name: 'Test2',
+        player2Surname: 'Apellido2',
+        emails: ['paraborrar@test.com'],
+      });
+    expect(createRes.status).toBe(201);
+    const teamId = createRes.body.data.id;
+
+    // 2. Login como ORGANIZADOR
+    const orgRes = await request(app)
+      .post('/api/auth/login')
+      .send({ email: 'organizador1@padelranking.dev', password: 'Org123!' });
+    const orgToken = orgRes.body.data.token;
+
+    // 3. Eliminar equipo con token de organizador
+    const delRes = await request(app)
+      .delete(`/api/teams/${teamId}`)
+      .set('Authorization', `Bearer ${orgToken}`);
+    expect(delRes.status).toBe(200);
+
+    // 4. Verificar que ya no existe (404)
+    const getRes = await request(app).get(`/api/teams/${teamId}`);
+    expect(getRes.status).toBe(404);
+  });
+
+  it('debe rechazar la eliminación si el usuario es TEAM_USER (403)', async () => {
+    const res = await request(app)
+      .delete('/api/teams/some-team-id')
+      .set('Authorization', `Bearer ${teamToken}`);
+    expect(res.status).toBe(403);
+  });
+
+  it('debe impedir la eliminación (409 Conflict) si el equipo tiene partidos asignados o disputados', async () => {
+    // equipo1 tiene partidos generados en el seed
+    const teams = await request(app).get('/api/teams');
+    const teamWithMatches = teams.body.data[0];
+
+    const res = await request(app)
+      .delete(`/api/teams/${teamWithMatches.id}`)
+      .set('Authorization', `Bearer ${adminToken}`);
+
+    expect(res.status).toBe(409);
+    expect(res.body.error.message).toContain('No se puede eliminar el equipo porque tiene partidos');
+  });
 });
+

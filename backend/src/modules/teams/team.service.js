@@ -140,6 +140,32 @@ async function resendWelcomeEmail(id, rankingName, adminUserId) {
   });
 }
 
+/**
+ * Elimina un equipo si no tiene partidos vinculados.
+ */
+async function remove(id, userId) {
+  const team = getById(id);
+
+  if (teamModel.hasMatches(id)) {
+    throw createError(409, 'No se puede eliminar el equipo porque tiene partidos asignados o disputados. Desactívalo o elimina los partidos primero.');
+  }
+
+  const deleted = teamModel.remove(id);
+  if (!deleted) {
+    throw createError(500, 'No se pudo eliminar el equipo.');
+  }
+
+  await auditService.log({
+    userId,
+    action: 'DELETE_TEAM',
+    entity: 'Team',
+    entityId: id,
+    data: { name: team.name },
+  });
+
+  return { message: 'Equipo eliminado correctamente.' };
+}
+
 // ─── Helpers privados ────────────────────────────────────────────────────────
 
 /**
@@ -204,4 +230,4 @@ function _validateEmails(emails) {
   }
 }
 
-module.exports = { getAll, getById, create, update, toggleActive, resendWelcomeEmail };
+module.exports = { getAll, getById, create, update, toggleActive, resendWelcomeEmail, remove };

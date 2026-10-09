@@ -223,4 +223,28 @@ router.patch('/:id/active', authenticate, authorize('ADMIN'), [
  */
 router.post('/:id/resend-welcome', authenticate, authorize('ADMIN'), ctrl.resendWelcomeEmail);
 
+/**
+ * @swagger
+ * /api/teams/{id}:
+ *   delete:
+ *     summary: Eliminar un equipo (ADMIN y ORGANIZER)
+ *     tags: [Teams]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Equipo eliminado exitosamente
+ *       404:
+ *         description: Equipo no encontrado
+ *       409:
+ *         description: Conflicto (el equipo tiene partidos asignados o disputados)
+ */
+router.delete('/:id', authenticate, authorize('ADMIN', 'ORGANIZER'), ctrl.remove);
+
 module.exports = router;
